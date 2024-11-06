@@ -1,9 +1,6 @@
 
 //config fil skal opsættes i app.js (skulle gerne være gjort på forhånd)
 
-//Sørg for at nagivere korrekt
-cd my-app
-
 //Start med at kør 
 npm install 
 
