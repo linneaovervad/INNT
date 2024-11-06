@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer} from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons'; 
 import { useEffect, useState } from "react";
 import { getApps, initializeApp } from "firebase/app"; 
 import { getDatabase } from "firebase/database";  
+import { StackNavigator } from '@react-navigation/stack';
 
 //importer komponenter
 import Home from './components/home'; 
@@ -16,13 +17,13 @@ import CalendarScreen from './components/calendar';
 
 //firebase konfiguration
 const firebaseConfig = {
-  apiKey: "AIzaSyDB41ewpxTSTir14RDqVKKxpi4YMRxUox8",
-  authDomain: "godkendelsesopgave-2-e168c.firebaseapp.com",
-  databaseURL: "https://godkendelsesopgave-2-e168c-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "godkendelsesopgave-2-e168c",
-  storageBucket: "godkendelsesopgave-2-e168c.appspot.com",
-  messagingSenderId: "727843143579",
-  appId: "1:727843143579:web:2113ec3671d192f00c6b3e"
+  apiKey: "AIzaSyDrVuiKoJ1R5IrJIBzFQxvNH5USGK7ECuY",
+  authDomain: "innt-eksamen.firebaseapp.com",
+  databaseURL: "https://innt-eksamen-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "innt-eksamen",
+  storageBucket: "innt-eksamen.firebasestorage.app",
+  messagingSenderId: "620504677187",
+  appId: "1:620504677187:web:18666f1cf914cab8118df6"
 };
 
 const Tab = createBottomTabNavigator(); // Opret en bundfanenavigator
@@ -40,8 +41,9 @@ export default function App() {
     setDatabaseInstance(db); 
   }, []);
 
-  return ( // Returner bundfanenavigationen med de forskellige skærme og ikoner
-    <NavigationContainer>
+  function LoggedInView() {
+    return(
+      <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size }) => {
@@ -66,8 +68,6 @@ export default function App() {
           tabBarInactiveTintColor: 'gray',
         })}
       >
-      
-    
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Calendar">
           {props => <CalendarScreen {...props} database={databaseInstance} />}
@@ -84,5 +84,22 @@ export default function App() {
 
       </Tab.Navigator>
     </NavigationContainer>
+
+    )
+
+    function AuthView() {
+      return(
+        <NavigationContainer>
+          <StackNavigator>
+            
+          </StackNavigator>
+
+        </NavigationContainer>
+      )
+    }
+  }
+
+  return ( // Returner bundfanenavigationen med de forskellige skærme og ikoner
+    <LoggedInView/>
   );
 }

@@ -45,9 +45,9 @@ export default function ChoreList({ database, navigation }) {
       const filtered = chores.filter((chore) =>
         chore.assignedTo?.personName?.toLowerCase() === searchPerson.toLowerCase() // Filtrer opgaver baseret på personens navn
       );
-      setFilteredChores(filtered);
+      setFilteredChores(filtered); // Opdater filtreret liste
     }
-  }, [searchPerson, chores]);
+  }, [searchPerson, chores]); // Kør, når søgefeltet eller opgavelisten ændres
 
   // Tilføj en ny opgave
   const addChore = () => {
