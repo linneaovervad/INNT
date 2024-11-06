@@ -1,5 +1,5 @@
 
-//config fil skal opsættes i app.js (skulle gerne være gjort på forhånd)
+
 
 //Start med at kør 
 npm install 
@@ -19,5 +19,7 @@ npm install react-native-calendars
 //Kør 
 npx expo start -c
 
+npm install react-native-reanimated@3.10.1
+npm i react-native-async-storage    
 
 

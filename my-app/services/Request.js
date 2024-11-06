@@ -1,4 +1,4 @@
-/*import OpenAI from "openai/index.mjs";
+import OpenAI from "openai/index.mjs";
 import openaiKey from "../env" // Importerer API-nøglen fra miljøfil
 
 // Opretter en ny instans af OpenAI-klassen med API-nøglen
@@ -14,8 +14,4 @@ export default async function SendMessage(messageArray) {
     const result = response.choices[0]?.message?.content || "";
     // Returnerer AI'ens svar med rolle og indhold
     return { role: "assistant", content: result };
-}
-*/
-export default async function SendMessage(){
-    console.log("Test");
 }
