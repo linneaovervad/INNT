@@ -44,7 +44,7 @@ export default function ChatScreen() {
     setMessages([
       {
         _id: 1,
-        text: `Hello, I am ${selectedChatBot.name}, How Can I help you?`,
+        text: `Hello, I am ${selectedChatBot.name}, how can I help you?`,
         createdAt: new Date(),
         user: {
           _id: 2,
