@@ -15,6 +15,8 @@ import People from './components/people';
 import Settings from './components/settings'; 
 import CalendarScreen from './components/calendar'; 
 
+import ChatScreen from './components/ChatScreen';
+
 //firebase konfiguration
 const firebaseConfig = {
   apiKey: "AIzaSyDrVuiKoJ1R5IrJIBzFQxvNH5USGK7ECuY",
@@ -58,6 +60,8 @@ export default function App() {
               iconName = 'people-outline';
             } else if (route.name === 'Settings') {
               iconName = 'settings-outline'; 
+            } else if (route.name === 'Chat Bot') {
+              iconName = 'chatbubble-ellipses'; 
             }
             else if (route.name === 'Task List') {
               iconName = 'camera'; 
@@ -77,6 +81,7 @@ export default function App() {
           {props => <ChoreList {...props} database={databaseInstance} />}
           
         </Tab.Screen>
+        <Tab.Screen name="Chat Bot" component={ChatScreen} />
         <Tab.Screen name="Task List" component={TaskList} />
         <Tab.Screen name="People" component={People} />
         <Tab.Screen name="Settings" component={Settings} />
