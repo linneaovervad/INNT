@@ -27,3 +27,4 @@ npm install react-native-reanimated@3.10.1
 npm i react-native-async-storage    
 
 
+npm i firebase react-native-image-picker @react-native-community/datetimepicker react-native-calendars react-native-reanimated react-native-async-storage

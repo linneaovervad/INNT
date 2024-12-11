@@ -66,7 +66,7 @@ export default function App() {
             else if (route.name === 'Task List') {
               iconName = 'camera'; 
             }
-            return <Icon name={iconName} size={size} color={color} />;
+            return <Icon name={iconName} color={color} size={24} />;
           },
           tabBarActiveTintColor: 'lightblue',
           tabBarInactiveTintColor: 'gray',

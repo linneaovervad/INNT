@@ -1,5 +1,5 @@
 import OpenAI from "openai/index.mjs";
-import openaiKey from "../env" // Importerer API-nøglen fra miljøfil
+import openaiKey from "../env.js" // Importerer API-nøglen fra miljøfil
 
 // Opretter en ny instans af OpenAI-klassen med API-nøglen
 const openai = new OpenAI({apiKey: openaiKey });
