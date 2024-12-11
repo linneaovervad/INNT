@@ -1,12 +1,13 @@
 // components/Settings.js
 import React, { useState } from 'react';
-import { View, Text, Switch, StyleSheet, Button, Alert } from 'react-native';
-import { signOut } from 'firebase/auth'; // Importér signOut
-import { auth } from '../firebase'; // Importér auth fra firebase.js
+import { View, Text, Switch, StyleSheet, Button, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { signOut, deleteUser, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { auth, db } from '../firebase'; // Importér auth fra firebase.js
 
-// Indstillinger-komponenten viser en liste over indstillinger
 export default function Settings({ navigation }) {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [password, setPassword] = useState('');
 
   // Funktion til at skifte status for notifikationer
   const toggleNotifications = () => setIsNotificationsEnabled(previousState => !previousState);
@@ -17,21 +18,21 @@ export default function Settings({ navigation }) {
     // Her kan du navigere til en skærm for at ændre kodeord, f.eks. navigation.navigate('ChangePassword');
   };
 
-  // Funktion til at slette konto
+  // Funktion til at håndtere sletning af konto
   const handleDeleteAccount = () => {
     Alert.alert(
-      "Delete Account",
-      "Are you sure you want to delete your account? This action cannot be undone.",
+      "Slet Konto",
+      "Er du sikker på, at du vil slette din konto? Denne handling kan ikke fortrydes.",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Yes", onPress: () => console.log("Account deleted") } // Her kan du tilføje logik for kontosletning
+        { text: "Yes", onPress: () => setModalVisible(true) } // Åbn modal til password indtastning
       ]
     );
   };
 
   // Funktion til at kontakte support
   const handleContactSupport = () => {
-    Alert.alert("Contact Support", "Support contact options will be available.");
+    Alert.alert("Contact Support", "Support kontaktmuligheder vil være tilgængelige.");
     // Tilføj supportlogik her, f.eks. åbne en e-mail eller en supportchat
   };
 
@@ -39,7 +40,7 @@ export default function Settings({ navigation }) {
   const handleLogout = () => {
     Alert.alert(
       "Logout",
-      "Are you sure you want to logout?",
+      "Er du sikker på, at du vil logge ud?",
       [
         { text: "Cancel", style: "cancel" },
         { 
@@ -47,7 +48,7 @@ export default function Settings({ navigation }) {
           onPress: async () => {
             try {
               await signOut(auth);
-              Alert.alert("Success", "You have been logged out.");
+              Alert.alert("Success", "Du er blevet logget ud.");
             } catch (error) {
               Alert.alert("Error", error.message);
             }
@@ -57,13 +58,38 @@ export default function Settings({ navigation }) {
     );
   };
 
-  // Returner JSX til visning af indstillinger
+  // Funktion til at bekræfte sletning af konto
+  const confirmDeleteAccount = async () => {
+    const user = auth.currentUser;
+    if (user && user.email) {
+      // Opret credential med brugerens email og indtastede password
+      const credential = EmailAuthProvider.credential(user.email, password);
+      try {
+        // Reautentificer brugeren
+        await reauthenticateWithCredential(user, credential);
+        // Slet brugeren
+        await deleteUser(user);
+        Alert.alert("Success", "Din konto er blevet slettet.");
+        // Auth state vil ændres, og App.js vil håndtere navigeringen
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Error", error.message);
+      } finally {
+        setModalVisible(false);
+        setPassword('');
+      }
+    } else {
+      Alert.alert("Error", "Ingen bruger er logget ind.");
+      setModalVisible(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Settings</Text>
+      <Text style={styles.heading}>Indstillinger</Text>
 
       <View style={styles.settingItem}>
-        <Text style={styles.label}>Enable Notifications</Text>
+        <Text style={styles.label}>Aktiver Notifikationer</Text>
         <Switch
           value={isNotificationsEnabled}
           onValueChange={toggleNotifications}
@@ -72,23 +98,61 @@ export default function Settings({ navigation }) {
 
       {/* Knappen til at ændre kodeord */}
       <View style={styles.settingItem}>
-        <Button title="Change Password" onPress={handleChangePassword} />
+        <Button title="Skift Kodeord" onPress={handleChangePassword} />
       </View>
 
       {/* Knappen til at slette konto */}
       <View style={styles.settingItem}>
-        <Button title="Delete Account" onPress={handleDeleteAccount} />
+        <Button title="Slet Konto" onPress={handleDeleteAccount} color="red" />
       </View>
 
       {/* Knappen til at kontakte support */}
       <View style={styles.settingItem}>
-        <Button title="Contact Support" onPress={handleContactSupport} />
+        <Button title="Kontakt Support" onPress={handleContactSupport} />
       </View>
 
       {/* Knappen til at logge ud */}
       <View style={styles.settingItem}>
         <Button title="Logout" onPress={handleLogout} color="red" />
       </View>
+
+      {/* Modal til at indtaste password for sletning */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+          setPassword('');
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Indtast dit kodeord for at bekræfte sletning:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose]}
+                onPress={() => { setModalVisible(false); setPassword(''); }}
+              >
+                <Text style={styles.textStyle}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonDelete]}
+                onPress={confirmDeleteAccount}
+              >
+                <Text style={styles.textStyle}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -112,5 +176,64 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 18,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+    backgroundColor: 'rgba(0,0,0,0.5)', // Semi-transparent baggrund
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: '80%',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    borderRadius: 5,
+    width: '100%',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  button: {
+    borderRadius: 5,
+    padding: 10,
+    elevation: 2,
+    width: '45%',
+    alignItems: 'center',
+  },
+  buttonClose: {
+    backgroundColor: '#bbb',
+  },
+  buttonDelete: {
+    backgroundColor: '#FF6347',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
