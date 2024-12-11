@@ -1,13 +1,14 @@
+// App.js
 import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useEffect, useState } from "react";
-import { getApps, initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "./firebase"; // Importer auth og db fra firebase.js
 
+// Importer dine komponenter
 import Home from "./components/home";
 import ChoreList from "./components/choreList";
 import TaskList from "./components/taskList";
@@ -19,34 +20,15 @@ import ChatScreen from "./components/ChatScreen";
 import LoginScreen from "./components/LoginScreen"; // Login screen
 import SignUpScreen from "./components/SignUpScreen"; // Sign up screen
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDLiVNtD57xdlD8jLqrZphGtTvXVLDvN4k",
-  authDomain: "innt-database.firebaseapp.com",
-  databaseURL:
-    "https://innt-database-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "innt-database",
-  storageBucket: "innt-database.firebasestorage.app",
-  messagingSenderId: "877962403858",
-  appId: "1:877962403858:web:3a9e7bb284068836bb78cb",
-};
-
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 export default function App() {
-  const [databaseInstance, setDatabaseInstance] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (getApps().length === 0) {
-      const app = initializeApp(firebaseConfig);
-      console.log("Firebase initialized!");
-    }
-    const db = getDatabase();
-    setDatabaseInstance(db);
-
-    const auth = getAuth();
+    // Overvåg Auth state ændringer
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -55,11 +37,12 @@ export default function App() {
   }, []);
 
   if (loading) {
-    return null; // Vis evt. en ActivityIndicator
+    // Vis evt. en ActivityIndicator eller en loading screen
+    return null;
   }
 
   if (!user) {
-    // Hvis ingen bruger, vis login/opret bruger flow
+    // Hvis ingen bruger er logget ind, vis login/opret bruger flow
     return (
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -96,17 +79,17 @@ export default function App() {
             },
             tabBarActiveTintColor: "lightblue",
             tabBarInactiveTintColor: "gray",
-            headerTitle: user && user.displayName ? user.displayName : "App",
+            headerTitle: user.displayName ? user.displayName : "App",
           })}
         >
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Calendar">
             {(props) => (
-              <CalendarScreen {...props} database={databaseInstance} />
+              <CalendarScreen {...props} database={db} />
             )}
           </Tab.Screen>
           <Tab.Screen name="Chore List">
-            {(props) => <ChoreList {...props} database={databaseInstance} />}
+            {(props) => <ChoreList {...props} database={db} />}
           </Tab.Screen>
           <Tab.Screen name="Chat Bot" component={ChatScreen} />
           <Tab.Screen name="Task List" component={TaskList} />

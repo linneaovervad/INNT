@@ -1,12 +1,14 @@
+// components/Settings.js
 import React, { useState } from 'react';
 import { View, Text, Switch, StyleSheet, Button, Alert } from 'react-native';
+import { signOut } from 'firebase/auth'; // Importér signOut
+import { auth } from '../firebase'; // Importér auth fra firebase.js
 
 // Indstillinger-komponenten viser en liste over indstillinger
-export default function Settings() {
+export default function Settings({ navigation }) {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
 
   // Funktion til at skifte status for notifikationer
-
   const toggleNotifications = () => setIsNotificationsEnabled(previousState => !previousState);
 
   // Funktion til at håndtere skift af kodeord
@@ -35,12 +37,27 @@ export default function Settings() {
 
   // Funktion til at logge ud
   const handleLogout = () => {
-    Alert.alert("Logout", "You have been logged out.");
-    // Tilføj logik for at logge brugeren ud, f.eks. fjernelse af tokens eller navigering til login-skærmen
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Yes", 
+          onPress: async () => {
+            try {
+              await signOut(auth);
+              Alert.alert("Success", "You have been logged out.");
+            } catch (error) {
+              Alert.alert("Error", error.message);
+            }
+          } 
+        }
+      ]
+    );
   };
 
   // Returner JSX til visning af indstillinger
-
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Settings</Text>
@@ -70,7 +87,7 @@ export default function Settings() {
 
       {/* Knappen til at logge ud */}
       <View style={styles.settingItem}>
-        <Button title="Logout" onPress={handleLogout} />
+        <Button title="Logout" onPress={handleLogout} color="red" />
       </View>
     </View>
   );
