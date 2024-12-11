@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+// components/ImageScreen.js
+import React, { useEffect, useState } from "react";
 import { Dimensions, Image, StyleSheet, View } from "react-native";
 
 // Billedskærm til visning af et billede
@@ -15,7 +16,6 @@ export default function ImageScreen({ route }) {
         };
 
     }, [route.params?.image]); // Lyt på ændringer i billedet
-
 
     return (
         <View style={styles.container}>

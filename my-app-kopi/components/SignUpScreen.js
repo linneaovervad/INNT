@@ -1,13 +1,14 @@
+// components/SignUpScreen.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '../firebase'; // Importer auth fra firebase.js
 
 export default function SignUpScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const auth = getAuth();
 
   const handleSignUp = async () => {
     try {
@@ -15,6 +16,11 @@ export default function SignUpScreen({ navigation }) {
       if (displayName.trim() !== '') {
         await updateProfile(userCredential.user, { displayName: displayName });
       }
+
+      // Efter oprettelse af bruger, naviger tilbage til login-skærmen.
+      navigation.goBack(); 
+      // Eller navigation.navigate('Login') hvis du brugte 'Login' som login route
+
     } catch (error) {
       setErrorMessage(error.message);
     }

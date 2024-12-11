@@ -1,3 +1,4 @@
+// components/home.js
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Importer Ionicons fra expo-pakken
@@ -14,7 +15,7 @@ export default function Home({ navigation }) { // navigation er en prop, der giv
 
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Chore List')}>
                 <Ionicons name="list-outline" size={24} color="#fff" />
-                <Text style={styles.buttonText}>See chore list</Text>
+                <Text style={styles.buttonText}>Se opgaveliste</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('People')}>
@@ -24,12 +25,12 @@ export default function Home({ navigation }) { // navigation er en prop, der giv
 
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Calendar')}>
                 <Ionicons name="calendar-outline" size={24} color="#fff" />
-                <Text style={styles.buttonText}>Calendar</Text>
+                <Text style={styles.buttonText}>Kalender</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Settings')}>
                 <Ionicons name="settings-outline" size={24} color="#fff" />
-                <Text style={styles.buttonText}>Settings</Text>
+                <Text style={styles.buttonText}>Indstillinger</Text>
             </TouchableOpacity>
         </View>
     );
@@ -54,13 +55,6 @@ const styles = StyleSheet.create({
         color: '#333',
         marginBottom: 10,
         textAlign: 'center',
-    },
-    descriptionText: {
-        fontSize: 10,
-        color: '#666',
-        textAlign: 'center',
-        marginBottom: 30,
-        fontWeight: 'bold', 
     },
     button: {
         width: '100%',

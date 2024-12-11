@@ -1,10 +1,12 @@
+// components/calendar.js
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, FlatList, Image } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { ref, onValue } from 'firebase/database';
+import { db } from '../firebase'; // Importer db fra firebase.js
 
 // Kalenderskærm til visning af opgaver på en bestemt dato
-export default function CalendarScreen({ database }) {
+export default function CalendarScreen() {
   const [markedDates, setMarkedDates] = useState({}); // Markeret datoer, som virker ved at trykke på dem
   const [selectedDate, setSelectedDate] = useState(''); // Valgt dato fra kalenderen
   const [chores, setChores] = useState([]); // Alle opgaver fra databasen
@@ -27,22 +29,20 @@ export default function CalendarScreen({ database }) {
 
   // Lyt til opdateringer fra Firebase-databasen
   useEffect(() => {
-    if (database) {
-      const choresRef = ref(database, 'chores'); // Reference til 'chores'-databasen
-      const unsubscribe = onValue(choresRef, (snapshot) => { // Lyt efter ændringer i databasen, snapshot er data fra databasen
-        const data = snapshot.val(); // Hent data fra snapshot
-        if (data) {
-          updateChoresFromDatabase(data); // Opdater de markerede datoer og opgaver
-        } else {
-          setMarkedDates({}); // Ingen data, nulstil markerede datoer og opgaver
-          setChores([]); // Ingen data, nulstil alle opgaver
-          setChoresForSelectedDate([]); // Ingen data, nulstil opgaver for valgt dato
-        }
-      });
+    const choresRef = ref(db, 'chores'); // Reference til 'chores'-databasen
+    const unsubscribe = onValue(choresRef, (snapshot) => { // Lyt efter ændringer i databasen, snapshot er data fra databasen
+      const data = snapshot.val(); // Hent data fra snapshot
+      if (data) {
+        updateChoresFromDatabase(data); // Opdater de markerede datoer og opgaver
+      } else {
+        setMarkedDates({}); // Ingen data, nulstil markerede datoer og opgaver
+        setChores([]); // Ingen data, nulstil alle opgaver
+        setChoresForSelectedDate([]); // Ingen data, nulstil opgaver for valgt dato
+      }
+    });
 
-      return () => unsubscribe();
-    }
-  }, [database]);
+    return () => unsubscribe();
+  }, []);
 
   // Når en dato trykkes, find alle chores på den dato
   const handleDayPress = (day) => { // day indeholder information om den valgte dato
@@ -55,10 +55,15 @@ export default function CalendarScreen({ database }) {
     <View style={styles.container}>
       <Calendar
         onDayPress={handleDayPress}
-        markedDates={markedDates}
+        markedDates={{
+          ...markedDates,
+          [selectedDate]: {
+            ...markedDates[selectedDate],
+            selected: true,
+            selectedColor: 'blue',
+          },
+        }}
       />
-
-
 
       {selectedDate && (
         // Vis opgaver for valgt dato
@@ -71,10 +76,10 @@ export default function CalendarScreen({ database }) {
               keyExtractor={(item) => item.id} // Unik nøgle for hver opgave
               renderItem={({ item }) => (
                 <View style={styles.choreItem}>
-                  <Text style={styles.choreText}>Chore: {item.name}</Text>
-                  <Text style={styles.choreText}>Assigned to: {item.assignedTo?.personName}</Text>
+                  <Text style={styles.choreText}>Opgave: {item.name}</Text>
+                  <Text style={styles.choreText}>Tildelt til: {item.assignedTo?.personName}</Text>
                   <Text style={styles.choreText}>
-                    Status: {item.completed ? 'Finshed' : 'Not finished'}
+                    Status: {item.completed ? 'Færdig' : 'Ikke færdig'}
                   </Text>
                   {item.base64Image ? ( // Hvis der er et billede
                     <Image
@@ -86,7 +91,7 @@ export default function CalendarScreen({ database }) {
               )}
             />
           ) : (
-            <Text style={styles.noChoresText}>No chores today</Text>
+            <Text style={styles.noChoresText}>Ingen opgaver i dag</Text>
           )}
         </View>
       )}

@@ -1,7 +1,8 @@
 // firebase.js
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
-import { getAuth } from "firebase/auth";
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Sørg for at have installeret dette
 
 // Din Firebase-konfiguration
 const firebaseConfig = {
@@ -17,8 +18,12 @@ const firebaseConfig = {
 // Initialiser Firebase App kun én gang
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Initialiser Auth og Database
-const auth = getAuth(app);
+// Initialiser Auth med AsyncStorage persistence
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
+
+// Initialiser Database
 const db = getDatabase(app);
 
 // Eksporter auth og db for at bruge dem i dine komponenter

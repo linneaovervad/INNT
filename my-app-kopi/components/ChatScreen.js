@@ -1,15 +1,16 @@
+// components/ChatScreen.js
 import { View } from 'react-native';
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SafeAreaView } from 'react-native';
-import { useState, useEffect, useCallback } from 'react';
 import { Bubble, GiftedChat, InputToolbar, Send } from 'react-native-gifted-chat';
 import { FontAwesome } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { signOut } from 'firebase/auth';
+import { auth, db } from '../firebase'; // Importer auth og db fra firebase.js
 import ChatFaceData from '../services/ChatDataFace';
 import SendMessage from '../services/Request';
 
 // Standard chatbot avatar
-CHAT_BOT_FACE = 'https://res.cloudinary.com/dknvsbuyy/image/upload/v1685678135/chat_1_c7eda483e3.png';
+let CHAT_BOT_FACE = 'https://res.cloudinary.com/dknvsbuyy/image/upload/v1685678135/chat_1_c7eda483e3.png';
 
 // Hovedkomponenten for chat-skærmen
 export default function ChatScreen() {
@@ -32,10 +33,10 @@ export default function ChatScreen() {
     checkFaceId();
   }, []);
 
-  // Henter den gemte chatbot-id og sætter initial besked samt farve baseret på brugerens valg
-  const checkFaceId = async () => {
-    const id = await AsyncStorage.getItem('chatFaceId');
-    const selectedChatBot = id ? ChatFaceData[id] : ChatFaceData[0]; // Standard chatbot hvis ingen valgt
+  // Funktion til at sætte chatbot-avatar og farve
+  const checkFaceId = () => {
+    // Hvis du ikke bruger AsyncStorage, skal du definere hvilken chatbot der skal bruges
+    const selectedChatBot = ChatFaceData[0]; // Vælg den første chatbot som standard
 
     CHAT_BOT_FACE = selectedChatBot.image; // Sætter chatbot-avatar
     setChatFaceColor(selectedChatBot.primary); // Sætter farven på chat-boblerne

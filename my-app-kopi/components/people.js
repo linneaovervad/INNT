@@ -1,5 +1,8 @@
+// components/people.js
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, Button, Alert, TouchableOpacity, TextInput } from 'react-native';
+// Hvis du tilføjer Firebase-funktionalitet, importér auth og db her
+// import { auth, db } from '../firebase'; 
 
 // Initialiserer en liste med roomies til brug i People-komponenten
 const initialRoomies = [
@@ -17,7 +20,7 @@ export default function People() {
   // Funktion til at tilføje en ny roomie
   const addRoomie = () => {
     if (newRoomieName.trim() === '') { // Tjek om navnet er tomt
-      Alert.alert('Error', 'Please enter a name.');
+      Alert.alert('Fejl', 'Indtast venligst et navn.');
       return;
     }
 
@@ -32,14 +35,14 @@ export default function People() {
 
     //  Tilføj den nye roomie til listen
     setRoomies([...roomies, newRoomie]); // Brug spredning for at tilføje den nye roomie til listen
-    Alert.alert('Success', `${newRoomie.name} has been added!`);
+    Alert.alert('Succes', `${newRoomie.name} er blevet tilføjet!`);
     setNewRoomieName(''); // Clear input felt
   };
 
   // Funktion til at slette en roomie
   const deleteRoomie = (id) => {
     setRoomies(roomies.filter((roomie) => roomie.id !== id));
-    Alert.alert('Deleted', `Roomie has been deleted.`);
+    Alert.alert('Slettet', `Roomie er blevet slettet.`);
   };
 
   //  Returner JSX  til at vise listen over roomies
@@ -61,7 +64,7 @@ export default function People() {
               style={styles.deleteButton}
               onPress={() => deleteRoomie(item.id)} // Kald deleteRoomie-funktionen med roomie-id
             >
-              <Text style={styles.deleteButtonText}>Delete</Text>
+              <Text style={styles.deleteButtonText}>Slet</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -69,12 +72,12 @@ export default function People() {
       
       <TextInput
         style={styles.input}
-        placeholder="Enter roomie's name"
+        placeholder="Indtast roomie's navn"
         value={newRoomieName}
         onChangeText={setNewRoomieName}
       />
 
-      <Button title="Add Roomie" onPress={addRoomie} />
+      <Button title="Tilføj Roomie" onPress={addRoomie} />
     </View>
   );
 }
@@ -124,8 +127,8 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     backgroundColor: '#FF6347',
-    padding: 3,
-    borderRadius: 1,
+    padding: 5,
+    borderRadius: 5,
   },
   deleteButtonText: {
     color: '#fff',
@@ -137,5 +140,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 10,
     marginBottom: 10,
+    borderRadius: 5,
+    backgroundColor: '#fff',
   },
 });

@@ -1,16 +1,18 @@
+// components/LoginScreen.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase'; // Importer auth fra firebase.js
 
-export default function AuthScreen({ navigation }) {
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const auth = getAuth();
 
   const handleSignIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // Hvis succes, vil onAuthStateChanged i App.js opdatere user state
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -40,7 +42,7 @@ export default function AuthScreen({ navigation }) {
 
       <View style={{ height: 10 }} />
       <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-        <Text style={{textAlign:'center',color:'blue',marginTop:10}}>Opret bruger</Text>
+        <Text style={{ textAlign: 'center', color: 'blue', marginTop: 10 }}>Opret bruger</Text>
       </TouchableOpacity>
     </View>
   );
