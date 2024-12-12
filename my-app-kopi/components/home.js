@@ -27,8 +27,13 @@ export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [enlargedImageId, setEnlargedImageId] = useState(null); 
 
   const userId = auth.currentUser ? auth.currentUser.uid : null;
+  
+  const toggleImageSize = (id) => {
+    setEnlargedImageId(enlargedImageId === id ? null : id); // Toggle enlarged state
+  };
 
   useEffect(() => {
     if (userId) {
@@ -39,7 +44,6 @@ export default function Home() {
         orderByChild("assignedTo"),
         equalTo(userId)
       );
-
       const unsubscribeChores = onValue(
         userChoresQuery,
         (snapshot) => {
@@ -63,6 +67,7 @@ export default function Home() {
           setLoading(false);
         }
       );
+ 
 
       // Hent alle brugere for at matche `assignedTo` UID med `displayName`
       const usersRef = ref(db, "users");
@@ -184,11 +189,15 @@ export default function Home() {
             Tildelt til: {getUserName(item.assignedTo)}
           </Text>
           {item.picture ? (
+            <TouchableOpacity onPress={() => toggleImageSize(item.id)}>
             <Image
               source={{ uri: `data:image/jpeg;base64,${item.picture}` }}
-              style={styles.taskImage}
+              style={[
+                styles.choreImage,
+                enlargedImageId === item.id && styles.enlargedImage]}
               resizeMode="cover"
             />
+            </TouchableOpacity>
             ) : null}
             <Text>Description:  </Text>
             <Text>{item.description}</Text>
@@ -288,11 +297,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "gray",
   },
-  taskImage: {
-    width: "150",
-    height: "250",
+  choreImage: {
+    width: 125,
+    height: 175,
     marginTop: 10,
     borderRadius: 8,
     objectFit:"contain",
+  },
+  enlargedImage: {
+    width: 300,
+    height: 400,
   },
 });
