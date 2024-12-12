@@ -1,0 +1,289 @@
+// components/HouseholdDetail.js
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  Alert,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ref, onValue, update, remove, get, query, orderByChild, equalTo } from 'firebase/database';
+import { db } from '../firebase'; // Sørg for at importere din firebase konfiguration
+
+export default function HouseholdDetail({ route, navigation }) {
+  const { householdId, householdName } = route.params;
+  const [household, setHousehold] = useState(null);
+  const [searchEmail, setSearchEmail] = useState('');
+  const [searchResult, setSearchResult] = useState(null);
+
+  useEffect(() => {
+    navigation.setOptions({ title: householdName });
+    const householdRef = ref(db, `households/${householdId}`);
+    const unsubscribe = onValue(householdRef, (snapshot) => {
+      const data = snapshot.val();
+      setHousehold(data);
+    });
+
+    return () => unsubscribe(); // Clean up listener on unmount
+  }, [householdId, householdName, navigation]);
+
+  // Funktion til at søge efter en bruger baseret på e-mail
+  const searchUserByEmail = () => {
+    if (!searchEmail.trim()) {
+      Alert.alert('Fejl', 'Indtast venligst en e-mail at søge efter.');
+      return;
+    }
+
+    const usersRef = ref(db, 'users');
+    const userQuery = query(usersRef, orderByChild('email'), equalTo(searchEmail.trim().toLowerCase()));
+
+    get(userQuery)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const userId = Object.keys(data)[0];
+          setSearchResult({ id: userId, ...data[userId] });
+        } else {
+          setSearchResult(null);
+          Alert.alert('Ingen Resultater', 'Ingen bruger fundet med den angivne e-mail.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error searching user:', error);
+        Alert.alert('Fejl', 'Der opstod en fejl under søgningen.');
+      });
+  };
+
+  // Funktion til at tilføje en bruger til husholdningen
+  const addUserToHousehold = () => {
+    if (!searchResult) {
+      Alert.alert('Fejl', 'Ingen bruger at tilføje.');
+      return;
+    }
+
+    // Tjek om brugeren allerede er medlem
+    if (household.members && household.members[searchResult.id]) {
+      Alert.alert('Info', `${searchResult.name} er allerede medlem af ${household.name}.`);
+      return;
+    }
+
+    const memberRef = ref(db, `households/${householdId}/members/${searchResult.id}`);
+
+    update(memberRef, true)
+      .then(() => {
+        Alert.alert('Success', `${searchResult.name} er blevet tilføjet til ${household.name}.`);
+        setSearchEmail('');
+        setSearchResult(null);
+      })
+      .catch((error) => {
+        console.error('Error adding user to household:', error);
+        Alert.alert('Fejl', 'Der opstod en fejl under tilføjelsen af brugeren.');
+      });
+  };
+
+  // Funktion til at fjerne en bruger fra husholdningen
+  const removeUserFromHousehold = (userId, userName) => {
+    Alert.alert(
+      'Bekræft Fjernelse',
+      `Er du sikker på, at du vil fjerne ${userName} fra ${householdName}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Yes',
+          onPress: () => {
+            const memberRef = ref(db, `households/${householdId}/members/${userId}`);
+            remove(memberRef)
+              .then(() => {
+                Alert.alert('Success', `${userName} er fjernet fra ${householdName}.`);
+              })
+              .catch((error) => {
+                console.error('Error removing user from household:', error);
+                Alert.alert('Fejl', 'Der opstod en fejl under fjernelsen af brugeren.');
+              });
+          },
+        },
+      ]
+    );
+  };
+
+  // Funktion til at hente brugerdata baseret på userId
+  const getUserData = async (userId) => {
+    const userRef = ref(db, `users/${userId}`);
+    try {
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        return snapshot.val();
+      } else {
+        return { name: 'Unknown User', email: 'Unknown' };
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      return { name: 'Unknown User', email: 'Unknown' };
+    }
+  };
+
+  // Render each member item
+  const renderMember = ({ item }) => {
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+      const fetchUser = async () => {
+        const userData = await getUserData(item);
+        setUser(userData);
+      };
+      fetchUser();
+    }, [item]);
+
+    return (
+      <View style={styles.memberItem}>
+        <Text style={styles.memberText}>{user?.name} ({user?.email})</Text>
+        <TouchableOpacity onPress={() => removeUserFromHousehold(item, user?.name)} style={styles.removeButton}>
+          <Ionicons name="remove-circle-outline" size={24} color="red" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* Liste over medlemmer */}
+      <Text style={styles.sectionHeading}>Medlemmer</Text>
+      <FlatList
+        data={household?.members ? Object.keys(household.members) : []}
+        keyExtractor={(item) => item}
+        renderItem={renderMember}
+        ListEmptyComponent={<Text style={styles.emptyText}>Ingen medlemmer i denne husholdning.</Text>}
+      />
+
+      {/* Søg efter og tilføj bruger */}
+      <View style={styles.addUserContainer}>
+        <Text style={styles.sectionHeading}>Tilføj Medlem</Text>
+        <View style={styles.searchContainer}>
+          <TextInput
+            placeholder="Søg Bruger E-mail"
+            value={searchEmail}
+            onChangeText={setSearchEmail}
+            style={styles.inputField}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TouchableOpacity onPress={searchUserByEmail} style={styles.searchButton}>
+            <Ionicons name="search-outline" size={24} color="#fff" />
+            <Text style={styles.searchButtonText}>Søg</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Vis søgeresultater */}
+        {searchResult && (
+          <View style={styles.searchResultContainer}>
+            <Text style={styles.resultText}>Bruger Fundet: {searchResult.name} ({searchResult.email})</Text>
+            <TouchableOpacity onPress={addUserToHousehold} style={styles.addButton}>
+              <Ionicons name="add-circle-outline" size={24} color="#fff" />
+              <Text style={styles.addButtonText}>Tilføj til Husholdning</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#FDFEFE',
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#2E4053',
+  },
+  sectionHeading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 10,
+    color: '#2E4053',
+  },
+  memberItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#D5F5E3',
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  memberText: {
+    fontSize: 16,
+    color: '#196F3D',
+  },
+  removeButton: {
+    padding: 5,
+  },
+  addUserContainer: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: '#D6EAF8',
+    borderRadius: 8,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  inputField: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#AAB7B8',
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: '#EBF5FB',
+  },
+  searchButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2874A6',
+    padding: 10,
+    borderRadius: 8,
+    marginLeft: 10,
+  },
+  searchButtonText: {
+    color: '#fff',
+    marginLeft: 5,
+    fontSize: 16,
+  },
+  searchResultContainer: {
+    padding: 10,
+    backgroundColor: '#D4EFDF',
+    borderRadius: 8,
+  },
+  resultText: {
+    color: '#1E8449',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#28B463',
+    padding: 10,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: '#fff',
+    marginLeft: 5,
+    fontSize: 16,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#5D6D7E',
+    fontSize: 16,
+    marginTop: 10,
+  },
+});

@@ -1,5 +1,6 @@
+// components/ChoreList.js
 import React, { useEffect, useState, useRef } from 'react';
-import { CameraView } from 'expo-camera';
+import { CameraView } from 'expo-camera'; 
 import { StatusBar } from 'expo-status-bar';
 import {
   Button,
@@ -11,7 +12,8 @@ import {
   FlatList,
   SafeAreaView,
   Platform,
-  Image
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ref, onValue, push, remove, update } from 'firebase/database';
@@ -27,7 +29,7 @@ export default function ChoreList({ database, navigation }) {
   const [searchPerson, setSearchPerson] = useState('');
   const [filteredChores, setFilteredChores] = useState([]);
   const [showCamera, setShowCamera] = useState(false);
-  const [type, setType] = useState('back');
+  const [type, setType] = useState('back'); 
   const [permission, setPermission] = useState(null);
   const [currentImage, setCurrentImage] = useState('');
   const [base64Image, setBase64Image] = useState('');
@@ -161,11 +163,11 @@ export default function ChoreList({ database, navigation }) {
   // Permission Handling
   if (permission === null) {
     return (
-      <View style={styles.container}>
-        <Text style={{ textAlign: 'center' }}>
-          We need your permission to show the camera
+      <View style={styles.permissionContainer}>
+        <Text style={styles.permissionText}>
+          Vi har brug for din tilladelse for at vise kameraet
         </Text>
-        <Button onPress={() => setPermission(true)} title="Grant Permission" />
+        <Button onPress={() => setPermission(true)} title="Giv Tilladelse" />
       </View>
     );
   }
@@ -174,35 +176,43 @@ export default function ChoreList({ database, navigation }) {
   return showCamera ? (
     <SafeAreaView style={styles.safeview}>
       <CameraView style={styles.camera} type={type} ref={cameraRef}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.flipbtn} onPress={toggleCameraType}>
+        <View style={styles.cameraButtonContainer}>
+          <TouchableOpacity style={styles.flipButton} onPress={toggleCameraType}>
             <Ionicons name="camera-reverse-outline" size={32} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.snapbtn} onPress={snap} disabled={loading}>
-            <Text style={styles.text}>{loading ? "Loading..." : "Snap"}</Text>
+          <TouchableOpacity
+            style={styles.snapButton}
+            onPress={snap}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.snapButtonText}>Snap</Text>
+            )}
           </TouchableOpacity>
         </View>
       </CameraView>
     </SafeAreaView>
   ) : (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 20, marginBottom: 20 }}>Chore List</Text>
+    <View style={styles.container}>
+      <Text style={styles.heading}>Ny Opgave</Text>
 
       <TextInput
-        placeholder="Add a new chore"
+        placeholder="Tilføj en ny opgave"
         value={newChore}
         onChangeText={setNewChore}
         style={styles.inputField}
       />
 
       <TextInput
-        placeholder="Assign to"
+        placeholder="Tildel til"
         value={assignedPerson}
         onChangeText={setAssignedPerson}
         style={styles.inputField}
       />
 
-      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePickerButton}>
         <Text style={styles.dateText}>
           Deadline: {deadline.toLocaleDateString()}
         </Text>
@@ -217,38 +227,47 @@ export default function ChoreList({ database, navigation }) {
         />
       )}
 
-      <TouchableOpacity onPress={() => setShowCamera(true)}>
-        <Text>Take a Picture</Text>
+      {/* Take a Picture Button */}
+      <TouchableOpacity onPress={() => setShowCamera(true)} style={styles.actionButton}>
+        <Ionicons name="camera-outline" size={20} color="#fff" style={styles.buttonIcon} />
+        <Text style={styles.actionButtonText}>Tag et Billede</Text>
       </TouchableOpacity>
 
+      {/* Display Taken Image */}
       {currentImage ? (
         <Image
           source={{ uri: currentImage }}
-          style={{ width: 200, height: 200, alignSelf: 'center', marginVertical: 10 }}
+          style={styles.takenImage}
           resizeMode="contain"
         />
       ) : null}
 
-      <Button title="Add Chore" onPress={addChore} />
+      {/* Add Chore Button */}
+      <TouchableOpacity onPress={addChore} style={styles.actionButton}>
+        <Ionicons name="add-circle-outline" size={20} color="#fff" style={styles.buttonIcon} />
+        <Text style={styles.actionButtonText}>Tilføj Opgave</Text>
+      </TouchableOpacity>
 
+      {/* Search by Name */}
       <TextInput
-        placeholder="Search by name"
+        placeholder="Søg efter navn"
         value={searchPerson}
         onChangeText={setSearchPerson}
         style={styles.inputField}
       />
 
+      {/* Chore List */}
       <FlatList
         data={filteredChores}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, borderBottomWidth: 1 }}>
-            <View>
-              <Text>{item.name}</Text>
-              <Text>{item.assignedTo?.personName}</Text>
-              <Text>{item.deadline}</Text>
+          <View style={styles.choreItem}>
+            <View style={styles.choreInfo}>
+              <Text style={styles.choreName}>{item.name}</Text>
+              <Text style={styles.choreAssigned}>Tildelt til: {item.assignedTo?.personName}</Text>
+              <Text style={styles.choreDeadline}>Deadline: {item.deadline}</Text>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={styles.choreActions}>
               <TouchableOpacity onPress={() => toggleCompleteChore(item.id, item.completed)}>
                 <Ionicons
                   name={item.completed ? "checkmark-circle" : "ellipse-outline"}
@@ -256,8 +275,8 @@ export default function ChoreList({ database, navigation }) {
                   color={item.completed ? "green" : "grey"}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteChore(item.id)} style={{ marginLeft: 10 }}>
-                <Text style={{ color: 'red' }}>Delete</Text>
+              <TouchableOpacity onPress={() => deleteChore(item.id)} style={styles.deleteButton}>
+                <Ionicons name="trash-outline" size={24} color="red" />
               </TouchableOpacity>
             </View>
           </View>
@@ -266,41 +285,139 @@ export default function ChoreList({ database, navigation }) {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
-  inputField: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
+  permissionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
   },
-  dateText: {
+  permissionText: {
+    textAlign: 'center',
+    marginBottom: 20,
     fontSize: 16,
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#FDEDEC',
   },
-  safeview: {
+  heading: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
+  },
+  inputField: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 12,
+    marginBottom: 15,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+  },
+  datePickerButton: {
+    padding: 12,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
+    justifyContent: 'center',
+  },
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  buttonIcon: {
+    marginRight: 5,
+  },
+  takenImage: {
+    width: '100%',
+    height: 200,
+    alignSelf: 'center',
+    marginBottom: 15,
+    borderRadius: 8,
+  },
+  cameraButtonContainer: {
     flex: 1,
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    margin: 20,
+  },
+  flipButton: {
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    padding: 10,
+    borderRadius: 50,
+  },
+  snapButton: {
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    padding: 10,
+    borderRadius: 50,
+  },
+  snapButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
   camera: {
     flex: 1,
   },
-  buttonContainer: {
+  safeview: {
+    flex: 1,
+  },
+  choreItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 20,
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
   },
-  snapbtn: {
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 50,
+  choreInfo: {
+    flex: 1,
   },
-  flipbtn: {
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 50,
+  choreName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  choreAssigned: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  choreDeadline: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  choreActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    marginLeft: 15,
   },
 });

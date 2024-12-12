@@ -4,15 +4,15 @@ import { getDatabase } from "firebase/database";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Sørg for at have installeret dette
 
-// Din Firebase-konfiguration
 const firebaseConfig = {
-  apiKey: "AIzaSyDLiVNtD57xdlD8jLqrZphGtTvXVLDvN4k",
-  authDomain: "innt-database.firebaseapp.com",
-  databaseURL: "https://innt-database-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "innt-database",
-  storageBucket: "innt-database.firebasestorage.app",
-  messagingSenderId: "877962403858",
-  appId: "1:877962403858:web:3a9e7bb284068836bb78cb",
+  apiKey: "AIzaSyCueWm2L7Ri18xA9zM5bHn-9TaTNsF8Xxc",
+  authDomain: "innt-chore.firebaseapp.com",
+  databaseURL:
+    "https://innt-chore-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "innt-chore",
+  storageBucket: "innt-chore.firebasestorage.app",
+  messagingSenderId: "1014946859893",
+  appId: "1:1014946859893:web:34fd5f1807cac9266de13c",
 };
 
 // Initialiser Firebase App kun én gang
