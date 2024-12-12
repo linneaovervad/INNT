@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,17 +11,17 @@ import {
   SafeAreaView,
   Image,
   ActivityIndicator,
-} from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { ref, onValue, push, remove, update } from 'firebase/database';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { CameraView } from 'expo-camera';
-import * as FileSystem from 'expo-file-system';
-import Toast from 'react-native-toast-message';
+} from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { ref, onValue, push, remove, update } from "firebase/database";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { CameraView } from "expo-camera";
+import * as FileSystem from "expo-file-system";
+import Toast from "react-native-toast-message";
 
 export default function ChoreList({ database }) {
   const [chores, setChores] = useState([]);
-  const [newChore, setNewChore] = useState('');
+  const [newChore, setNewChore] = useState("");
   const [assignedPerson, setAssignedPerson] = useState(null);
   const [householdMembers, setHouseholdMembers] = useState([]);
   const [deadline, setDeadline] = useState(new Date());
@@ -29,10 +29,10 @@ export default function ChoreList({ database }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [type, setType] = useState('back');
+  const [type, setType] = useState("back");
   const [permission, setPermission] = useState(null);
-  const [currentImage, setCurrentImage] = useState('');
-  const [base64Image, setBase64Image] = useState('');
+  const [currentImage, setCurrentImage] = useState("");
+  const [base64Image, setBase64Image] = useState("");
   const [loading, setLoading] = useState(false);
   const cameraRef = useRef();
 
@@ -40,7 +40,7 @@ export default function ChoreList({ database }) {
   useEffect(() => {
     const requestPermission = async () => {
       const { status } = await CameraView.requestCameraPermissionsAsync();
-      setPermission(status === 'granted');
+      setPermission(status === "granted");
     };
     requestPermission();
   }, []);
@@ -53,20 +53,20 @@ export default function ChoreList({ database }) {
       });
       return base64Data;
     } catch (error) {
-      console.error('Error converting image to base64:', error);
+      console.error("Error converting image to base64:", error);
       return null;
     }
   };
 
   // Toggle Camera Type
   const toggleCameraType = () => {
-    setType((current) => (current === 'back' ? 'front' : 'back'));
+    setType((current) => (current === "back" ? "front" : "back"));
   };
 
   // Take Picture
   const snap = async () => {
     if (!cameraRef.current) {
-      console.log('Camera reference is not available');
+      console.log("Camera reference is not available");
       return;
     }
 
@@ -78,34 +78,17 @@ export default function ChoreList({ database }) {
       setCurrentImage(result.uri);
       setBase64Image(base64);
     } catch (error) {
-      console.error('Error taking picture:', error);
+      console.error("Error taking picture:", error);
     } finally {
       setLoading(false);
       setShowCamera(false);
     }
   };
 
-  // Delete Chore
-  const deleteChore = (id) => {
-    const choreRef = ref(database, `chores/${id}`);
-    remove(choreRef).catch((error) =>
-      console.error("Error deleting chore:", error)
-    );
-  };
-
-  // Toggle Chore Completion
-  const toggleCompleteChore = (id, currentStatus) => {
-    const choreRef = ref(database, `chores/${id}`);
-    update(choreRef, { completed: !currentStatus }).catch((error) =>
-      console.error("Error updating chore status:", error)
-    );
-  };
-
-
   // Fetch data from database
   useEffect(() => {
     if (database) {
-      const choresRef = ref(database, 'chores');
+      const choresRef = ref(database, "chores");
       onValue(choresRef, (snapshot) => {
         const data = snapshot.val();
         const taskList = data
@@ -114,14 +97,14 @@ export default function ChoreList({ database }) {
         setChores(taskList);
       });
 
-      const membersRef = ref(database, 'users');
+      const membersRef = ref(database, "users");
       onValue(membersRef, (snapshot) => {
         const data = snapshot.val();
         const membersList = data
           ? Object.keys(data).map((key) => ({
-            id: key,
-            displayName: data[key].displayName,
-          }))
+              id: key,
+              displayName: data[key].displayName,
+            }))
           : [];
         setHouseholdMembers(membersList);
       });
@@ -129,11 +112,11 @@ export default function ChoreList({ database }) {
   }, [database]);
 
   // Add a new chore
-const addChore = () => {
-  if (!newChore.trim() || !assignedPerson) {
-    Alert.alert('Fejl', 'Udfyld alle felter før tilføjelse af en opgave.');
-    return;
-  }
+  const addChore = () => {
+    if (!newChore.trim() || !assignedPerson) {
+      Alert.alert("Error", "Fill all the fields.");
+      return;
+    }
 
   const choresRef = ref(database, 'chores');
   push(choresRef, {
@@ -156,23 +139,32 @@ const addChore = () => {
         text2: 'Opgave tilføjet!',
       });
     })
-    .catch((error) => {
-      console.error('Error adding chore:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Fejl',
-        text2: 'Der opstod en fejl ved tilføjelse af opgaven.',
+      .then(() => {
+        setNewChore("");
+        setAssignedPerson(null);
+        setDeadline(new Date());
+        Toast.show({
+          type: "success",
+          text1: "Succes",
+          text2: "Opgave tilføjet!",
+        });
+      })
+      .catch((error) => {
+        console.error("Error adding chore:", error);
+        Toast.show({
+          type: "error",
+          text1: "Fejl",
+          text2: "Der opstod en fejl ved tilføjelse af opgaven.",
+        });
       });
-    });
-};
-
+  };
 
   // Handle date picker changes
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) {
       setDeadline(selectedDate);
     }
-    if (Platform.OS === 'android') {
+    if (Platform.OS === "android") {
       setShowDatePicker(false);
     }
   };
@@ -181,7 +173,10 @@ const addChore = () => {
     <SafeAreaView style={styles.safeview}>
       <CameraView style={styles.camera} type={type} ref={cameraRef}>
         <View style={styles.cameraButtonContainer}>
-          <TouchableOpacity style={styles.flipButton} onPress={toggleCameraType}>
+          <TouchableOpacity
+            style={styles.flipButton}
+            onPress={toggleCameraType}
+          >
             <Ionicons name="camera-reverse-outline" size={32} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -213,7 +208,7 @@ const addChore = () => {
         onPress={() => setShowDropdown(true)}
       >
         <Text style={styles.dropdownButtonText}>
-          {assignedPerson?.displayName || 'Assign to: Select a person'}
+          {assignedPerson?.displayName || "Assign to: Select a person"}
         </Text>
         <Ionicons name="chevron-down-outline" size={20} color="#333" />
       </TouchableOpacity>
@@ -238,7 +233,9 @@ const addChore = () => {
                     setShowDropdown(false);
                   }}
                 >
-                  <Text style={styles.dropdownItemText}>{item.displayName}</Text>
+                  <Text style={styles.dropdownItemText}>
+                    {item.displayName}
+                  </Text>
                 </TouchableOpacity>
               )}
             />
@@ -283,8 +280,6 @@ const addChore = () => {
         <Text style={styles.actionButtonText}>Take a picture</Text>
       </TouchableOpacity>
 
-
-
       <TouchableOpacity onPress={addChore} style={styles.actionButton}>
         <Ionicons
           name="add-circle-outline"
@@ -302,13 +297,17 @@ const addChore = () => {
           resizeMode="contain"
         />
       ) : null}
-
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  dropdownButton: { flexDirection: 'row', padding: 12, marginBottom: 15, borderRadius: 8 },
+  dropdownButton: {
+    flexDirection: "row",
+    padding: 12,
+    marginBottom: 15,
+    borderRadius: 8,
+  },
 
   permissionContainer: {
     flex: 1,
@@ -456,52 +455,40 @@ const styles = StyleSheet.create({
   deleteButton: {
     marginLeft: 15,
   },
-  dropdownContainer: { width: '80%', backgroundColor: '#fff', borderRadius: 8, padding: 15 },
-  dropdownTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-  dropdownItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' },
-  dropdownItemText: { fontSize: 16, color: '#333' },
-  dropdownButton: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, padding: 12, borderRadius: 8, backgroundColor: '#fff', marginBottom: 15 },
-  dropdownButtonText: { fontSize: 16, color: '#333' },
-  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
-  dropdownContainer: { width: '80%', backgroundColor: '#fff', borderRadius: 8, padding: 15 },
+  dropdownContainer: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 15,
+  },
+  dropdownTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  dropdownItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  dropdownItemText: { fontSize: 16, color: "#333" },
+  dropdownButton: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    marginBottom: 15,
+  },
+  dropdownButtonText: { fontSize: 16, color: "#333" },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  dropdownContainer: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 15,
+  },
 });
-
-
-
-
-
-
-      {/* <FlatList
-        data={chores}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.choreItem}>
-            <View style={styles.choreInfo}>
-              <Text style={styles.choreName}>{item.name}</Text>
-              <Text style={styles.choreAssigned}>
-                Assigned to: {item.assignedTo?.personName || 'Unassigned'}
-              </Text>
-              <Text style={styles.choreDeadline}>
-                Deadline: {item.deadline}
-              </Text>
-              <Image source={{ uri: item.picture }} style={styles.takenImage} />
-              <TouchableOpacity
-                onPress={() => toggleCompleteChore(item.id, item.completed)}
-              >
-                <Ionicons
-                  name={item.completed ? "checkmark-circle" : "ellipse-outline"}
-                  size={24}
-                  color={item.completed ? "green" : "grey"}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => deleteChore(item.id)}
-                style={styles.deleteButton}
-              >
-                <Ionicons name="trash-outline" size={24} color="red" />
-              </TouchableOpacity>
-
-            </View>
-          </View> */}
-        {/* )}
-      /> */}

@@ -61,8 +61,8 @@ export default function Home() {
           console.error("Error fetching tasks:", error);
           Toast.show({
             type: "error",
-            text1: "Fejl",
-            text2: "Kunne ikke hente opgaver.",
+            text1: "Error",
+            text2: "Couldn't get chores.",
           });
           setLoading(false);
         }
@@ -87,8 +87,8 @@ export default function Home() {
           console.error("Error fetching users:", error);
           Toast.show({
             type: "error",
-            text1: "Fejl",
-            text2: "Kunne ikke hente brugere.",
+            text1: "Error",
+            text2: "Couldn't get users.",
           });
         }
       );
@@ -103,12 +103,12 @@ export default function Home() {
 
   const handleDelete = (taskId) => {
     Alert.alert(
-      "Slet Opgave",
-      "Er du sikker på, at du vil slette denne opgave?",
+      "Delete Chore",
+      "Are you sure you want to delete this chore?",
       [
-        { text: "Annuller", style: "cancel" },
+        { text: "Cancle", style: "cancel" },
         {
-          text: "Ja",
+          text: "Yes",
           onPress: () => {
             const taskRef = ref(db, `chores/${taskId}`);
             remove(taskRef)
@@ -116,15 +116,15 @@ export default function Home() {
                 Toast.show({
                   type: "success",
                   text1: "Succes",
-                  text2: "Opgave slettet.",
+                  text2: "Chore deleted.",
                 });
               })
               .catch((error) => {
                 console.error("Error deleting task:", error);
                 Toast.show({
                   type: "error",
-                  text1: "Fejl",
-                  text2: "Kunne ikke slette opgaven.",
+                  text1: "Error",
+                  text2: "Couldn't delete chore.",
                 });
               });
           },
@@ -142,17 +142,15 @@ export default function Home() {
         Toast.show({
           type: "success",
           text1: "Succes",
-          text2: `Opgave markeret som ${
-            newStatus ? "færdig" : "ikke færdig"
-          }.`,
+          text2: `Chore marked as ${newStatus ? "Done" : "Not done"}.`,
         });
       })
       .catch((error) => {
-        console.error("Error updating task status:", error);
+        console.error("Error updating chore status:", error);
         Toast.show({
           type: "error",
-          text1: "Fejl",
-          text2: "Kunne ikke opdatere opgavens status.",
+          text1: "Error",
+          text2: "Couldn't update chore.",
         });
       });
   };
@@ -165,9 +163,7 @@ export default function Home() {
   const renderItem = ({ item }) => (
     <View style={styles.taskItem}>
       <View style={styles.taskInfo}>
-        <TouchableOpacity
-          onPress={() => toggleStatus(item.id, item.completed)}
-        >
+        <TouchableOpacity onPress={() => toggleStatus(item.id, item.completed)}>
           <Ionicons
             name={item.completed ? "checkmark-circle" : "ellipse-outline"}
             size={24}
@@ -176,17 +172,12 @@ export default function Home() {
           />
         </TouchableOpacity>
         <View style={styles.taskDetails}>
-          <Text
-            style={[
-              styles.taskTitle,
-              item.completed && styles.taskDone,
-            ]}
-          >
+          <Text style={[styles.taskTitle, item.completed && styles.taskDone]}>
             {item.name}
           </Text>
           <Text style={styles.taskDeadline}>Deadline: {item.deadline}</Text>
           <Text style={styles.taskAssigned}>
-            Tildelt til: {getUserName(item.assignedTo)}
+            Assigned to: {getUserName(item.assignedTo)}
           </Text>
           {item.picture ? (
             <TouchableOpacity onPress={() => toggleImageSize(item.id)}>
@@ -221,7 +212,7 @@ export default function Home() {
     <View style={styles.container}>
       {tasks.length === 0 ? (
         <View style={styles.noTasksContainer}>
-          <Text style={styles.noTasksText}>Du har ingen opgaver.</Text>
+          <Text style={styles.noTasksText}>You have no chores.</Text>
         </View>
       ) : (
         <FlatList
