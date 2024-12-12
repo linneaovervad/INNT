@@ -45,8 +45,8 @@ export default function Settings({ navigation }) {
       "Er du sikker på, at du vil logge ud?",
       [
         { text: "Cancel", style: "cancel" },
-        { 
-          text: "Yes", 
+        {
+          text: "Yes",
           onPress: async () => {
             try {
               await signOut(auth);
@@ -55,7 +55,7 @@ export default function Settings({ navigation }) {
             } catch (error) {
               Alert.alert("Error", error.message);
             }
-          } 
+          }
         }
       ]
     );
@@ -70,7 +70,7 @@ export default function Settings({ navigation }) {
       try {
         // Reautentificer brugeren
         await reauthenticateWithCredential(user, credential);
-        
+
         // Slet brugerens data fra Realtime Database
         const userDataRef = ref(db, `users/${user.uid}`);
         await remove(userDataRef);

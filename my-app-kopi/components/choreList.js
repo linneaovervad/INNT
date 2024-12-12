@@ -1,35 +1,33 @@
-// components/ChoreList.js
 import React, { useEffect, useState, useRef } from 'react';
-import { CameraView } from 'expo-camera'; 
-import { StatusBar } from 'expo-status-bar';
 import {
-  Button,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   TextInput,
   FlatList,
-  SafeAreaView,
+  Modal,
   Platform,
+  SafeAreaView,
   Image,
   ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ref, onValue, push, remove, update } from 'firebase/database';
-import * as FileSystem from 'expo-file-system';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { CameraView } from 'expo-camera';
+import * as FileSystem from 'expo-file-system';
 
-export default function ChoreList({ database, navigation }) {
+export default function ChoreList({ database }) {
   const [chores, setChores] = useState([]);
   const [newChore, setNewChore] = useState('');
-  const [assignedPerson, setAssignedPerson] = useState('');
+  const [assignedPerson, setAssignedPerson] = useState(null);
+  const [householdMembers, setHouseholdMembers] = useState([]);
   const [deadline, setDeadline] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [searchPerson, setSearchPerson] = useState('');
-  const [filteredChores, setFilteredChores] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [type, setType] = useState('back'); 
+  const [type, setType] = useState('back');
   const [permission, setPermission] = useState(null);
   const [currentImage, setCurrentImage] = useState('');
   const [base64Image, setBase64Image] = useState('');
@@ -45,34 +43,6 @@ export default function ChoreList({ database, navigation }) {
     requestPermission();
   }, []);
 
-  // Database Hook
-  useEffect(() => {
-    if (database) {
-      const choresRef = ref(database, 'chores');
-      onValue(choresRef, (snapshot) => {
-        const data = snapshot.val();
-        const taskList = data
-          ? Object.keys(data).map((key) => ({ id: key, ...data[key] }))
-          : [];
-        setChores(taskList);
-      });
-    }
-  }, [database]);
-
-  // Search and Filter Hook
-  useEffect(() => {
-    if (searchPerson.trim() === '') {
-      setFilteredChores(chores);
-    } else {
-      const filtered = chores.filter(
-        (chore) =>
-          chore.assignedTo?.personName?.toLowerCase() ===
-          searchPerson.toLowerCase()
-      );
-      setFilteredChores(filtered);
-    }
-  }, [searchPerson, chores]);
-
   // Convert Image to Base64
   const convertImageToBase64 = async (fileUri) => {
     try {
@@ -84,6 +54,11 @@ export default function ChoreList({ database, navigation }) {
       console.error('Error converting image to base64:', error);
       return null;
     }
+  };
+
+  // Toggle Camera Type
+  const toggleCameraType = () => {
+    setType((current) => (current === 'back' ? 'front' : 'back'));
   };
 
   // Take Picture
@@ -108,32 +83,11 @@ export default function ChoreList({ database, navigation }) {
     }
   };
 
-  // Add Chore to Database
-  const addChore = () => {
-    if (!newChore.trim() || !assignedPerson.trim()) return;
-
-    const choresRef = ref(database, 'chores');
-    push(choresRef, {
-      name: newChore,
-      assignedTo: { personName: assignedPerson },
-      deadline: deadline.toISOString().split('T')[0],
-      completed: false,
-      base64Image,
-    })
-      .then(() => {
-        setNewChore('');
-        setAssignedPerson('');
-        setDeadline(new Date());
-        setBase64Image('');
-      })
-      .catch((error) => console.error('Error adding chore:', error));
-  };
-
   // Delete Chore
   const deleteChore = (id) => {
     const choreRef = ref(database, `chores/${id}`);
     remove(choreRef).catch((error) =>
-      console.error('Error deleting chore:', error)
+      console.error("Error deleting chore:", error)
     );
   };
 
@@ -141,11 +95,63 @@ export default function ChoreList({ database, navigation }) {
   const toggleCompleteChore = (id, currentStatus) => {
     const choreRef = ref(database, `chores/${id}`);
     update(choreRef, { completed: !currentStatus }).catch((error) =>
-      console.error('Error updating chore status:', error)
+      console.error("Error updating chore status:", error)
     );
   };
 
-  // Date Picker Change
+
+  // Fetch data from database
+  useEffect(() => {
+    if (database) {
+      const choresRef = ref(database, 'chores');
+      onValue(choresRef, (snapshot) => {
+        const data = snapshot.val();
+        const taskList = data
+          ? Object.keys(data).map((key) => ({ id: key, ...data[key] }))
+          : [];
+        setChores(taskList);
+      });
+
+      const membersRef = ref(database, 'users');
+      onValue(membersRef, (snapshot) => {
+        const data = snapshot.val();
+        const membersList = data
+          ? Object.keys(data).map((key) => ({
+            id: key,
+            displayName: data[key].displayName,
+          }))
+          : [];
+        setHouseholdMembers(membersList);
+      });
+    }
+  }, [database]);
+
+  // Add a new chore
+  const addChore = () => {
+    if (!newChore.trim() || !assignedPerson?.displayName) {
+      alert('Please fill in all fields before adding a chore.');
+      return;
+    }
+    const choresRef = ref(database, 'chores');
+    push(choresRef, {
+      name: newChore,
+      assignedTo: {
+        personId: assignedPerson.id,
+        personName: assignedPerson.displayName
+      },
+      deadline: deadline.toISOString().split('T')[0],
+      completed: false,
+      picture: base64Image,
+    })
+      .then(() => {
+        setNewChore('');
+        setAssignedPerson(null);
+        setDeadline(new Date());
+      })
+      .catch((error) => console.error('Error adding chore:', error));
+  };
+
+  // Handle date picker changes
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) {
       setDeadline(selectedDate);
@@ -155,24 +161,6 @@ export default function ChoreList({ database, navigation }) {
     }
   };
 
-  // Toggle Camera Type
-  const toggleCameraType = () => {
-    setType((current) => (current === 'back' ? 'front' : 'back'));
-  };
-
-  // Permission Handling
-  if (permission === null) {
-    return (
-      <View style={styles.permissionContainer}>
-        <Text style={styles.permissionText}>
-          Vi har brug for din tilladelse for at vise kameraet
-        </Text>
-        <Button onPress={() => setPermission(true)} title="Giv Tilladelse" />
-      </View>
-    );
-  }
-
-  // Render Camera or Chore List
   return showCamera ? (
     <SafeAreaView style={styles.safeview}>
       <CameraView style={styles.camera} type={type} ref={cameraRef}>
@@ -188,7 +176,7 @@ export default function ChoreList({ database, navigation }) {
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.snapButtonText}>Snap</Text>
+              <Text style={styles.snapButtonText}>Take picture</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -196,23 +184,56 @@ export default function ChoreList({ database, navigation }) {
     </SafeAreaView>
   ) : (
     <View style={styles.container}>
-      <Text style={styles.heading}>Ny Opgave</Text>
-
+      <Text style={styles.heading}>New Chore</Text>
       <TextInput
-        placeholder="Tilføj en ny opgave"
+        placeholder="Add a new chore"
         value={newChore}
         onChangeText={setNewChore}
         style={styles.inputField}
       />
 
-      <TextInput
-        placeholder="Tildel til"
-        value={assignedPerson}
-        onChangeText={setAssignedPerson}
-        style={styles.inputField}
-      />
+      <TouchableOpacity
+        style={styles.dropdownButton}
+        onPress={() => setShowDropdown(true)}
+      >
+        <Text style={styles.dropdownButtonText}>
+          {assignedPerson?.displayName || 'Assign to: Select a person'}
+        </Text>
+        <Ionicons name="chevron-down-outline" size={20} color="#333" />
+      </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePickerButton}>
+      <Modal
+        transparent
+        visible={showDropdown}
+        animationType="slide"
+        onRequestClose={() => setShowDropdown(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.dropdownContainer}>
+            <Text style={styles.dropdownTitle}>Select a person</Text>
+            <FlatList
+              data={householdMembers}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setAssignedPerson(item);
+                    setShowDropdown(false);
+                  }}
+                >
+                  <Text style={styles.dropdownItemText}>{item.displayName}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      <TouchableOpacity
+        onPress={() => setShowDatePicker(true)}
+        style={styles.datePickerButton}
+      >
         <Text style={styles.dateText}>
           Deadline: {deadline.toLocaleDateString()}
         </Text>
@@ -226,14 +247,31 @@ export default function ChoreList({ database, navigation }) {
           onChange={onDateChange}
         />
       )}
-
-      {/* Take a Picture Button */}
-      <TouchableOpacity onPress={() => setShowCamera(true)} style={styles.actionButton}>
-        <Ionicons name="camera-outline" size={20} color="#fff" style={styles.buttonIcon} />
-        <Text style={styles.actionButtonText}>Tag et Billede</Text>
+      <TouchableOpacity
+        onPress={() => setShowCamera(true)}
+        style={styles.actionButton}
+      >
+        <Ionicons
+          name="camera-outline"
+          size={20}
+          color="#fff"
+          style={styles.buttonIcon}
+        />
+        <Text style={styles.actionButtonText}>Take a picture</Text>
       </TouchableOpacity>
 
-      {/* Display Taken Image */}
+
+
+      <TouchableOpacity onPress={addChore} style={styles.actionButton}>
+        <Ionicons
+          name="add-circle-outline"
+          size={20}
+          color="#fff"
+          style={styles.buttonIcon}
+        />
+        <Text style={styles.actionButtonText}>Add Chore</Text>
+      </TouchableOpacity>
+
       {currentImage ? (
         <Image
           source={{ uri: currentImage }}
@@ -242,106 +280,102 @@ export default function ChoreList({ database, navigation }) {
         />
       ) : null}
 
-      {/* Add Chore Button */}
-      <TouchableOpacity onPress={addChore} style={styles.actionButton}>
-        <Ionicons name="add-circle-outline" size={20} color="#fff" style={styles.buttonIcon} />
-        <Text style={styles.actionButtonText}>Tilføj Opgave</Text>
-      </TouchableOpacity>
-
-      {/* Search by Name */}
-      <TextInput
-        placeholder="Søg efter navn"
-        value={searchPerson}
-        onChangeText={setSearchPerson}
-        style={styles.inputField}
-      />
-
-      {/* Chore List */}
-      <FlatList
-        data={filteredChores}
+      {/* <FlatList
+        data={chores}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.choreItem}>
             <View style={styles.choreInfo}>
               <Text style={styles.choreName}>{item.name}</Text>
-              <Text style={styles.choreAssigned}>Tildelt til: {item.assignedTo?.personName}</Text>
-              <Text style={styles.choreDeadline}>Deadline: {item.deadline}</Text>
-            </View>
-            <View style={styles.choreActions}>
-              <TouchableOpacity onPress={() => toggleCompleteChore(item.id, item.completed)}>
+              <Text style={styles.choreAssigned}>
+                Assigned to: {item.assignedTo?.personName || 'Unassigned'}
+              </Text>
+              <Text style={styles.choreDeadline}>
+                Deadline: {item.deadline}
+              </Text>
+              <Image source={{ uri: item.picture }} style={styles.takenImage} />
+              <TouchableOpacity
+                onPress={() => toggleCompleteChore(item.id, item.completed)}
+              >
                 <Ionicons
                   name={item.completed ? "checkmark-circle" : "ellipse-outline"}
                   size={24}
                   color={item.completed ? "green" : "grey"}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteChore(item.id)} style={styles.deleteButton}>
+              <TouchableOpacity
+                onPress={() => deleteChore(item.id)}
+                style={styles.deleteButton}
+              >
                 <Ionicons name="trash-outline" size={24} color="red" />
               </TouchableOpacity>
+
             </View>
-          </View>
-        )}
-      />
+          </View> */}
+        {/* )}
+      /> */}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  dropdownButton: { flexDirection: 'row', padding: 12, marginBottom: 15, borderRadius: 8 },
+
   permissionContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   permissionText: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 20,
     fontSize: 16,
   },
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#FDEDEC',
+    backgroundColor: "#FDEDEC",
   },
   heading: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
-    color: '#333',
+    textAlign: "center",
+    color: "#333",
   },
   inputField: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     padding: 12,
     marginBottom: 15,
     borderRadius: 8,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   datePickerButton: {
     padding: 12,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
   },
   dateText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4CAF50',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#4CAF50",
     padding: 12,
     borderRadius: 8,
     marginBottom: 15,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   actionButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
     marginLeft: 8,
   },
@@ -349,31 +383,31 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   takenImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 15,
     borderRadius: 8,
   },
   cameraButtonContainer: {
     flex: 1,
-    backgroundColor: 'transparent',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: "transparent",
+    flexDirection: "row",
+    justifyContent: "space-between",
     margin: 20,
   },
   flipButton: {
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: "rgba(0,0,0,0.3)",
     padding: 10,
     borderRadius: 50,
   },
   snapButton: {
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: "rgba(0,0,0,0.3)",
     padding: 10,
     borderRadius: 50,
   },
   snapButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
   },
   camera: {
@@ -383,14 +417,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   choreItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 15,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
@@ -400,24 +434,32 @@ const styles = StyleSheet.create({
   },
   choreName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   choreAssigned: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 4,
   },
   choreDeadline: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 2,
   },
   choreActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   deleteButton: {
     marginLeft: 15,
   },
+  dropdownContainer: { width: '80%', backgroundColor: '#fff', borderRadius: 8, padding: 15 },
+  dropdownTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  dropdownItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' },
+  dropdownItemText: { fontSize: 16, color: '#333' },
+  dropdownButton: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, padding: 12, borderRadius: 8, backgroundColor: '#fff', marginBottom: 15 },
+  dropdownButtonText: { fontSize: 16, color: '#333' },
+  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+  dropdownContainer: { width: '80%', backgroundColor: '#fff', borderRadius: 8, padding: 15 },
 });

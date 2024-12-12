@@ -1,4 +1,4 @@
-// components/home.js
+//import Home from "components/Home.js"
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Importer Ionicons fra expo-pakken
@@ -11,7 +11,7 @@ export default function Home({ navigation }) { // navigation er en prop, der giv
                 source={{ uri: 'https://img.icons8.com/?size=100&id=1zf5ffn5HyB8&format=png&color=000000' }}
                 style={styles.logo}
             />
-            <Text style={styles.welcomeText}>ChoreSum!</Text>
+            <Text style={styles.welcomeText}>ChoreHub!</Text>
 
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Chore List')}>
                 <Ionicons name="list-outline" size={24} color="#fff" />

@@ -1,54 +1,54 @@
-// components/calendar.js
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, FlatList, Image } from 'react-native';
+import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { ref, onValue } from 'firebase/database';
 import { db } from '../firebase'; // Importer db fra firebase.js
 
-// Kalenderskærm til visning af opgaver på en bestemt dato
 export default function CalendarScreen() {
-  const [markedDates, setMarkedDates] = useState({}); // Markeret datoer, som virker ved at trykke på dem
-  const [selectedDate, setSelectedDate] = useState(''); // Valgt dato fra kalenderen
-  const [chores, setChores] = useState([]); // Alle opgaver fra databasen
-  const [choresForSelectedDate, setChoresForSelectedDate] = useState([]); // Opgaver for den valgte dato
+  const [markedDates, setMarkedDates] = useState({});
+  const [selectedDate, setSelectedDate] = useState('');
+  const [chores, setChores] = useState([]);
+  const [choresForSelectedDate, setChoresForSelectedDate] = useState([]);
+  const [enlargedImageId, setEnlargedImageId] = useState(null); // Track which image is enlarged
 
-  // Funktion til at opdatere de markerede datoer og opgaver
   const updateChoresFromDatabase = (data) => {
-    const newMarkedDates = {}; // Nye markerede datoer, som skal opdateres
-    const allChores = [];  // Alle opgaver, som skal opdateres
-    Object.keys(data).forEach(key => { // Gennemgå alle opgaver i databasen
-      const chore = data[key]; // Hent opgave fra databasen
-      if (chore.deadline) {   // Hvis opgaven har en deadline
-        newMarkedDates[chore.deadline] = { marked: true, dotColor: 'red' }; // Marker datoen i kalenderen
-        allChores.push({ ...chore, id: key }); // Tilføj opgaven til listen over alle opgaver
+    const newMarkedDates = {};
+    const allChores = [];
+    Object.keys(data).forEach(key => {
+      const chore = data[key];
+      if (chore.deadline) {
+        newMarkedDates[chore.deadline] = { marked: true, dotColor: 'red' };
+        allChores.push({ ...chore, id: key });
       }
     });
-    setMarkedDates(newMarkedDates); // Opdater de markerede datoer
-    setChores(allChores); // Opdater alle opgaver
+    setMarkedDates(newMarkedDates);
+    setChores(allChores);
   };
 
-  // Lyt til opdateringer fra Firebase-databasen
   useEffect(() => {
-    const choresRef = ref(db, 'chores'); // Reference til 'chores'-databasen
-    const unsubscribe = onValue(choresRef, (snapshot) => { // Lyt efter ændringer i databasen, snapshot er data fra databasen
-      const data = snapshot.val(); // Hent data fra snapshot
+    const choresRef = ref(db, 'chores');
+    const unsubscribe = onValue(choresRef, (snapshot) => {
+      const data = snapshot.val();
       if (data) {
-        updateChoresFromDatabase(data); // Opdater de markerede datoer og opgaver
+        updateChoresFromDatabase(data);
       } else {
-        setMarkedDates({}); // Ingen data, nulstil markerede datoer og opgaver
-        setChores([]); // Ingen data, nulstil alle opgaver
-        setChoresForSelectedDate([]); // Ingen data, nulstil opgaver for valgt dato
+        setMarkedDates({});
+        setChores([]);
+        setChoresForSelectedDate([]);
       }
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Når en dato trykkes, find alle chores på den dato
-  const handleDayPress = (day) => { // day indeholder information om den valgte dato
-    setSelectedDate(day.dateString); // Gem valgt dato
-    const filteredChores = chores.filter(chore => chore.deadline === day.dateString); // Filtrer opgaver på valgt dato
+  const handleDayPress = (day) => {
+    setSelectedDate(day.dateString);
+    const filteredChores = chores.filter(chore => chore.deadline === day.dateString);
     setChoresForSelectedDate(filteredChores);
+  };
+
+  const toggleImageSize = (id) => {
+    setEnlargedImageId(enlargedImageId === id ? null : id); // Toggle enlarged state
   };
 
   return (
@@ -66,14 +66,13 @@ export default function CalendarScreen() {
       />
 
       {selectedDate && (
-        // Vis opgaver for valgt dato
         <View style={styles.choresContainer}>
           <Text style={styles.choresTitle}>Opgaver for {selectedDate}:</Text>
 
-          {choresForSelectedDate.length > 0 ? ( // Hvis der er opgaver på valgt dato
+          {choresForSelectedDate.length > 0 ? (
             <FlatList
               data={choresForSelectedDate}
-              keyExtractor={(item) => item.id} // Unik nøgle for hver opgave
+              keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <View style={styles.choreItem}>
                   <Text style={styles.choreText}>Opgave: {item.name}</Text>
@@ -81,11 +80,16 @@ export default function CalendarScreen() {
                   <Text style={styles.choreText}>
                     Status: {item.completed ? 'Færdig' : 'Ikke færdig'}
                   </Text>
-                  {item.base64Image ? ( // Hvis der er et billede
-                    <Image
-                      source={{ uri: `data:image/jpeg;base64,${item.base64Image}` }}
-                      style={styles.choreImage}
-                    />
+                  {item.base64Image ? (
+                    <TouchableOpacity onPress={() => toggleImageSize(item.id)}>
+                      <Image
+                        source={{ uri: `data:image/jpeg;base64,${item.base64Image}` }}
+                        style={[
+                          styles.choreImage,
+                          enlargedImageId === item.id && styles.enlargedImage, // Conditional styling
+                        ]}
+                      />
+                    </TouchableOpacity>
                   ) : null}
                 </View>
               )}
@@ -126,6 +130,10 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 10,
     marginTop: 10,
+  },
+  enlargedImage: {
+    width: 240, // 3 times larger
+    height: 240, // 3 times larger
   },
   noChoresText: {
     fontSize: 16,
