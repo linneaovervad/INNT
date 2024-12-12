@@ -6,12 +6,12 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase"; // Importer auth og db fra firebase.js
+import Toast from 'react-native-toast-message'; // Importer Toast
 
 // Importer dine komponenter
 import Home from "./components/Home";
 import ChoreList from "./components/ChoreList";
 import TaskList from "./components/TaskList";
-import People from "./components/People";
 import Settings from "./components/Settings";
 import CalendarScreen from "./components/Calendar";
 import ChatScreen from "./components/ChatScreen";
@@ -50,6 +50,7 @@ export default function App() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
         </Stack.Navigator>
+        <Toast ref={(ref) => Toast.setRef(ref)} />
       </NavigationContainer>
     );
   }
@@ -58,17 +59,10 @@ export default function App() {
     return (
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen
-            name="Main"
-            component={MainTabNavigator}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="HouseholdDetail"
-            component={HouseholdDetail}
-            options={({ route }) => ({ title: route.params.householdName })}
-          />
+          <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="HouseholdDetail" component={HouseholdDetail} options={({ route }) => ({ title: route.params.householdName })} />
         </Stack.Navigator>
+        <Toast/>
       </NavigationContainer>
     );
   }
@@ -92,8 +86,6 @@ function MainTabNavigator() {
           } else if (route.name === "Chat Bot") {
             iconName = "chatbubble-ellipses-outline";
           } else if (route.name === "Task List") {
-            iconName = "camera-outline";
-          } else if (route.name === "People") {
             iconName = "people-outline";
           } else if (route.name === "Settings") {
             iconName = "settings-outline";
@@ -104,9 +96,7 @@ function MainTabNavigator() {
         },
         tabBarActiveTintColor: "lightblue",
         tabBarInactiveTintColor: "gray",
-        headerTitle: auth.currentUser.displayName
-          ? auth.currentUser.displayName
-          : "App",
+        headerTitle: auth.currentUser.displayName ? auth.currentUser.displayName : "App",
       })}
     >
       <Tab.Screen name="Home" component={Home} />
@@ -118,7 +108,6 @@ function MainTabNavigator() {
       </Tab.Screen>
       <Tab.Screen name="Chat Bot" component={ChatScreen} />
       <Tab.Screen name="Task List" component={TaskList} />
-      <Tab.Screen name="People" component={People} />
       <Tab.Screen name="Settings" component={Settings} />
       <Tab.Screen name="Households" component={HouseholdList} />
     </Tab.Navigator>

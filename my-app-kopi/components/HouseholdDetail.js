@@ -8,16 +8,19 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ref, onValue, update, remove, get, query, orderByChild, equalTo } from 'firebase/database';
 import { db } from '../firebase'; // Sørg for at importere din firebase konfiguration
+import MemberItem from './MemberItem'; // Importer MemberItem
 
 export default function HouseholdDetail({ route, navigation }) {
   const { householdId, householdName } = route.params;
   const [household, setHousehold] = useState(null);
   const [searchEmail, setSearchEmail] = useState('');
   const [searchResult, setSearchResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({ title: householdName });
@@ -40,8 +43,10 @@ export default function HouseholdDetail({ route, navigation }) {
     const usersRef = ref(db, 'users');
     const userQuery = query(usersRef, orderByChild('email'), equalTo(searchEmail.trim().toLowerCase()));
 
+    setLoading(true);
     get(userQuery)
       .then((snapshot) => {
+        setLoading(false);
         if (snapshot.exists()) {
           const data = snapshot.val();
           const userId = Object.keys(data)[0];
@@ -52,6 +57,7 @@ export default function HouseholdDetail({ route, navigation }) {
         }
       })
       .catch((error) => {
+        setLoading(false);
         console.error('Error searching user:', error);
         Alert.alert('Fejl', 'Der opstod en fejl under søgningen.');
       });
@@ -109,44 +115,6 @@ export default function HouseholdDetail({ route, navigation }) {
     );
   };
 
-  // Funktion til at hente brugerdata baseret på userId
-  const getUserData = async (userId) => {
-    const userRef = ref(db, `users/${userId}`);
-    try {
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        return snapshot.val();
-      } else {
-        return { name: 'Unknown User', email: 'Unknown' };
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      return { name: 'Unknown User', email: 'Unknown' };
-    }
-  };
-
-  // Render each member item
-  const renderMember = ({ item }) => {
-    const [user, setUser] = useState(null);
-
-    useEffect(() => {
-      const fetchUser = async () => {
-        const userData = await getUserData(item);
-        setUser(userData);
-      };
-      fetchUser();
-    }, [item]);
-
-    return (
-      <View style={styles.memberItem}>
-        <Text style={styles.memberText}>{user?.name} ({user?.email})</Text>
-        <TouchableOpacity onPress={() => removeUserFromHousehold(item, user?.name)} style={styles.removeButton}>
-          <Ionicons name="remove-circle-outline" size={24} color="red" />
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
   return (
     <View style={styles.container}>
       {/* Liste over medlemmer */}
@@ -154,7 +122,13 @@ export default function HouseholdDetail({ route, navigation }) {
       <FlatList
         data={household?.members ? Object.keys(household.members) : []}
         keyExtractor={(item) => item}
-        renderItem={renderMember}
+        renderItem={({ item }) => (
+          <MemberItem
+            userId={item}
+            householdName={householdName}
+            removeUser={removeUserFromHousehold}
+          />
+        )}
         ListEmptyComponent={<Text style={styles.emptyText}>Ingen medlemmer i denne husholdning.</Text>}
       />
 
@@ -171,8 +145,14 @@ export default function HouseholdDetail({ route, navigation }) {
             autoCapitalize="none"
           />
           <TouchableOpacity onPress={searchUserByEmail} style={styles.searchButton}>
-            <Ionicons name="search-outline" size={24} color="#fff" />
-            <Text style={styles.searchButtonText}>Søg</Text>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="search-outline" size={24} color="#fff" />
+                <Text style={styles.searchButtonText}>Søg</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -196,13 +176,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#FDFEFE',
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#2E4053',
   },
   sectionHeading: {
     fontSize: 20,
