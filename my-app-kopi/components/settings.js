@@ -2,7 +2,9 @@
 import React, { useState } from 'react';
 import { View, Text, Switch, StyleSheet, Button, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
 import { signOut, deleteUser, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
-import { auth, db } from '../firebase'; // Importér auth fra firebase.js
+import { ref, remove } from 'firebase/database'; // Importér remove fra firebase/database
+import { auth, db } from '../firebase'; // Importér auth og db fra firebase.js
+import Toast from 'react-native-toast-message'; // Importér Toast, hvis du bruger det
 
 export default function Settings({ navigation }) {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
@@ -49,6 +51,7 @@ export default function Settings({ navigation }) {
             try {
               await signOut(auth);
               Alert.alert("Success", "Du er blevet logget ud.");
+              navigation.navigate('Login'); // Naviger til login-skærmen efter logout
             } catch (error) {
               Alert.alert("Error", error.message);
             }
@@ -67,7 +70,13 @@ export default function Settings({ navigation }) {
       try {
         // Reautentificer brugeren
         await reauthenticateWithCredential(user, credential);
-        // Slet brugeren
+        
+        // Slet brugerens data fra Realtime Database
+        const userDataRef = ref(db, `users/${user.uid}`);
+        await remove(userDataRef);
+        console.log(`Brugerdaten for ${user.uid} er slettet fra Realtime Database.`);
+
+        // Slet brugeren fra Authentication
         await deleteUser(user);
         Alert.alert("Success", "Din konto er blevet slettet.");
         // Auth state vil ændres, og App.js vil håndtere navigeringen
@@ -153,6 +162,7 @@ export default function Settings({ navigation }) {
           </View>
         </View>
       </Modal>
+      <Toast />
     </View>
   );
 }

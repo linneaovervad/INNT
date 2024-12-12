@@ -1,7 +1,7 @@
 // components/SignUpScreen.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
 import { auth, db } from '../firebase';
 import Toast from 'react-native-toast-message'; // Importer Toast
@@ -27,7 +27,7 @@ export default function SignUpScreen({ navigation }) {
         }).then(() => {
           // Gem brugerdata i Realtime Database
           set(ref(db, 'users/' + user.uid), {
-            email: user.email,
+            email: user.email.toLowerCase(), // Gem e-mail i lowercase for konsistens
             displayName: displayName,
             createdAt: new Date().toISOString(),
             // Tilføj eventuelle andre nødvendige oplysninger
@@ -36,9 +36,17 @@ export default function SignUpScreen({ navigation }) {
               Toast.show({
                 type: 'success',
                 text1: 'Success',
-                text2: 'Bruger oprettet.',
+                text2: 'Bruger oprettet. Log ind med dine oplysninger.',
               });
-              navigation.navigate('Main'); // Naviger til hovedskærmen
+              // Log brugeren ud
+              signOut(auth)
+                .then(() => {
+                  navigation.navigate('Login'); // Naviger til login-skærmen
+                })
+                .catch((error) => {
+                  console.error('Error signing out:', error);
+                  Alert.alert('Fejl', 'Der opstod en fejl under log ud. Prøv igen.');
+                });
             })
             .catch((error) => {
               console.error('Error writing user data:', error);
@@ -70,7 +78,7 @@ export default function SignUpScreen({ navigation }) {
       <TextInput
         placeholder="E-mail"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(text) => setEmail(text.toLowerCase())} // Konverter input til lowercase
         style={styles.input}
         keyboardType="email-address"
         autoCapitalize="none"

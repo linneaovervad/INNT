@@ -108,8 +108,8 @@ function MainTabNavigator() {
       </Tab.Screen>
       <Tab.Screen name="Chat Bot" component={ChatScreen} />
       <Tab.Screen name="Task List" component={TaskList} />
-      <Tab.Screen name="Settings" component={Settings} />
       <Tab.Screen name="Households" component={HouseholdList} />
+      <Tab.Screen name="Settings" component={Settings} />
     </Tab.Navigator>
   );
 }

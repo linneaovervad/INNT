@@ -11,10 +11,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { ref, onValue, update, remove, get, query, orderByChild, equalTo } from 'firebase/database';
+import { ref, onValue, set, remove, get, query, orderByChild, equalTo } from 'firebase/database';
 import { db } from '../firebase';
-import MemberItem from './MemberItem'; // Importer MemberItem
-import Toast from 'react-native-toast-message'; // Importer Toast
+import MemberItem from './MemberItem';
+import Toast from 'react-native-toast-message';
 
 export default function HouseholdDetail({ route, navigation }) {
   const { householdId, householdName } = route.params;
@@ -56,6 +56,7 @@ export default function HouseholdDetail({ route, navigation }) {
           const data = snapshot.val();
           const userId = Object.keys(data)[0];
           setSearchResult({ id: userId, ...data[userId] });
+          console.log(`Søgning fandt bruger:`, { id: userId, ...data[userId] });
         } else {
           setSearchResult(null);
           Toast.show({
@@ -76,6 +77,7 @@ export default function HouseholdDetail({ route, navigation }) {
       });
   };
 
+  // Funktion til at tilføje en bruger til husholdningen
   const addUserToHousehold = () => {
     if (!searchResult) {
       Toast.show({
@@ -85,7 +87,7 @@ export default function HouseholdDetail({ route, navigation }) {
       });
       return;
     }
-  
+
     // Tjek om brugeren allerede er medlem
     if (household.members && household.members[searchResult.id]) {
       Toast.show({
@@ -95,12 +97,11 @@ export default function HouseholdDetail({ route, navigation }) {
       });
       return;
     }
-  
-    const memberRef = ref(db, `households/${householdId}/members`);
-  
-    update(memberRef, {
-      [searchResult.id]: true
-    })
+
+    // Brug set til at tilføje medlemmet
+    const memberRef = ref(db, `households/${householdId}/members/${searchResult.id}`);
+
+    set(memberRef, true)
       .then(() => {
         Toast.show({
           type: 'success',
@@ -119,7 +120,6 @@ export default function HouseholdDetail({ route, navigation }) {
         });
       });
   };
-  
 
   // Funktion til at fjerne en bruger fra husholdningen
   const removeUserFromHousehold = (userId, userName) => {
@@ -198,7 +198,9 @@ export default function HouseholdDetail({ route, navigation }) {
         {/* Vis søgeresultater */}
         {searchResult && (
           <View style={styles.searchResultContainer}>
-            <Text style={styles.resultText}>Bruger Fundet: {searchResult.displayName || searchResult.email}</Text>
+            <Text style={styles.resultText}>
+              Bruger Fundet: {searchResult.displayName ? `${searchResult.displayName} (${searchResult.email})` : searchResult.email}
+            </Text>
             <TouchableOpacity onPress={addUserToHousehold} style={styles.addButton}>
               <Ionicons name="add-circle-outline" size={24} color="#fff" />
               <Text style={styles.addButtonText}>Tilføj til Husholdning</Text>
@@ -206,7 +208,7 @@ export default function HouseholdDetail({ route, navigation }) {
           </View>
         )}
       </View>
-      
+
       {/* Placer Toast komponenten her uden ref */}
       <Toast />
     </View>

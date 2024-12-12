@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { db } from '../firebase';
+import { auth, db } from '../firebase';
 import Toast from 'react-native-toast-message'; // Importer Toast
 
 export default function LoginScreen({ navigation }) {
@@ -23,7 +23,7 @@ export default function LoginScreen({ navigation }) {
           text1: 'Success',
           text2: 'Logget ind.',
         });
-        navigation.navigate('Main'); // Naviger til hovedskærmen
+        // navigation.navigate('Main'); // Naviger til hovedskærmen
       })
       .catch((error) => {
         console.error('Error logging in:', error);
@@ -59,8 +59,6 @@ export default function LoginScreen({ navigation }) {
       <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
         <Text style={styles.signupText}>Opret en ny konto</Text>
       </TouchableOpacity>
-      
-      {/* Placer Toast komponenten her uden ref */}
       <Toast />
     </View>
   );
