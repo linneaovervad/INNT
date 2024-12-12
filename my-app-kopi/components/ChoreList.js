@@ -20,6 +20,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { CameraView } from "expo-camera";
 import * as FileSystem from "expo-file-system";
 import Toast from "react-native-toast-message";
+import Banner from "./Banner";
 
 export default function ChoreList({ database }) {
   const [chores, setChores] = useState([]);
@@ -194,6 +195,7 @@ export default function ChoreList({ database }) {
     </SafeAreaView>
   ) : (
     <View style={styles.container}>
+      <Banner />
       <Text style={styles.heading}>New Chore</Text>
       <TextInput
         placeholder="Add a new chore"

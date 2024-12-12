@@ -22,6 +22,7 @@ import {
 } from "firebase/database";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
+import Banner from "./Banner";
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
@@ -223,6 +224,7 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
+      <Banner />
       {tasks.length === 0 ? (
         <View style={styles.noTasksContainer}>
           <Text style={styles.noTasksText}>You have no chores.</Text>
