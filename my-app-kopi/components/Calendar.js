@@ -67,7 +67,7 @@ export default function CalendarScreen() {
 
       {selectedDate && (
         <View style={styles.choresContainer}>
-          <Text style={styles.choresTitle}>Opgaver for {selectedDate}:</Text>
+          <Text style={styles.choresTitle}>Chores for {selectedDate}:</Text>
 
           {choresForSelectedDate.length > 0 ? (
             <FlatList
@@ -75,10 +75,10 @@ export default function CalendarScreen() {
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <View style={styles.choreItem}>
-                  <Text style={styles.choreText}>Opgave: {item.name}</Text>
-                  <Text style={styles.choreText}>Tildelt til: {item.assignedTo?.personName}</Text>
+                  <Text style={styles.choreText}>Chore: {item.name}</Text>
+                  <Text style={styles.choreText}>Assigend to: {item.assignedTo?.personName}</Text>
                   <Text style={styles.choreText}>
-                    Status: {item.completed ? 'Færdig' : 'Ikke færdig'}
+                    Status: {item.completed ? 'Done' : 'Not done'}
                   </Text>
                   {item.base64Image ? (
                     <TouchableOpacity onPress={() => toggleImageSize(item.id)}>
@@ -95,7 +95,7 @@ export default function CalendarScreen() {
               )}
             />
           ) : (
-            <Text style={styles.noChoresText}>Ingen opgaver i dag</Text>
+            <Text style={styles.noChoresText}>No chores today</Text>
           )}
         </View>
       )}

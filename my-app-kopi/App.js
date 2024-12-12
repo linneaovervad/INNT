@@ -5,21 +5,20 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "./firebase"; // Importer auth og db fra firebase.js
-import Toast from 'react-native-toast-message'; // Importer Toast
+import { auth, db } from "./firebase";
+import Toast from "react-native-toast-message";
 
-// Importer dine komponenter
+// Importer komponenter
 import Home from "./components/Home";
 import ChoreList from "./components/ChoreList";
 import TaskList from "./components/TaskList";
 import Settings from "./components/Settings";
 import CalendarScreen from "./components/Calendar";
 import ChatScreen from "./components/ChatScreen";
-import HouseholdList from "./components/HouseholdList"; // Importer HouseholdList
-import HouseholdDetail from "./components/HouseholdDetail"; // Importer HouseholdDetail
-
-import LoginScreen from "./components/LoginScreen"; // Login screen
-import SignUpScreen from "./components/SignUpScreen"; // Sign up screen
+import HouseholdList from "./components/HouseholdList"; 
+import HouseholdDetail from "./components/HouseholdDetail"; 
+import LoginScreen from "./components/LoginScreen";
+import SignUpScreen from "./components/SignUpScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -42,32 +41,40 @@ export default function App() {
     return null;
   }
 
-  if (!user) {
-    // Hvis ingen bruger er logget ind, vis login/opret bruger flow
-    return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="SignUp" component={SignUpScreen} />
-        </Stack.Navigator>
-        <Toast/>
-      </NavigationContainer>
-    );
-  }
+  return (
+    <NavigationContainer>
+      {user ? <AppStackNavigator /> : <AuthStackNavigator />}
+      <Toast />
+    </NavigationContainer>
+  );
+}
 
-  function LoggedInView() {
-    return (
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
-          <Stack.Screen name="HouseholdDetail" component={HouseholdDetail} options={({ route }) => ({ title: route.params.householdName })} />
-        </Stack.Navigator>
-        <Toast/>
-      </NavigationContainer>
-    );
-  }
+// Auth Stack Navigator
+function AuthStackNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} />
+    </Stack.Navigator>
+  );
+}
 
-  return <LoggedInView />;
+// App Stack Navigator
+function AppStackNavigator() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Go back"
+        component={MainTabNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="HouseholdDetail"
+        component={HouseholdDetail}
+        options={({ route }) => ({ title: route.params.householdName })}
+      />
+    </Stack.Navigator>
+  );
 }
 
 // Definer MainTabNavigator
@@ -96,7 +103,9 @@ function MainTabNavigator() {
         },
         tabBarActiveTintColor: "lightblue",
         tabBarInactiveTintColor: "gray",
-        headerTitle: auth.currentUser.displayName ? auth.currentUser.displayName : "App",
+        headerTitle: auth.currentUser.displayName
+          ? auth.currentUser.displayName
+          : "App",
       })}
     >
       <Tab.Screen name="Home" component={Home} />
