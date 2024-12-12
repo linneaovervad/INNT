@@ -67,7 +67,6 @@ export default function Home() {
           setLoading(false);
         }
       );
- 
 
       // Hent alle brugere for at matche `assignedTo` UID med `displayName`
       const usersRef = ref(db, "users");
@@ -106,7 +105,7 @@ export default function Home() {
       "Delete Chore",
       "Are you sure you want to delete this chore?",
       [
-        { text: "Cancle", style: "cancel" },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Yes",
           onPress: () => {
@@ -115,7 +114,7 @@ export default function Home() {
               .then(() => {
                 Toast.show({
                   type: "success",
-                  text1: "Succes",
+                  text1: "Success",
                   text2: "Chore deleted.",
                 });
               })
@@ -141,7 +140,7 @@ export default function Home() {
       .then(() => {
         Toast.show({
           type: "success",
-          text1: "Succes",
+          text1: "Success",
           text2: `Chore marked as ${newStatus ? "Done" : "Not done"}.`,
         });
       })
@@ -160,45 +159,59 @@ export default function Home() {
     return user ? user.displayName : "Unassigned";
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.taskItem}>
-      <View style={styles.taskInfo}>
-        <TouchableOpacity onPress={() => toggleStatus(item.id, item.completed)}>
-          <Ionicons
-            name={item.completed ? "checkmark-circle" : "ellipse-outline"}
-            size={24}
-            color={item.completed ? "green" : "gray"}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-        <View style={styles.taskDetails}>
-          <Text style={[styles.taskTitle, item.completed && styles.taskDone]}>
-            {item.name}
-          </Text>
-          <Text style={styles.taskDeadline}>Deadline: {item.deadline}</Text>
-          <Text style={styles.taskAssigned}>
-            Assigned to: {getUserName(item.assignedTo)}
-          </Text>
-          {item.picture ? (
-            <TouchableOpacity onPress={() => toggleImageSize(item.id)}>
-            <Image
-              source={{ uri: `data:image/jpeg;base64,${item.picture}` }}
-              style={[
-                styles.choreImage,
-                enlargedImageId === item.id && styles.enlargedImage]}
-              resizeMode="cover"
+  const renderItem = ({ item }) => {
+    // Konverter deadline til lokal dato og tid
+    const deadlineDate = new Date(item.deadline);
+    const formattedDeadline = deadlineDate.toLocaleString([], {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      // second: undefined // Sekunderne inkluderes ikke
+    });
+
+    return (
+      <View style={styles.taskItem}>
+        <View style={styles.taskInfo}>
+          <TouchableOpacity onPress={() => toggleStatus(item.id, item.completed)}>
+            <Ionicons
+              name={item.completed ? "checkmark-circle" : "ellipse-outline"}
+              size={24}
+              color={item.completed ? "green" : "gray"}
+              style={styles.icon}
             />
-            </TouchableOpacity>
+          </TouchableOpacity>
+          <View style={styles.taskDetails}>
+            <Text style={[styles.taskTitle, item.completed && styles.taskDone]}>
+              {item.name}
+            </Text>
+            <Text style={styles.taskDeadline}>Deadline: {formattedDeadline}</Text>
+            <Text style={styles.taskAssigned}>
+              Assigned to: {getUserName(item.assignedTo)}
+            </Text>
+            {item.description ? (
+              <Text style={styles.taskDescription}>{item.description}</Text>
             ) : null}
-            <Text>Description:  </Text>
-            <Text>{item.description}</Text>
+            {item.picture ? (
+              <TouchableOpacity onPress={() => toggleImageSize(item.id)}>
+                <Image
+                  source={{ uri: `data:image/jpeg;base64,${item.picture}` }}
+                  style={[
+                    styles.choreImage,
+                    enlargedImageId === item.id && styles.enlargedImage]}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+            ) : null}
+          </View>
         </View>
+        <TouchableOpacity onPress={() => handleDelete(item.id)}>
+          <Ionicons name="trash-outline" size={24} color="red" />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => handleDelete(item.id)}>
-        <Ionicons name="trash-outline" size={24} color="red" />
-      </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -288,12 +301,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "gray",
   },
+  taskDescription: {
+    fontSize: 14,
+    color: "#555",
+    marginTop: 5,
+  },
   choreImage: {
     width: 125,
     height: 175,
     marginTop: 10,
     borderRadius: 8,
-    objectFit:"contain",
+    // objectFit is not a valid property in React Native. Use resizeMode instead.
+    // objectFit:"contain", // Fjern denne linje
   },
   enlargedImage: {
     width: 300,

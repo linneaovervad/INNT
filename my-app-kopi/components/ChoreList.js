@@ -1,3 +1,4 @@
+// components/ChoreList.js
 import React, { useEffect, useState, useRef } from "react";
 import {
   StyleSheet,
@@ -11,6 +12,7 @@ import {
   SafeAreaView,
   Image,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ref, onValue, push, remove, update } from "firebase/database";
@@ -72,11 +74,17 @@ export default function ChoreList({ database }) {
 
     setLoading(true);
     try {
-      const result = await cameraRef.current.takePictureAsync();
-      const base64 = await convertImageToBase64(result.uri);
+      const result = await cameraRef.current.takePictureAsync({
+        quality: 0.5, // Reducer kvalitet for mindre Base64-streng
+        base64: true, // Få Base64-streng direkte
+      });
 
-      setCurrentImage(result.uri);
-      setBase64Image(base64);
+      if (result.base64) {
+        setCurrentImage(result.uri);
+        setBase64Image(result.base64);
+      } else {
+        console.error("No base64 data returned from camera");
+      }
     } catch (error) {
       console.error("Error taking picture:", error);
     } finally {
@@ -114,39 +122,30 @@ export default function ChoreList({ database }) {
   // Add a new chore
   const addChore = () => {
     if (!newChore.trim() || !assignedPerson) {
-      Alert.alert("Error", "Fill all the fields.");
+      Alert.alert("Fejl", "Udfyld alle felter før tilføjelse af en opgave.");
       return;
     }
 
-  const choresRef = ref(database, 'chores');
-  push(choresRef, {
-    name: newChore,
-    assignedTo: assignedPerson.id, // Ændret fra objekt til UID-streng
-    deadline: deadline.toISOString().split('T')[0],
-    completed: false,
-    picture: base64Image,
-    description
-  })
-    .then(() => {
-      setNewChore('');
-      setAssignedPerson(null);
-      setDeadline(new Date());
-      setDescription('');
-      setCurrentImage('');
-      Toast.show({
-        type: 'success',
-        text1: 'Succes',
-        text2: 'Opgave tilføjet!',
-      });
+    const choresRef = ref(database, 'chores');
+    push(choresRef, {
+      name: newChore,
+      assignedTo: assignedPerson.id, // Sørg for at dette er brugerens UID
+      deadline: deadline.toISOString(), // Gem hele ISO-strengen inkl. tid
+      completed: false,
+      picture: base64Image,
+      description
     })
       .then(() => {
-        setNewChore("");
+        setNewChore('');
         setAssignedPerson(null);
         setDeadline(new Date());
+        setDescription('');
+        setCurrentImage('');
+        setBase64Image('');
         Toast.show({
-          type: "success",
-          text1: "Succes",
-          text2: "Opgave tilføjet!",
+          type: 'success',
+          text1: 'Succes',
+          text2: 'Opgave tilføjet!',
         });
       })
       .catch((error) => {
@@ -248,7 +247,7 @@ export default function ChoreList({ database }) {
         style={styles.datePickerButton}
       >
         <Text style={styles.dateText}>
-          Deadline: {deadline.toLocaleDateString()}
+          Deadline: {deadline.toLocaleString()}
         </Text>
       </TouchableOpacity>
 
@@ -304,11 +303,15 @@ export default function ChoreList({ database }) {
 const styles = StyleSheet.create({
   dropdownButton: {
     flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
     padding: 12,
-    marginBottom: 15,
     borderRadius: 8,
+    backgroundColor: "#fff",
+    marginBottom: 15,
   },
-
+  dropdownButtonText: { fontSize: 16, color: "#333" },
   permissionContainer: {
     flex: 1,
     justifyContent: "center",
@@ -353,6 +356,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#fff",
     height: 200,
+    textAlignVertical: "top", // For Android to align text at the top
   },
   datePickerButton: {
     padding: 12,
@@ -468,27 +472,47 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
   },
   dropdownItemText: { fontSize: 16, color: "#333" },
-  dropdownButton: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderWidth: 1,
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    marginBottom: 15,
-  },
-  dropdownButtonText: { fontSize: 16, color: "#333" },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  dropdownContainer: {
-    width: "80%",
-    backgroundColor: "#fff",
+  taskDetails: {
+    flex: 1,
+  },
+  taskTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2E4053",
+  },
+  taskDone: {
+    textDecorationLine: "line-through",
+    color: "gray",
+  },
+  taskDeadline: {
+    fontSize: 14,
+    color: "gray",
+  },
+  taskAssigned: {
+    fontSize: 14,
+    color: "gray",
+  },
+  taskDescription: {
+    fontSize: 14,
+    color: "#555",
+    marginTop: 5,
+  },
+  choreImage: {
+    width: 125,
+    height: 175,
+    marginTop: 10,
     borderRadius: 8,
-    padding: 15,
+    // objectFit is not a valid property in React Native. Use resizeMode instead.
+    // objectFit:"contain", // Remove this line
+  },
+  enlargedImage: {
+    width: 300,
+    height: 400,
   },
 });
