@@ -47,18 +47,18 @@ export default function SignUpScreen({ navigation }) {
               Toast.show({
                 type: "success",
                 text1: "Success",
-                text2: "User created. log in with your details.",
+                text2: "User created. Log in with your details.",
               });
               // Log brugeren ud
               signOut(auth)
                 .then(() => {
-                  navigation.navigate("Login"); // Naviger til login-skærmen
+                  // Navigatoren skifter automatisk til AuthStack
                 })
                 .catch((error) => {
                   console.error("Error signing out:", error);
                   Alert.alert(
                     "Error",
-                    "An error occured during log out. Try again."
+                    "An error occurred during log out. Try again."
                   );
                 });
             })
@@ -67,7 +67,7 @@ export default function SignUpScreen({ navigation }) {
               Toast.show({
                 type: "error",
                 text1: "Error",
-                text2: "An error occured when creating user data.",
+                text2: "An error occurred when creating user data.",
               });
             });
         });
@@ -80,7 +80,7 @@ export default function SignUpScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Create account</Text>
+      <Text style={styles.heading}>Create Account</Text>
 
       <TextInput
         placeholder="Name"
@@ -99,7 +99,7 @@ export default function SignUpScreen({ navigation }) {
       />
 
       <TextInput
-        placeholder="Adgangskode"
+        placeholder="Password"
         value={password}
         onChangeText={setPassword}
         style={styles.input}
@@ -112,10 +112,10 @@ export default function SignUpScreen({ navigation }) {
 
       <TouchableOpacity onPress={() => navigation.navigate("Login")}>
         <Text style={styles.loginText}>
-          Do you allready have an account? Log in
+          Do you already have an account? Log in
         </Text>
       </TouchableOpacity>
-      <Toast />
+      {/* Fjern <Toast /> fra her */}
     </View>
   );
 }

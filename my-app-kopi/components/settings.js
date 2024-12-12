@@ -64,7 +64,7 @@ export default function Settings({ navigation }) {
           try {
             await signOut(auth);
             Alert.alert("Success", "You have been logged out.");
-            navigation.navigate("Login"); // Naviger til login-skærmen efter logout
+            // Navigatoren skifter automatisk til AuthStack
           } catch (error) {
             Alert.alert("Error", error.message);
           }
@@ -102,7 +102,7 @@ export default function Settings({ navigation }) {
         setPassword("");
       }
     } else {
-      Alert.alert("Error", "No user is logged ind.");
+      Alert.alert("Error", "No user is logged in.");
       setModalVisible(false);
     }
   };

@@ -6,7 +6,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase"; // Importer auth og db fra firebase.js
-import Toast from 'react-native-toast-message'; // Importer Toast
+import Toast from 'react-native-toast-message'; 
 
 // Importer dine komponenter
 import Home from "./components/Home";
@@ -42,32 +42,40 @@ export default function App() {
     return null;
   }
 
-  if (!user) {
-    // Hvis ingen bruger er logget ind, vis login/opret bruger flow
-    return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="SignUp" component={SignUpScreen} />
-        </Stack.Navigator>
-        <Toast/>
-      </NavigationContainer>
-    );
-  }
+  return (
+    <NavigationContainer>
+      {user ? <AppStackNavigator /> : <AuthStackNavigator />}
+      <Toast />
+    </NavigationContainer>
+  );
+}
 
-  function LoggedInView() {
-    return (
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
-          <Stack.Screen name="HouseholdDetail" component={HouseholdDetail} options={({ route }) => ({ title: route.params.householdName })} />
-        </Stack.Navigator>
-        <Toast/>
-      </NavigationContainer>
-    );
-  }
+// Auth Stack Navigator
+function AuthStackNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} />
+    </Stack.Navigator>
+  );
+}
 
-  return <LoggedInView />;
+// App Stack Navigator
+function AppStackNavigator() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="Main" 
+        component={MainTabNavigator} 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="HouseholdDetail" 
+        component={HouseholdDetail} 
+        options={({ route }) => ({ title: route.params.householdName })} 
+      />
+    </Stack.Navigator>
+  );
 }
 
 // Definer MainTabNavigator
