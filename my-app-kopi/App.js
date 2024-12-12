@@ -13,7 +13,7 @@ import Home from "./components/Home";
 import ChoreList from "./components/ChoreList";
 import TaskList from "./components/TaskList";
 import Settings from "./components/Settings";
-import CalendarScreen from "./components/Calendar";
+import CalendarScreen from "./components/calendar";
 import ChatScreen from "./components/ChatScreen";
 import HouseholdList from "./components/HouseholdList"; // Importer HouseholdList
 import HouseholdDetail from "./components/HouseholdDetail"; // Importer HouseholdDetail
