@@ -68,7 +68,7 @@ export default function CalendarScreen() {
       {selectedDate && (
         // Vis opgaver for valgt dato
         <View style={styles.choresContainer}>
-          <Text style={styles.choresTitle}>Opgaver for {selectedDate}:</Text>
+          <Text style={styles.choresTitle}>Chores for {selectedDate}:</Text>
 
           {choresForSelectedDate.length > 0 ? ( // Hvis der er opgaver på valgt dato
             <FlatList
@@ -76,10 +76,10 @@ export default function CalendarScreen() {
               keyExtractor={(item) => item.id} // Unik nøgle for hver opgave
               renderItem={({ item }) => (
                 <View style={styles.choreItem}>
-                  <Text style={styles.choreText}>Opgave: {item.name}</Text>
-                  <Text style={styles.choreText}>Tildelt til: {item.assignedTo?.personName}</Text>
+                  <Text style={styles.choreText}>Chore: {item.name}</Text>
+                  <Text style={styles.choreText}>Assigend to: {item.assignedTo?.personName}</Text>
                   <Text style={styles.choreText}>
-                    Status: {item.completed ? 'Færdig' : 'Ikke færdig'}
+                    Status: {item.completed ? 'Done' : 'Not done'}
                   </Text>
                   {item.base64Image ? ( // Hvis der er et billede
                     <Image
@@ -91,7 +91,7 @@ export default function CalendarScreen() {
               )}
             />
           ) : (
-            <Text style={styles.noChoresText}>Ingen opgaver i dag</Text>
+            <Text style={styles.noChoresText}>No chores today</Text>
           )}
         </View>
       )}

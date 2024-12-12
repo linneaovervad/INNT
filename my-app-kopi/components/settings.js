@@ -1,18 +1,34 @@
 // components/Settings.js
-import React, { useState } from 'react';
-import { View, Text, Switch, StyleSheet, Button, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
-import { signOut, deleteUser, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
-import { ref, remove } from 'firebase/database'; // Importér remove fra firebase/database
-import { auth, db } from '../firebase'; // Importér auth og db fra firebase.js
-import Toast from 'react-native-toast-message'; // Importér Toast, hvis du bruger det
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  Switch,
+  StyleSheet,
+  Button,
+  Alert,
+  Modal,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
+import {
+  signOut,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from "firebase/auth";
+import { ref, remove } from "firebase/database"; // Importér remove fra firebase/database
+import { auth, db } from "../firebase"; // Importér auth og db fra firebase.js
+import Toast from "react-native-toast-message"; // Importér Toast, hvis du bruger det
 
 export default function Settings({ navigation }) {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
 
   // Funktion til at skifte status for notifikationer
-  const toggleNotifications = () => setIsNotificationsEnabled(previousState => !previousState);
+  const toggleNotifications = () =>
+    setIsNotificationsEnabled((previousState) => !previousState);
 
   // Funktion til at håndtere skift af kodeord
   const handleChangePassword = () => {
@@ -23,42 +39,38 @@ export default function Settings({ navigation }) {
   // Funktion til at håndtere sletning af konto
   const handleDeleteAccount = () => {
     Alert.alert(
-      "Slet Konto",
-      "Er du sikker på, at du vil slette din konto? Denne handling kan ikke fortrydes.",
+      "Delete account",
+      "Are you sure you want to delete your account?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Yes", onPress: () => setModalVisible(true) } // Åbn modal til password indtastning
+        { text: "Yes", onPress: () => setModalVisible(true) }, // Åbn modal til password indtastning
       ]
     );
   };
 
   // Funktion til at kontakte support
   const handleContactSupport = () => {
-    Alert.alert("Contact Support", "Support kontaktmuligheder vil være tilgængelige.");
-    // Tilføj supportlogik her, f.eks. åbne en e-mail eller en supportchat
+    Alert.alert("Contact Support");
+    // Supportlogik ville typisk være at åbne en e-mail-app med supportens e-mailadresse
   };
 
   // Funktion til at logge ud
   const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Er du sikker på, at du vil logge ud?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Yes", 
-          onPress: async () => {
-            try {
-              await signOut(auth);
-              Alert.alert("Success", "Du er blevet logget ud.");
-              navigation.navigate('Login'); // Naviger til login-skærmen efter logout
-            } catch (error) {
-              Alert.alert("Error", error.message);
-            }
-          } 
-        }
-      ]
-    );
+    Alert.alert("Logout", "Are you sure you want to log out?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Yes",
+        onPress: async () => {
+          try {
+            await signOut(auth);
+            Alert.alert("Success", "You have been logged out.");
+            navigation.navigate("Login"); // Naviger til login-skærmen efter logout
+          } catch (error) {
+            Alert.alert("Error", error.message);
+          }
+        },
+      },
+    ]);
   };
 
   // Funktion til at bekræfte sletning af konto
@@ -70,35 +82,37 @@ export default function Settings({ navigation }) {
       try {
         // Reautentificer brugeren
         await reauthenticateWithCredential(user, credential);
-        
+
         // Slet brugerens data fra Realtime Database
         const userDataRef = ref(db, `users/${user.uid}`);
         await remove(userDataRef);
-        console.log(`Brugerdaten for ${user.uid} er slettet fra Realtime Database.`);
+        console.log(
+          `User data ${user.uid} has been deleted from the Realtime Database.`
+        );
 
         // Slet brugeren fra Authentication
         await deleteUser(user);
-        Alert.alert("Success", "Din konto er blevet slettet.");
+        Alert.alert("Success", "Your account has been deleted.");
         // Auth state vil ændres, og App.js vil håndtere navigeringen
       } catch (error) {
         console.error(error);
         Alert.alert("Error", error.message);
       } finally {
         setModalVisible(false);
-        setPassword('');
+        setPassword("");
       }
     } else {
-      Alert.alert("Error", "Ingen bruger er logget ind.");
+      Alert.alert("Error", "No user is logged ind.");
       setModalVisible(false);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Indstillinger</Text>
+      <Text style={styles.heading}>Settings</Text>
 
       <View style={styles.settingItem}>
-        <Text style={styles.label}>Aktiver Notifikationer</Text>
+        <Text style={styles.label}>Turn on notifications</Text>
         <Switch
           value={isNotificationsEnabled}
           onValueChange={toggleNotifications}
@@ -107,17 +121,21 @@ export default function Settings({ navigation }) {
 
       {/* Knappen til at ændre kodeord */}
       <View style={styles.settingItem}>
-        <Button title="Skift Kodeord" onPress={handleChangePassword} />
+        <Button title="Change password" onPress={handleChangePassword} />
       </View>
 
       {/* Knappen til at slette konto */}
       <View style={styles.settingItem}>
-        <Button title="Slet Konto" onPress={handleDeleteAccount} color="red" />
+        <Button
+          title="Delete account"
+          onPress={handleDeleteAccount}
+          color="red"
+        />
       </View>
 
       {/* Knappen til at kontakte support */}
       <View style={styles.settingItem}>
-        <Button title="Kontakt Support" onPress={handleContactSupport} />
+        <Button title="Contact Support" onPress={handleContactSupport} />
       </View>
 
       {/* Knappen til at logge ud */}
@@ -132,12 +150,14 @@ export default function Settings({ navigation }) {
         visible={modalVisible}
         onRequestClose={() => {
           setModalVisible(!modalVisible);
-          setPassword('');
+          setPassword("");
         }}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Indtast dit kodeord for at bekræfte sletning:</Text>
+            <Text style={styles.modalText}>
+              Input password to confirm deletion:
+            </Text>
             <TextInput
               style={styles.input}
               placeholder="Password"
@@ -148,7 +168,10 @@ export default function Settings({ navigation }) {
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.button, styles.buttonClose]}
-                onPress={() => { setModalVisible(false); setPassword(''); }}
+                onPress={() => {
+                  setModalVisible(false);
+                  setPassword("");
+                }}
               >
                 <Text style={styles.textStyle}>Cancel</Text>
               </TouchableOpacity>
@@ -171,17 +194,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   heading: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
   settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
   },
   label: {
@@ -189,18 +212,18 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 22,
-    backgroundColor: 'rgba(0,0,0,0.5)', // Semi-transparent baggrund
+    backgroundColor: "rgba(0,0,0,0.5)", // Semi-transparent baggrund
   },
   modalView: {
     margin: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
     padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -208,42 +231,42 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: '80%',
+    width: "80%",
   },
   modalText: {
     marginBottom: 15,
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     paddingHorizontal: 10,
     marginBottom: 20,
     borderRadius: 5,
-    width: '100%',
+    width: "100%",
   },
   modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   button: {
     borderRadius: 5,
     padding: 10,
     elevation: 2,
-    width: '45%',
-    alignItems: 'center',
+    width: "45%",
+    alignItems: "center",
   },
   buttonClose: {
-    backgroundColor: '#bbb',
+    backgroundColor: "#bbb",
   },
   buttonDelete: {
-    backgroundColor: '#FF6347',
+    backgroundColor: "#FF6347",
   },
   textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
 });
