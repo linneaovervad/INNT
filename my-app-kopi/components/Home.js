@@ -11,7 +11,15 @@ import {
   Image,
 } from "react-native";
 import { auth, db } from "../firebase";
-import { ref, onValue, remove, update, query, orderByChild, equalTo } from "firebase/database";
+import {
+  ref,
+  onValue,
+  remove,
+  update,
+  query,
+  orderByChild,
+  equalTo,
+} from "firebase/database";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
 
@@ -24,49 +32,63 @@ export default function Home() {
 
   useEffect(() => {
     if (userId) {
-      const choresRef = ref(db, 'chores');
-      const userChoresQuery = query(choresRef, orderByChild('assignedTo'), equalTo(userId));
+      // Hent opgaver tildelt til den aktuelle bruger
+      const choresRef = ref(db, "chores");
+      const userChoresQuery = query(
+        choresRef,
+        orderByChild("assignedTo"),
+        equalTo(userId)
+      );
 
-      const unsubscribeChores = onValue(userChoresQuery, (snapshot) => {
-        const data = snapshot.val();
-        const loadedTasks = data
-          ? Object.keys(data).map((key) => ({
-              id: key,
-              ...data[key],
-            }))
-          : [];
-        setTasks(loadedTasks);
-        setLoading(false);
-      }, (error) => {
-        console.error("Error fetching tasks:", error);
-        Toast.show({
-          type: "error",
-          text1: "Fejl",
-          text2: "Kunne ikke hente opgaver.",
-        });
-        setLoading(false);
-      });
+      const unsubscribeChores = onValue(
+        userChoresQuery,
+        (snapshot) => {
+          const data = snapshot.val();
+          const loadedTasks = data
+            ? Object.keys(data).map((key) => ({
+                id: key,
+                ...data[key],
+              }))
+            : [];
+          setTasks(loadedTasks);
+          setLoading(false);
+        },
+        (error) => {
+          console.error("Error fetching tasks:", error);
+          Toast.show({
+            type: "error",
+            text1: "Fejl",
+            text2: "Kunne ikke hente opgaver.",
+          });
+          setLoading(false);
+        }
+      );
 
-      const usersRef = ref(db, 'users');
-      const unsubscribeUsers = onValue(usersRef, (snapshot) => {
-        const data = snapshot.val();
-        const usersList = data
-          ? Object.keys(data).map((key) => ({
-              id: key,
-              displayName: data[key].displayName,
-            }))
-          : [];
-        setUsers(usersList);
-      }, (error) => {
-        console.error("Error fetching users:", error);
-        Toast.show({
-          type: "error",
-          text1: "Fejl",
-          text2: "Kunne ikke hente brugere.",
-        });
-      });
+      // Hent alle brugere for at matche `assignedTo` UID med `displayName`
+      const usersRef = ref(db, "users");
+      const unsubscribeUsers = onValue(
+        usersRef,
+        (snapshot) => {
+          const data = snapshot.val();
+          const usersList = data
+            ? Object.keys(data).map((key) => ({
+                id: key,
+                displayName: data[key].displayName,
+              }))
+            : [];
+          setUsers(usersList);
+        },
+        (error) => {
+          console.error("Error fetching users:", error);
+          Toast.show({
+            type: "error",
+            text1: "Fejl",
+            text2: "Kunne ikke hente brugere.",
+          });
+        }
+      );
 
-      // Clean up listeners on unmount
+      // Ryd op ved unmount
       return () => {
         unsubscribeChores();
         unsubscribeUsers();
@@ -108,14 +130,16 @@ export default function Home() {
   };
 
   const toggleStatus = (taskId, currentStatus) => {
-    const newStatus = !currentStatus; // Toggle between false and true
+    const newStatus = !currentStatus; // Toggle mellem false og true
     const taskRef = ref(db, `chores/${taskId}`);
     update(taskRef, { completed: newStatus })
       .then(() => {
         Toast.show({
           type: "success",
           text1: "Succes",
-          text2: `Opgave markeret som ${newStatus ? "færdig" : "ikke færdig"}.`,
+          text2: `Opgave markeret som ${
+            newStatus ? "færdig" : "ikke færdig"
+          }.`,
         });
       })
       .catch((error) => {
@@ -136,7 +160,9 @@ export default function Home() {
   const renderItem = ({ item }) => (
     <View style={styles.taskItem}>
       <View style={styles.taskInfo}>
-        <TouchableOpacity onPress={() => toggleStatus(item.id, item.completed)}>
+        <TouchableOpacity
+          onPress={() => toggleStatus(item.id, item.completed)}
+        >
           <Ionicons
             name={item.completed ? "checkmark-circle" : "ellipse-outline"}
             size={24}
@@ -154,20 +180,16 @@ export default function Home() {
             {item.name}
           </Text>
           <Text style={styles.taskDeadline}>Deadline: {item.deadline}</Text>
-          <Text style={styles.taskAssigned}>Tildelt til: {getUserName(item.assignedTo)}</Text>
+          <Text style={styles.taskAssigned}>
+            Tildelt til: {getUserName(item.assignedTo)}
+          </Text>
           {item.picture ? (
             <Image
               source={{ uri: `data:image/jpeg;base64,${item.picture}` }}
               style={styles.taskImage}
               resizeMode="cover"
             />
-          ) : (
-            <Image
-              source={require('../assets/placeholder.png')} // Sørg for at have en placeholder-billede i dine assets
-              style={styles.taskImage}
-              resizeMode="cover"
-            />
-          )}
+          ) : null}
         </View>
       </View>
       <TouchableOpacity onPress={() => handleDelete(item.id)}>

@@ -254,7 +254,7 @@ const addChore = () => {
       {showDatePicker && (
         <DateTimePicker
           value={deadline}
-          mode="date"
+          mode="datetime"
           display="default"
           onChange={onDateChange}
         />
