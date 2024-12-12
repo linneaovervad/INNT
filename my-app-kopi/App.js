@@ -6,7 +6,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase"; // Importer auth og db fra firebase.js
-import Toast from 'react-native-toast-message'; 
+import Toast from "react-native-toast-message";
 
 // Importer dine komponenter
 import Home from "./components/Home";
@@ -64,15 +64,15 @@ function AuthStackNavigator() {
 function AppStackNavigator() {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="Main" 
-        component={MainTabNavigator} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="Go back"
+        component={MainTabNavigator}
+        options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="HouseholdDetail" 
-        component={HouseholdDetail} 
-        options={({ route }) => ({ title: route.params.householdName })} 
+      <Stack.Screen
+        name="HouseholdDetail"
+        component={HouseholdDetail}
+        options={({ route }) => ({ title: route.params.householdName })}
       />
     </Stack.Navigator>
   );
@@ -104,7 +104,9 @@ function MainTabNavigator() {
         },
         tabBarActiveTintColor: "lightblue",
         tabBarInactiveTintColor: "gray",
-        headerTitle: auth.currentUser.displayName ? auth.currentUser.displayName : "App",
+        headerTitle: auth.currentUser.displayName
+          ? auth.currentUser.displayName
+          : "App",
       })}
     >
       <Tab.Screen name="Home" component={Home} />
