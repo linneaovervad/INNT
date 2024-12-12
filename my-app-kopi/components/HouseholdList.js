@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ref, onValue, push, remove } from 'firebase/database';
-import { db, auth } from '../firebase'; // Sørg for at importere din firebase konfiguration
+import { db, auth } from '../firebase';
+import Toast from 'react-native-toast-message'; // Importer Toast
 
 export default function HouseholdList({ navigation }) {
   const [households, setHouseholds] = useState([]);
@@ -27,13 +28,17 @@ export default function HouseholdList({ navigation }) {
       setHouseholds(householdList);
     });
 
-    return () => unsubscribe(); // Clean up listener on unmount
+    return () => unsubscribe();
   }, []);
 
   // Funktion til at oprette en ny husholdning
   const createHousehold = () => {
     if (!newHousehold.trim()) {
-      Alert.alert('Fejl', 'Indtast venligst et navn for husholdningen.');
+      Toast.show({
+        type: 'error',
+        text1: 'Fejl',
+        text2: 'Indtast venligst et navn for husholdningen.',
+      });
       return;
     }
 
@@ -46,11 +51,19 @@ export default function HouseholdList({ navigation }) {
     })
       .then(() => {
         setNewHousehold('');
-        Alert.alert('Success', 'Husholdning oprettet.');
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Husholdning oprettet.',
+        });
       })
       .catch((error) => {
         console.error('Error creating household:', error);
-        Alert.alert('Fejl', 'Der opstod en fejl under oprettelsen af husholdningen.');
+        Toast.show({
+          type: 'error',
+          text1: 'Fejl',
+          text2: 'Der opstod en fejl under oprettelsen af husholdningen.',
+        });
       });
   };
 
@@ -67,11 +80,19 @@ export default function HouseholdList({ navigation }) {
             const householdRef = ref(db, `households/${id}`);
             remove(householdRef)
               .then(() => {
-                Alert.alert('Success', 'Husholdning slettet.');
+                Toast.show({
+                  type: 'success',
+                  text1: 'Success',
+                  text2: 'Husholdning slettet.',
+                });
               })
               .catch((error) => {
                 console.error('Error deleting household:', error);
-                Alert.alert('Fejl', 'Der opstod en fejl under sletningen.');
+                Toast.show({
+                  type: 'error',
+                  text1: 'Fejl',
+                  text2: 'Der opstod en fejl under sletningen.',
+                });
               });
           },
         },
@@ -83,7 +104,9 @@ export default function HouseholdList({ navigation }) {
   const renderHousehold = ({ item }) => (
     <TouchableOpacity
       style={styles.householdItem}
-      onPress={() => navigation.navigate('HouseholdDetail', { householdId: item.id, householdName: item.name })}
+      onPress={() =>
+        navigation.navigate('HouseholdDetail', { householdId: item.id, householdName: item.name })
+      }
     >
       <Text style={styles.householdName}>{item.name}</Text>
       <TouchableOpacity onPress={() => deleteHousehold(item.id)} style={styles.deleteButton}>

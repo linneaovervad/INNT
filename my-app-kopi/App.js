@@ -50,7 +50,7 @@ export default function App() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
         </Stack.Navigator>
-        <Toast ref={(ref) => Toast.setRef(ref)} />
+        <Toast/>
       </NavigationContainer>
     );
   }

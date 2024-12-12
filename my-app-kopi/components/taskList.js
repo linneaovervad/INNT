@@ -1,4 +1,4 @@
-// components/ImageScreen.js
+// components/ImageScreen.js hej
 import React, { useEffect, useState } from "react";
 import { Dimensions, Image, StyleSheet, View } from "react-native";
 

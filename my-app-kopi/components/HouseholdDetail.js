@@ -12,8 +12,9 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ref, onValue, update, remove, get, query, orderByChild, equalTo } from 'firebase/database';
-import { db } from '../firebase'; // Sørg for at importere din firebase konfiguration
+import { db } from '../firebase';
 import MemberItem from './MemberItem'; // Importer MemberItem
+import Toast from 'react-native-toast-message'; // Importer Toast
 
 export default function HouseholdDetail({ route, navigation }) {
   const { householdId, householdName } = route.params;
@@ -36,7 +37,11 @@ export default function HouseholdDetail({ route, navigation }) {
   // Funktion til at søge efter en bruger baseret på e-mail
   const searchUserByEmail = () => {
     if (!searchEmail.trim()) {
-      Alert.alert('Fejl', 'Indtast venligst en e-mail at søge efter.');
+      Toast.show({
+        type: 'error',
+        text1: 'Fejl',
+        text2: 'Indtast venligst en e-mail at søge efter.',
+      });
       return;
     }
 
@@ -53,42 +58,68 @@ export default function HouseholdDetail({ route, navigation }) {
           setSearchResult({ id: userId, ...data[userId] });
         } else {
           setSearchResult(null);
-          Alert.alert('Ingen Resultater', 'Ingen bruger fundet med den angivne e-mail.');
+          Toast.show({
+            type: 'info',
+            text1: 'Ingen Resultater',
+            text2: 'Ingen bruger fundet med den angivne e-mail.',
+          });
         }
       })
       .catch((error) => {
         setLoading(false);
         console.error('Error searching user:', error);
-        Alert.alert('Fejl', 'Der opstod en fejl under søgningen.');
+        Toast.show({
+          type: 'error',
+          text1: 'Fejl',
+          text2: 'Der opstod en fejl under søgningen.',
+        });
       });
   };
 
-  // Funktion til at tilføje en bruger til husholdningen
   const addUserToHousehold = () => {
     if (!searchResult) {
-      Alert.alert('Fejl', 'Ingen bruger at tilføje.');
+      Toast.show({
+        type: 'error',
+        text1: 'Fejl',
+        text2: 'Ingen bruger at tilføje.',
+      });
       return;
     }
-
+  
     // Tjek om brugeren allerede er medlem
     if (household.members && household.members[searchResult.id]) {
-      Alert.alert('Info', `${searchResult.name} er allerede medlem af ${household.name}.`);
+      Toast.show({
+        type: 'info',
+        text1: 'Info',
+        text2: `${searchResult.displayName || searchResult.email} er allerede medlem af ${household.name}.`,
+      });
       return;
     }
-
-    const memberRef = ref(db, `households/${householdId}/members/${searchResult.id}`);
-
-    update(memberRef, true)
+  
+    const memberRef = ref(db, `households/${householdId}/members`);
+  
+    update(memberRef, {
+      [searchResult.id]: true
+    })
       .then(() => {
-        Alert.alert('Success', `${searchResult.name} er blevet tilføjet til ${household.name}.`);
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: `${searchResult.displayName || searchResult.email} er blevet tilføjet til ${household.name}.`,
+        });
         setSearchEmail('');
         setSearchResult(null);
       })
       .catch((error) => {
         console.error('Error adding user to household:', error);
-        Alert.alert('Fejl', 'Der opstod en fejl under tilføjelsen af brugeren.');
+        Toast.show({
+          type: 'error',
+          text1: 'Fejl',
+          text2: 'Der opstod en fejl under tilføjelsen af brugeren.',
+        });
       });
   };
+  
 
   // Funktion til at fjerne en bruger fra husholdningen
   const removeUserFromHousehold = (userId, userName) => {
@@ -103,11 +134,19 @@ export default function HouseholdDetail({ route, navigation }) {
             const memberRef = ref(db, `households/${householdId}/members/${userId}`);
             remove(memberRef)
               .then(() => {
-                Alert.alert('Success', `${userName} er fjernet fra ${householdName}.`);
+                Toast.show({
+                  type: 'success',
+                  text1: 'Success',
+                  text2: `${userName} er fjernet fra ${householdName}.`,
+                });
               })
               .catch((error) => {
                 console.error('Error removing user from household:', error);
-                Alert.alert('Fejl', 'Der opstod en fejl under fjernelsen af brugeren.');
+                Toast.show({
+                  type: 'error',
+                  text1: 'Fejl',
+                  text2: 'Der opstod en fejl under fjernelsen af brugeren.',
+                });
               });
           },
         },
@@ -159,7 +198,7 @@ export default function HouseholdDetail({ route, navigation }) {
         {/* Vis søgeresultater */}
         {searchResult && (
           <View style={styles.searchResultContainer}>
-            <Text style={styles.resultText}>Bruger Fundet: {searchResult.name} ({searchResult.email})</Text>
+            <Text style={styles.resultText}>Bruger Fundet: {searchResult.displayName || searchResult.email}</Text>
             <TouchableOpacity onPress={addUserToHousehold} style={styles.addButton}>
               <Ionicons name="add-circle-outline" size={24} color="#fff" />
               <Text style={styles.addButtonText}>Tilføj til Husholdning</Text>
@@ -167,6 +206,9 @@ export default function HouseholdDetail({ route, navigation }) {
           </View>
         )}
       </View>
+      
+      {/* Placer Toast komponenten her uden ref */}
+      <Toast />
     </View>
   );
 }

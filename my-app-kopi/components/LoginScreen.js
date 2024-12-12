@@ -1,49 +1,67 @@
 // components/LoginScreen.js
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase'; // Importer auth fra firebase.js
+import { db } from '../firebase';
+import Toast from 'react-native-toast-message'; // Importer Toast
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSignIn = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // Hvis succes, vil onAuthStateChanged i App.js opdatere user state
-    } catch (error) {
-      setErrorMessage(error.message);
+  const handleLogin = () => {
+    if (!email || !password) {
+      Alert.alert('Fejl', 'Udfyld alle felter.');
+      return;
     }
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Logget ind.',
+        });
+        navigation.navigate('Main'); // Naviger til hovedskærmen
+      })
+      .catch((error) => {
+        console.error('Error logging in:', error);
+        Alert.alert('Fejl', error.message);
+      });
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Log ind</Text>
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      <Text style={styles.heading}>Log Ind</Text>
+      
       <TextInput
-        style={styles.input}
-        placeholder="Email"
+        placeholder="E-mail"
         value={email}
         onChangeText={setEmail}
+        style={styles.input}
         keyboardType="email-address"
         autoCapitalize="none"
       />
+      
       <TextInput
-        style={styles.input}
         placeholder="Adgangskode"
         value={password}
         onChangeText={setPassword}
+        style={styles.input}
         secureTextEntry
       />
-
-      <Button title="Log ind" onPress={handleSignIn} />
-
-      <View style={{ height: 10 }} />
-      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-        <Text style={{ textAlign: 'center', color: 'blue', marginTop: 10 }}>Opret bruger</Text>
+      
+      <TouchableOpacity onPress={handleLogin} style={styles.button}>
+        <Text style={styles.buttonText}>Log Ind</Text>
       </TouchableOpacity>
+      
+      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+        <Text style={styles.signupText}>Opret en ny konto</Text>
+      </TouchableOpacity>
+      
+      {/* Placer Toast komponenten her uden ref */}
+      <Toast />
     </View>
   );
 }
@@ -51,24 +69,41 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 20,
+    backgroundColor: '#FDFEFE',
     justifyContent: 'center',
-    padding: 20
   },
-  title: {
+  heading: {
     fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center'
+    fontWeight: 'bold',
+    marginBottom: 30,
+    textAlign: 'center',
+    color: '#2E4053',
   },
   input: {
+    height: 50,
+    borderColor: '#AAB7B8',
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    backgroundColor: '#EBF5FB',
   },
-  error: {
-    color: 'red',
+  button: {
+    backgroundColor: '#2874A6',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
     marginBottom: 10,
-    textAlign: 'center'
-  }
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  signupText: {
+    color: '#28B463',
+    textAlign: 'center',
+    fontSize: 16,
+  },
 });
