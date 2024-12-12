@@ -180,7 +180,9 @@ export default function Home() {
               style={styles.taskImage}
               resizeMode="cover"
             />
-          ) : null}
+            ) : null}
+            <Text>Description:  </Text>
+            <Text>{item.description}</Text>
         </View>
       </View>
       <TouchableOpacity onPress={() => handleDelete(item.id)}>
@@ -278,9 +280,10 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   taskImage: {
-    width: 100,
-    height: 100,
+    width: "150",
+    height: "250",
     marginTop: 10,
     borderRadius: 8,
+    objectFit:"contain",
   },
 });

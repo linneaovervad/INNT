@@ -25,6 +25,7 @@ export default function ChoreList({ database }) {
   const [assignedPerson, setAssignedPerson] = useState(null);
   const [householdMembers, setHouseholdMembers] = useState([]);
   const [deadline, setDeadline] = useState(new Date());
+  const [description, setDescription] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
@@ -117,13 +118,26 @@ export default function ChoreList({ database }) {
       return;
     }
 
-    const choresRef = ref(database, "chores");
-    push(choresRef, {
-      name: newChore,
-      assignedTo: assignedPerson.id,
-      deadline: deadline.toISOString().split("T")[0],
-      completed: false,
-      picture: base64Image,
+  const choresRef = ref(database, 'chores');
+  push(choresRef, {
+    name: newChore,
+    assignedTo: assignedPerson.id, // Ændret fra objekt til UID-streng
+    deadline: deadline.toISOString().split('T')[0],
+    completed: false,
+    picture: base64Image,
+    description
+  })
+    .then(() => {
+      setNewChore('');
+      setAssignedPerson(null);
+      setDeadline(new Date());
+      setDescription('');
+      setCurrentImage('');
+      Toast.show({
+        type: 'success',
+        text1: 'Succes',
+        text2: 'Opgave tilføjet!',
+      });
     })
       .then(() => {
         setNewChore("");
@@ -246,6 +260,13 @@ export default function ChoreList({ database }) {
           onChange={onDateChange}
         />
       )}
+
+      <TextInput 
+        placeholder="Description"
+        value={description}
+        onChangeText={setDescription}
+        style={styles.description}
+      />
       <TouchableOpacity
         onPress={() => setShowCamera(true)}
         style={styles.actionButton}
@@ -313,12 +334,25 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   inputField: {
+    fontSize: 16,
+    color: "black",
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 12,
     marginBottom: 15,
     borderRadius: 8,
     backgroundColor: "#fff",
+  },
+  description: {
+    fontSize: 16,
+    color: "black",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 12,
+    marginBottom: 15,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    height: 200,
   },
   datePickerButton: {
     padding: 12,
