@@ -5,21 +5,20 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "./firebase"; // Importer auth og db fra firebase.js
+import { auth, db } from "./firebase";
 import Toast from "react-native-toast-message";
 
-// Importer dine komponenter
+// Importer komponenter
 import Home from "./components/Home";
 import ChoreList from "./components/ChoreList";
 import TaskList from "./components/TaskList";
 import Settings from "./components/Settings";
 import CalendarScreen from "./components/Calendar";
 import ChatScreen from "./components/ChatScreen";
-import HouseholdList from "./components/HouseholdList"; // Importer HouseholdList
-import HouseholdDetail from "./components/HouseholdDetail"; // Importer HouseholdDetail
-
-import LoginScreen from "./components/LoginScreen"; // Login screen
-import SignUpScreen from "./components/SignUpScreen"; // Sign up screen
+import HouseholdList from "./components/HouseholdList"; 
+import HouseholdDetail from "./components/HouseholdDetail"; 
+import LoginScreen from "./components/LoginScreen";
+import SignUpScreen from "./components/SignUpScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
