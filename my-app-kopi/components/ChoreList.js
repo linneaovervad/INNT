@@ -17,6 +17,7 @@ import { ref, onValue, push, remove, update } from 'firebase/database';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { CameraView } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
+import Toast from 'react-native-toast-message';
 
 export default function ChoreList({ database }) {
   const [chores, setChores] = useState([]);
@@ -127,29 +128,40 @@ export default function ChoreList({ database }) {
   }, [database]);
 
   // Add a new chore
-  const addChore = () => {
-    if (!newChore.trim() || !assignedPerson?.displayName) {
-      alert('Please fill in all fields before adding a chore.');
-      return;
-    }
-    const choresRef = ref(database, 'chores');
-    push(choresRef, {
-      name: newChore,
-      assignedTo: {
-        personId: assignedPerson.id,
-        personName: assignedPerson.displayName
-      },
-      deadline: deadline.toISOString().split('T')[0],
-      completed: false,
-      picture: base64Image,
+const addChore = () => {
+  if (!newChore.trim() || !assignedPerson) {
+    Alert.alert('Fejl', 'Udfyld alle felter før tilføjelse af en opgave.');
+    return;
+  }
+
+  const choresRef = ref(database, 'chores');
+  push(choresRef, {
+    name: newChore,
+    assignedTo: assignedPerson.id, // Ændret fra objekt til UID-streng
+    deadline: deadline.toISOString().split('T')[0],
+    completed: false,
+    picture: base64Image,
+  })
+    .then(() => {
+      setNewChore('');
+      setAssignedPerson(null);
+      setDeadline(new Date());
+      Toast.show({
+        type: 'success',
+        text1: 'Succes',
+        text2: 'Opgave tilføjet!',
+      });
     })
-      .then(() => {
-        setNewChore('');
-        setAssignedPerson(null);
-        setDeadline(new Date());
-      })
-      .catch((error) => console.error('Error adding chore:', error));
-  };
+    .catch((error) => {
+      console.error('Error adding chore:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Fejl',
+        text2: 'Der opstod en fejl ved tilføjelse af opgaven.',
+      });
+    });
+};
+
 
   // Handle date picker changes
   const onDateChange = (event, selectedDate) => {
@@ -280,40 +292,6 @@ export default function ChoreList({ database }) {
         />
       ) : null}
 
-      {/* <FlatList
-        data={chores}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.choreItem}>
-            <View style={styles.choreInfo}>
-              <Text style={styles.choreName}>{item.name}</Text>
-              <Text style={styles.choreAssigned}>
-                Assigned to: {item.assignedTo?.personName || 'Unassigned'}
-              </Text>
-              <Text style={styles.choreDeadline}>
-                Deadline: {item.deadline}
-              </Text>
-              <Image source={{ uri: item.picture }} style={styles.takenImage} />
-              <TouchableOpacity
-                onPress={() => toggleCompleteChore(item.id, item.completed)}
-              >
-                <Ionicons
-                  name={item.completed ? "checkmark-circle" : "ellipse-outline"}
-                  size={24}
-                  color={item.completed ? "green" : "grey"}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => deleteChore(item.id)}
-                style={styles.deleteButton}
-              >
-                <Ionicons name="trash-outline" size={24} color="red" />
-              </TouchableOpacity>
-
-            </View>
-          </View> */}
-        {/* )}
-      /> */}
     </View>
   );
 }
@@ -463,3 +441,43 @@ const styles = StyleSheet.create({
   modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
   dropdownContainer: { width: '80%', backgroundColor: '#fff', borderRadius: 8, padding: 15 },
 });
+
+
+
+
+
+
+      {/* <FlatList
+        data={chores}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.choreItem}>
+            <View style={styles.choreInfo}>
+              <Text style={styles.choreName}>{item.name}</Text>
+              <Text style={styles.choreAssigned}>
+                Assigned to: {item.assignedTo?.personName || 'Unassigned'}
+              </Text>
+              <Text style={styles.choreDeadline}>
+                Deadline: {item.deadline}
+              </Text>
+              <Image source={{ uri: item.picture }} style={styles.takenImage} />
+              <TouchableOpacity
+                onPress={() => toggleCompleteChore(item.id, item.completed)}
+              >
+                <Ionicons
+                  name={item.completed ? "checkmark-circle" : "ellipse-outline"}
+                  size={24}
+                  color={item.completed ? "green" : "grey"}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => deleteChore(item.id)}
+                style={styles.deleteButton}
+              >
+                <Ionicons name="trash-outline" size={24} color="red" />
+              </TouchableOpacity>
+
+            </View>
+          </View> */}
+        {/* )}
+      /> */}

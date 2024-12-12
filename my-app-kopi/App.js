@@ -11,12 +11,11 @@ import Toast from "react-native-toast-message";
 // Importer komponenter
 import Home from "./components/Home";
 import ChoreList from "./components/ChoreList";
-import TaskList from "./components/TaskList";
 import Settings from "./components/Settings";
 import CalendarScreen from "./components/Calendar";
 import ChatScreen from "./components/ChatScreen";
-import HouseholdList from "./components/HouseholdList"; 
-import HouseholdDetail from "./components/HouseholdDetail"; 
+import HouseholdList from "./components/HouseholdList";
+import HouseholdDetail from "./components/HouseholdDetail";
 import LoginScreen from "./components/LoginScreen";
 import SignUpScreen from "./components/SignUpScreen";
 
@@ -116,7 +115,6 @@ function MainTabNavigator() {
         {(props) => <ChoreList {...props} database={db} />}
       </Tab.Screen>
       <Tab.Screen name="Chat Bot" component={ChatScreen} />
-      <Tab.Screen name="Task List" component={TaskList} />
       <Tab.Screen name="Households" component={HouseholdList} />
       <Tab.Screen name="Settings" component={Settings} />
     </Tab.Navigator>
