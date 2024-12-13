@@ -114,7 +114,7 @@ export default function Settings() {
   const handleRemoveAds = () => {
     Alert.alert(
       "Remove Ads",
-      "Do you want to remove ads from the app?",
+      "Do you want to remove ads from the app",
       [
         { text: "Cancel", style: "cancel" },
         {
