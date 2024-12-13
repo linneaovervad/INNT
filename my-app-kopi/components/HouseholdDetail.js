@@ -122,12 +122,16 @@ export default function HouseholdDetail({ route, navigation }) {
       return;
     }
 
-    // Brug set til at tilføje medlemmet med farve
+    // Brug set til at tilføje medlemmet med farve, displayName og email
     const memberRef = ref(
       db,
       `households/${householdId}/members/${searchResult.id}`
     );
-    set(memberRef, { color: selectedColor }) // Gem farven her
+    set(memberRef, { 
+      color: selectedColor,
+      displayName: searchResult.displayName || "Unknown",
+      email: searchResult.email || "",
+    }) // Gem farve, displayName og email
       .then(() => {
         Toast.show({
           type: "success",
