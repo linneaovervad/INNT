@@ -29,7 +29,7 @@ export default function ChoreList({ database }) {
   const [repeatedChore, setRepeatedChore] = useState(null);
   const [householdMembers, setHouseholdMembers] = useState([]);
   const [deadline, setDeadline] = useState(new Date());
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showDropdownRepeat, setShowDropdownRepeat] = useState(false);
@@ -145,16 +145,16 @@ export default function ChoreList({ database }) {
     })
     
       .then(() => {
-        setNewChore('');
+        setNewChore("");
         setAssignedPerson(null);
         setDeadline(new Date());
-        setDescription('');
-        setCurrentImage('');
-        setBase64Image('');
+        setDescription("");
+        setCurrentImage("");
+        setBase64Image("");
         Toast.show({
-          type: 'success',
-          text1: 'Succes',
-          text2: 'Opgave tilføjet!',
+          type: "success",
+          text1: "Succes",
+          text2: "Opgave tilføjet!",
         });
       })
       .catch((error) => {
@@ -218,7 +218,7 @@ export default function ChoreList({ database }) {
     </SafeAreaView>
   ) : (
     <View style={styles.container}>
-      <Banner />
+    <View style={styles.container}>
       <Text style={styles.heading}>New Chore</Text>
       <TextInput
         placeholder="Add a new chore"
@@ -366,6 +366,8 @@ export default function ChoreList({ database }) {
           resizeMode="contain"
         />
       ) : null}
+    </View>
+    <Banner />
     </View>
   );
 }

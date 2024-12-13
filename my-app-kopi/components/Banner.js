@@ -1,18 +1,22 @@
 // components/Banner.js
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 export default function Banner({ onPress }) {
   return (
     <TouchableOpacity onPress={onPress} style={styles.bannerContainer}>
-      <Text style={styles.bannerText}>🔔 Look at out latest offer!</Text>
+      <Image 
+        source={require('../assets/banner.png')} 
+        style={styles.bannerImage} 
+        resizeMode="cover"
+      />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   bannerContainer: {
-    height: 50,
+    height: 60,
     backgroundColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',
@@ -20,8 +24,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
     paddingHorizontal: 10,
   },
-  bannerText: {
-    fontSize: 16,
-    color: '#555',
+  bannerImage: {
+    height: '100%',
+    width: '110%',
+    borderRadius: 5, 
   },
 });

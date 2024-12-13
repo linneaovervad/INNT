@@ -12,7 +12,8 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ref, onValue, push, remove } from "firebase/database";
 import { db, auth } from "../firebase";
-import Toast from "react-native-toast-message"; // Importer Toast
+import Toast from "react-native-toast-message"; 
+import Banner from "./Banner";
 
 export default function HouseholdList({ navigation }) {
   const [households, setHouseholds] = useState([]);
@@ -148,6 +149,7 @@ export default function HouseholdList({ navigation }) {
           <Text style={styles.emptyText}>No households created.</Text>
         }
       />
+       <Banner />
     </View>
   );
 }

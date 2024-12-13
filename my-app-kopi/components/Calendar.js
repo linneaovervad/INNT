@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { ref, onValue } from 'firebase/database';
-import { db } from '../firebase'; // Importer db fra firebase.js
+import { db } from '../firebase'; 
+import Banner from "./Banner";
 
 export default function CalendarScreen() {
   const [markedDates, setMarkedDates] = useState({});
@@ -53,6 +54,7 @@ export default function CalendarScreen() {
 
   return (
     <View style={styles.container}>
+    <View style={styles.container}>
       <Calendar
         onDayPress={handleDayPress}
         markedDates={{
@@ -100,6 +102,8 @@ export default function CalendarScreen() {
         </View>
       )}
     </View>
+    <Banner />
+  </View>
   );
 }
 

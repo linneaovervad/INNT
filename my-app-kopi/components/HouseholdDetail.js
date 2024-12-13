@@ -24,6 +24,7 @@ import {
 import { db } from "../firebase";
 import MemberItem from "./MemberItem";
 import Toast from "react-native-toast-message";
+import Banner from "./Banner";
 
 export default function HouseholdDetail({ route, navigation }) {
   const { householdId, householdName } = route.params;
@@ -179,27 +180,8 @@ export default function HouseholdDetail({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Liste over medlemmer */}
-      <Text style={styles.sectionHeading}>Members</Text>
-      <FlatList
-        data={household?.members ? Object.keys(household.members) : []}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => (
-          <MemberItem
-            userId={item}
-            householdName={householdName}
-            removeUser={removeUserFromHousehold}
-          />
-        )}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            Ingen medlemmer i denne husholdning.
-          </Text>
-        }
-      />
-
-      {/* Søg efter og tilføj bruger */}
-      <View style={styles.addUserContainer}>
+            {/* Søg efter og tilføj bruger */}
+            <View style={styles.addUserContainer}>
         <Text style={styles.sectionHeading}>Add user</Text>
         <View style={styles.searchContainer}>
           <TextInput
@@ -244,7 +226,25 @@ export default function HouseholdDetail({ route, navigation }) {
           </View>
         )}
       </View>
+      <Text style={styles.sectionHeading}>Members</Text>
+      <FlatList
+        data={household?.members ? Object.keys(household.members) : []}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => (
+          <MemberItem
+            userId={item}
+            householdName={householdName}
+            removeUser={removeUserFromHousehold}
+          />
+        )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>
+            Ingen medlemmer i denne husholdning.
+          </Text>
+        }
+      />
       <Toast />
+       <Banner />
     </View>
   );
 }
