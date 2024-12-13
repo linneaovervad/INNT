@@ -10,6 +10,7 @@ import {
   Modal,
   TextInput,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 import {
   signOut,
@@ -20,11 +21,13 @@ import {
 import { ref, remove } from "firebase/database"; // Importér remove fra firebase/database
 import { auth, db } from "../firebase"; // Importér auth og db fra firebase.js
 import Toast from "react-native-toast-message"; // Importér Toast, hvis du bruger det
+import { useNavigation } from "@react-navigation/native"; // Importer useNavigation
 
-export default function Settings({ navigation }) {
+export default function Settings() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [password, setPassword] = useState("");
+  const navigation = useNavigation(); // Brug useNavigation hook
 
   // Funktion til at skifte status for notifikationer
   const toggleNotifications = () =>
@@ -56,25 +59,21 @@ export default function Settings({ navigation }) {
 
   // Funktion til at logge ud
   const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Er du sikker på, at du vil logge ud?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Yes",
-          onPress: async () => {
-            try {
-              await signOut(auth);
-              Alert.alert("Success", "Du er blevet logget ud.");
-              navigation.navigate('Login'); // Naviger til login-skærmen efter logout
-            } catch (error) {
-              Alert.alert("Error", error.message);
-            }
+    Alert.alert("Logout", "Er du sikker på, at du vil logge ud?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Yes",
+        onPress: async () => {
+          try {
+            await signOut(auth);
+            Alert.alert("Success", "Du er blevet logget ud.");
+            navigation.navigate("Login"); // Naviger til login-skærmen efter logout
+          } catch (error) {
+            Alert.alert("Error", error.message);
           }
-        }
-      ]
-    );
+        },
+      },
+    ]);
   };
 
   // Funktion til at bekræfte sletning af konto
@@ -111,6 +110,25 @@ export default function Settings({ navigation }) {
     }
   };
 
+  // Funktion til at håndtere Remove Ads
+  const handleRemoveAds = () => {
+    Alert.alert(
+      "Remove Ads",
+      "Do you want to remove ads from the app?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Proceed",
+          onPress: () => {
+            const paymentUrl = "https://www.example.com/remove-ads"; // Tredje parts betalingsgateway
+            navigation.navigate("PaymentWebView", { url: paymentUrl });
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Settings</Text>
@@ -123,31 +141,26 @@ export default function Settings({ navigation }) {
         />
       </View>
 
-      {/* Knappen til at ændre kodeord */}
       <View style={styles.settingItem}>
         <Button title="Change password" onPress={handleChangePassword} />
       </View>
 
-      {/* Knappen til at slette konto */}
       <View style={styles.settingItem}>
-        <Button
-          title="Delete account"
-          onPress={handleDeleteAccount}
-          color="red"
-        />
+        <Button title="Delete account" onPress={handleDeleteAccount} />
       </View>
 
-      {/* Knappen til at kontakte support */}
       <View style={styles.settingItem}>
         <Button title="Contact Support" onPress={handleContactSupport} />
       </View>
 
-      {/* Knappen til at logge ud */}
       <View style={styles.settingItem}>
-        <Button title="Logout" onPress={handleLogout} color="red" />
+        <Button title="Logout" onPress={handleLogout} />
       </View>
 
-      {/* Modal til at indtaste password for sletning */}
+      <View style={styles.settingItem}>
+        <Button title="Remove Ads" onPress={handleRemoveAds} />
+      </View>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -219,7 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 22,
-    backgroundColor: "rgba(0,0,0,0.5)", // Semi-transparent baggrund
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalView: {
     margin: 20,

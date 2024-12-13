@@ -18,6 +18,7 @@ import HouseholdList from "./components/HouseholdList";
 import HouseholdDetail from "./components/HouseholdDetail";
 import LoginScreen from "./components/LoginScreen";
 import SignUpScreen from "./components/SignUpScreen";
+import PaymentWebView from "./components/PaymentWebView";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -71,6 +72,11 @@ function AppStackNavigator() {
         name="HouseholdDetail"
         component={HouseholdDetail}
         options={({ route }) => ({ title: route.params.householdName })}
+      />
+      <Stack.Screen
+        name="PaymentWebView"
+        component={PaymentWebView}
+        options={{ title: "Remove Ads" }}
       />
     </Stack.Navigator>
   );
