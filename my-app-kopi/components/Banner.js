@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 export default function Banner({ onPress }) {
   return (
     <TouchableOpacity onPress={onPress} style={styles.bannerContainer}>
-      <Text style={styles.bannerText}>🔔 Se vores seneste tilbud!</Text>
+      <Text style={styles.bannerText}>🔔 Look at out latest offer!</Text>
     </TouchableOpacity>
   );
 }
