@@ -32,6 +32,7 @@ export default function HouseholdDetail({ route, navigation }) {
   const [searchEmail, setSearchEmail] = useState("");
   const [searchResult, setSearchResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [selectedColor, setSelectedColor] = useState(null); // Tilføj state for valgt farve
 
   useEffect(() => {
     navigation.setOptions({ title: householdName });
@@ -86,7 +87,7 @@ export default function HouseholdDetail({ route, navigation }) {
         Toast.show({
           type: "error",
           text1: "Error",
-          text2: "An error occured during search.",
+          text2: "An error occurred during search.",
         });
       });
   };
@@ -102,42 +103,47 @@ export default function HouseholdDetail({ route, navigation }) {
       return;
     }
 
+    if (!selectedColor) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please select a color for the user.",
+      });
+      return;
+    }
+
     // Tjek om brugeren allerede er medlem
     if (household.members && household.members[searchResult.id]) {
       Toast.show({
         type: "info",
         text1: "Info",
-        text2: `${
-          searchResult.displayName || searchResult.email
-        } is allready a member of ${household.name}.`,
+        text2: `${searchResult.displayName || searchResult.email} is already a member of ${household.name}.`,
       });
       return;
     }
 
-    // Brug set til at tilføje medlemmet
+    // Brug set til at tilføje medlemmet med farve
     const memberRef = ref(
       db,
       `households/${householdId}/members/${searchResult.id}`
     );
-
-    set(memberRef, true)
+    set(memberRef, { color: selectedColor }) // Gem farven her
       .then(() => {
         Toast.show({
           type: "success",
           text1: "Success",
-          text2: `${
-            searchResult.displayName || searchResult.email
-          } has been added ${household.name}.`,
+          text2: `${searchResult.displayName || searchResult.email} has been added to ${household.name} with the selected color.`,
         });
         setSearchEmail("");
         setSearchResult(null);
+        setSelectedColor(null); // Reset farvevalget efter tilføjelse
       })
       .catch((error) => {
         console.error("Error adding user to household:", error);
         Toast.show({
           type: "error",
           text1: "Error",
-          text2: "An error ocurred when adding user.",
+          text2: "An error occurred when adding user.",
         });
       });
   };
@@ -161,7 +167,7 @@ export default function HouseholdDetail({ route, navigation }) {
                 Toast.show({
                   type: "success",
                   text1: "Success",
-                  text2: `${userName} Has been removed ${householdName}.`,
+                  text2: `${userName} has been removed from ${householdName}.`,
                 });
               })
               .catch((error) => {
@@ -169,7 +175,7 @@ export default function HouseholdDetail({ route, navigation }) {
                 Toast.show({
                   type: "error",
                   text1: "Error",
-                  text2: "An error occured when removing the user.",
+                  text2: "An error occurred when removing the user.",
                 });
               });
           },
@@ -178,10 +184,24 @@ export default function HouseholdDetail({ route, navigation }) {
     );
   };
 
+  // Liste over tilgængelige farver
+  const availableColors = [
+    "#FF5733",
+    "#33FF57",
+    "#3357FF",
+    "#FF33A8",
+    "#A833FF",
+    "#33FFF6",
+    "#FF8F33",
+    "#8FFF33",
+    "#FF3333",
+    "#33FF8F",
+  ];
+
   return (
     <View style={styles.container}>
-            {/* Søg efter og tilføj bruger */}
-            <View style={styles.addUserContainer}>
+      {/* Søg efter og tilføj bruger */}
+      <View style={styles.addUserContainer}>
         <Text style={styles.sectionHeading}>Add user</Text>
         <View style={styles.searchContainer}>
           <TextInput
@@ -201,7 +221,7 @@ export default function HouseholdDetail({ route, navigation }) {
             ) : (
               <>
                 <Ionicons name="search-outline" size={24} color="#fff" />
-                <Text style={styles.searchButtonText}>Søg</Text>
+                <Text style={styles.searchButtonText}>Search</Text>
               </>
             )}
           </TouchableOpacity>
@@ -216,6 +236,23 @@ export default function HouseholdDetail({ route, navigation }) {
                 ? `${searchResult.displayName} (${searchResult.email})`
                 : searchResult.email}
             </Text>
+            
+            {/* Farvevalg */}
+            <Text style={styles.colorLabel}>Select a color:</Text>
+            <View style={styles.colorsContainer}>
+              {availableColors.map((color) => (
+                <TouchableOpacity
+                  key={color}
+                  style={[
+                    styles.colorCircle,
+                    { backgroundColor: color },
+                    selectedColor === color && styles.selectedColorCircle,
+                  ]}
+                  onPress={() => setSelectedColor(color)}
+                />
+              ))}
+            </View>
+
             <TouchableOpacity
               onPress={addUserToHousehold}
               style={styles.addButton}
@@ -233,6 +270,7 @@ export default function HouseholdDetail({ route, navigation }) {
         renderItem={({ item }) => (
           <MemberItem
             userId={item}
+            householdId={householdId} // Tilføj householdId her
             householdName={householdName}
             removeUser={removeUserFromHousehold}
           />
@@ -244,7 +282,7 @@ export default function HouseholdDetail({ route, navigation }) {
         }
       />
       <Toast />
-       <Banner />
+      <Banner />
     </View>
   );
 }
@@ -313,6 +351,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#D4EFDF",
     borderRadius: 8,
+    marginTop: 10,
   },
   resultText: {
     color: "#1E8449",
@@ -325,6 +364,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#28B463",
     padding: 10,
     borderRadius: 8,
+    marginTop: 10,
+    justifyContent: "center",
   },
   addButtonText: {
     color: "#fff",
@@ -336,5 +377,27 @@ const styles = StyleSheet.create({
     color: "#5D6D7E",
     fontSize: 16,
     marginTop: 10,
+  },
+  colorLabel: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 5,
+  },
+  colorsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 10,
+  },
+  colorCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  selectedColorCircle: {
+    borderColor: "#000",
   },
 });
