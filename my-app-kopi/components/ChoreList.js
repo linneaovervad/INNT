@@ -15,7 +15,7 @@ import {
   Alert,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { ref, onValue, push, remove, update } from "firebase/database";
+import { ref, onValue, push, remove, update, set } from "firebase/database";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { CameraView } from "expo-camera";
 import * as FileSystem from "expo-file-system";
@@ -40,6 +40,8 @@ export default function ChoreList({ database }) {
   const [base64Image, setBase64Image] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedInterval, setSelectedInterval] = useState(null);
+  const [showDropdownAlgorithm, setShowDropdownAlgorithm] = useState(false);
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState(null);
 
   const cameraRef = useRef();
 
@@ -133,38 +135,38 @@ export default function ChoreList({ database }) {
 
     const choresRef = ref(database, 'chores');
     console.log(repeatedChore),
-    push(choresRef, {
-      name: newChore,
-      assignedTo: assignedPerson.id, // Sørg for at dette er brugerens UID
-      deadline: deadline.toISOString(), // Gem hele ISO-strengen inkl. tid
-      completed: false,
-      picture: base64Image,
-      description,
-      repeatedChore: selectedInterval ? selectedInterval.label : null,
-     
-    })
-    
-      .then(() => {
-        setNewChore("");
-        setAssignedPerson(null);
-        setDeadline(new Date());
-        setDescription("");
-        setCurrentImage("");
-        setBase64Image("");
-        Toast.show({
-          type: "success",
-          text1: "Succes",
-          text2: "Opgave tilføjet!",
-        });
+      push(choresRef, {
+        name: newChore,
+        assignedTo: assignedPerson.id, // Sørg for at dette er brugerens UID
+        deadline: deadline.toISOString(), // Gem hele ISO-strengen inkl. tid
+        completed: false,
+        picture: base64Image,
+        description,
+        repeatedChore: selectedInterval ? selectedInterval.label : null,
+
       })
-      .catch((error) => {
-        console.error("Error adding chore:", error);
-        Toast.show({
-          type: "error",
-          text1: "Fejl",
-          text2: "Der opstod en fejl ved tilføjelse af opgaven.",
+
+        .then(() => {
+          setNewChore("");
+          setAssignedPerson(null);
+          setDeadline(new Date());
+          setDescription("");
+          setCurrentImage("");
+          setBase64Image("");
+          Toast.show({
+            type: "success",
+            text1: "Succes",
+            text2: "Opgave tilføjet!",
+          });
+        })
+        .catch((error) => {
+          console.error("Error adding chore:", error);
+          Toast.show({
+            type: "error",
+            text1: "Fejl",
+            text2: "Der opstod en fejl ved tilføjelse af opgaven.",
+          });
         });
-      });
   };
 
   // Handle date picker changes
@@ -178,7 +180,7 @@ export default function ChoreList({ database }) {
   };
 
   const intervals = [
-    { id: '0', label: 'No'},
+    { id: '0', label: 'No' },
     { id: '1', label: 'Daily' },
     { id: '2', label: 'Weekly' },
     { id: '3', label: 'Monthly' },
@@ -186,11 +188,22 @@ export default function ChoreList({ database }) {
     { id: '5', label: '3 Months' },
     { id: '6', label: '6 Months' },
   ];
-  const handleSelect = (item) => {
+  const handleSelectInterval = (item) => {
     setSelectedInterval(item);
     setShowDropdownRepeat(false);
   }
 
+  const algorithm = [
+    { id: '0', label: 'No' },
+    { id: '1', label: 'Always the same person' },
+    { id: '2', label: 'Rotate between all members' },
+    { id: '3', label: 'Always random selection' }
+  ]
+
+  const handleSelectAlgorithm = (item) => {
+    setSelectedAlgorithm(item);
+    setShowDropdownAlgorithm(false);
+  }
 
   return showCamera ? (
     <SafeAreaView style={styles.safeview}>
@@ -218,156 +231,186 @@ export default function ChoreList({ database }) {
     </SafeAreaView>
   ) : (
     <View style={styles.container}>
-    <View style={styles.container}>
-      <Text style={styles.heading}>New Chore</Text>
-      <TextInput
-        placeholder="Add a new chore"
-        value={newChore}
-        onChangeText={setNewChore}
-        style={styles.inputField}
-      />
+      <View style={styles.container}>
+        <Text style={styles.heading}>New Chore</Text>
+        <TextInput
+          placeholder="Chore"
+          value={newChore}
+          onChangeText={setNewChore}
+          style={styles.inputField}
+        />
 
-      <TouchableOpacity
-        style={styles.dropdownButton}
-        onPress={() => setShowDropdown(true)}
-      >
-        <Text style={styles.dropdownButtonText}>
-          {assignedPerson?.displayName || "Assign to: Select a person"}
-        </Text>
-        <Ionicons name="chevron-down-outline" size={20} color="#333" />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.dropdownButton}
+          onPress={() => setShowDropdown(true)}
+        >
+          <Text style={styles.dropdownButtonText}>
+            {assignedPerson?.displayName || "Select a person"}
+          </Text>
+          <Ionicons name="chevron-down-outline" size={20} color="#333" />
+        </TouchableOpacity>
 
-      <Modal
-        transparent
-        visible={showDropdown}
-        animationType="slide"
-        onRequestClose={() => setShowDropdown(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.dropdownContainer}>
-            <Text style={styles.dropdownTitle}>Select a person</Text>
-            <FlatList
-              data={householdMembers}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setAssignedPerson(item);
-                    setShowDropdown(false);
-                  }}
-                >
-                  <Text style={styles.dropdownItemText}>
-                    {item.displayName}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
+        <Modal
+          transparent
+          visible={showDropdown}
+          animationType="slide"
+          onRequestClose={() => setShowDropdown(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.dropdownContainer}>
+              <Text style={styles.dropdownTitle}>Select a person</Text>
+              <FlatList
+                data={householdMembers}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.dropdownItem}
+                    onPress={() => {
+                      setAssignedPerson(item);
+                      setShowDropdown(false);
+                    }}
+                  >
+                    <Text style={styles.dropdownItemText}>
+                      {item.displayName}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      <TouchableOpacity
-        style={styles.dropdownButton}
-        onPress={() => setShowDropdownRepeat(true)}
-      >
-        <Text style={styles.dropdownButtonText}>
-          {selectedInterval ? selectedInterval.label : "Repeat Chore?"}
-        </Text>
-        <Ionicons name="chevron-down-outline" size={20} color="#333" />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.dropdownButton}
+          onPress={() => setShowDropdownRepeat(true)}
+        >
+          <Text style={styles.dropdownButtonText}>
+            {selectedInterval ? selectedInterval.label : "Repeat Chore?"}
+          </Text>
+          <Ionicons name="chevron-down-outline" size={20} color="#333" />
+        </TouchableOpacity>
 
-      <Modal
-        transparent
-        visible={showDropdownRepeat}
-        animationType="slide"
-        onRequestClose={() => setShowDropdownRepeat(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.dropdownContainer}>
-            <Text style={styles.dropdownTitle}>Select how often you want the task to repeat</Text>
-            <FlatList
-              data={intervals}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.dropdownItem}
-                  onPress={() => handleSelect(item)}
-                >
-                  <Text style={styles.dropdownItemText}>
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-
+        <Modal
+          transparent
+          visible={showDropdownRepeat}
+          animationType="slide"
+          onRequestClose={() => setShowDropdownRepeat(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.dropdownContainer}>
+              <Text style={styles.dropdownTitle}>Select how often you want the task to repeat</Text>
+              <FlatList
+                data={intervals}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.dropdownItem}
+                    onPress={() => handleSelectInterval(item)}
+                  >
+                    <Text style={styles.dropdownItemText}>
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
           </View>
-
-        </View>
-
-      </Modal>
+        </Modal>
 
 
+        <TouchableOpacity
+          style={styles.dropdownButton}
+          onPress={() => setShowDropdownAlgorithm(true)}
+        >
+          <Text style={styles.dropdownButtonText}>
+            {selectedAlgorithm ? selectedAlgorithm.label : "How to assign the chore?"}
+          </Text>
+          <Ionicons name="chevron-down-outline" size={20} color="#333" />
+        </TouchableOpacity>
 
+        <Modal
+          transparent
+          visible={showDropdownAlgorithm}
+          animationType="slide"
+          onRequestClose={() => setShowDropdownAlgorithm(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.dropdownContainer}>
+              <Text style={styles.dropdownTitle}>Select how you want to assign the chore</Text>
+              <FlatList
+                data={algorithm}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.dropdownItem}
+                    onPress={() => handleSelectAlgorithm(item)}
+                  >
+                    <Text style={styles.dropdownItemText}>
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </View>
+        </Modal>
 
+        <TouchableOpacity
+          onPress={() => setShowDatePicker(true)}
+          style={styles.datePickerButton}
+        >
+          <Text style={styles.dateText}>
+            Deadline: {deadline.toLocaleString()}
+          </Text>
+        </TouchableOpacity>
 
+        {showDatePicker && (
+          <DateTimePicker
+            value={deadline}
+            mode="datetime"
+            display="default"
+            onChange={onDateChange}
+          />
+        )}
 
-      <TouchableOpacity
-        onPress={() => setShowDatePicker(true)}
-        style={styles.datePickerButton}
-      >
-        <Text style={styles.dateText}>
-          Deadline: {deadline.toLocaleString()}
-        </Text>
-      </TouchableOpacity>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={deadline}
-          mode="datetime"
-          display="default"
-          onChange={onDateChange}
+        <TextInput
+          placeholder="Description"
+          value={description}
+          onChangeText={setDescription}
+          style={styles.description}
         />
-      )}
+        <TouchableOpacity
+          onPress={() => setShowCamera(true)}
+          style={styles.actionButton}
+        >
+          <Ionicons
+            name="camera-outline"
+            size={20}
+            color="#fff"
+            style={styles.buttonIcon}
+          />
+          <Text style={styles.actionButtonText}>Take a picture</Text>
+        </TouchableOpacity>
 
-      <TextInput
-        placeholder="Description"
-        value={description}
-        onChangeText={setDescription}
-        style={styles.description}
-      />
-      <TouchableOpacity
-        onPress={() => setShowCamera(true)}
-        style={styles.actionButton}
-      >
-        <Ionicons
-          name="camera-outline"
-          size={20}
-          color="#fff"
-          style={styles.buttonIcon}
-        />
-        <Text style={styles.actionButtonText}>Take a picture</Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={addChore} style={styles.actionButton}>
+          <Ionicons
+            name="add-circle-outline"
+            size={20}
+            color="#fff"
+            style={styles.buttonIcon}
+          />
+          <Text style={styles.actionButtonText}>Add Chore</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={addChore} style={styles.actionButton}>
-        <Ionicons
-          name="add-circle-outline"
-          size={20}
-          color="#fff"
-          style={styles.buttonIcon}
-        />
-        <Text style={styles.actionButtonText}>Add Chore</Text>
-      </TouchableOpacity>
-
-      {currentImage ? (
-        <Image
-          source={{ uri: currentImage }}
-          style={styles.takenImage}
-          resizeMode="contain"
-        />
-      ) : null}
-    </View>
-    <Banner />
+        {currentImage ? (
+          <Image
+            source={{ uri: currentImage }}
+            style={styles.takenImage}
+            resizeMode="contain"
+          />
+        ) : null}
+      </View>
+      <Banner />
     </View>
   );
 }
@@ -429,7 +472,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderRadius: 8,
     backgroundColor: "#fff",
-    height: 200,
+    height: 100,
     textAlignVertical: "top", // For Android to align text at the top
   },
   datePickerButton: {
@@ -551,7 +594,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
   },
-  dropdownItemText: { fontSize: 16, color: "#333" },
+  dropdownItemText: {
+    fontSize: 16,
+    color: "#333"
+  },
+
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -582,6 +629,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#555",
     marginTop: 5,
+
   },
   choreImage: {
     width: 125,
