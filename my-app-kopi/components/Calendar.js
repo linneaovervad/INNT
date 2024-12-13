@@ -11,7 +11,6 @@ import {
 import { Calendar } from "react-native-calendars";
 import { ref, onValue } from "firebase/database";
 import { db } from "../firebase";
-import Banner from "./Banner";
 import Toast from "react-native-toast-message";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
@@ -187,7 +186,6 @@ export default function CalendarScreen({ route, navigation }) {
         </View>
       )}
       <Toast />
-      <Banner />
     </View>
   );
 }

@@ -24,7 +24,7 @@ import {
 import { db } from "../firebase";
 import MemberItem from "./MemberItem";
 import Toast from "react-native-toast-message";
-import Banner from "./Banner";
+
 
 export default function HouseholdDetail({ route, navigation }) {
   const { householdId, householdName } = route.params;
@@ -286,7 +286,7 @@ export default function HouseholdDetail({ route, navigation }) {
         }
       />
       <Toast />
-      <Banner />
+
     </View>
   );
 }

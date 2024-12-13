@@ -19,6 +19,7 @@ import HouseholdDetail from "./components/HouseholdDetail";
 import LoginScreen from "./components/LoginScreen";
 import SignUpScreen from "./components/SignUpScreen";
 import PaymentWebView from "./components/PaymentWebView";
+import Banner from "./components/Banner";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -85,6 +86,8 @@ function AppStackNavigator() {
 // Definer MainTabNavigator
 function MainTabNavigator() {
   return (
+    <>
+    <Banner/>
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
@@ -123,6 +126,8 @@ function MainTabNavigator() {
       <Tab.Screen name="Chat Bot" component={ChatScreen} />
       <Tab.Screen name="Households" component={HouseholdList} />
       <Tab.Screen name="Settings" component={Settings} />
-    </Tab.Navigator>
+    </Tab.Navigator></>
   );
 }
+
+

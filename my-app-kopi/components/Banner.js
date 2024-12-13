@@ -16,13 +16,17 @@ export default function Banner({ onPress }) {
 
 const styles = StyleSheet.create({
   bannerContainer: {
-    height: 60,
-    backgroundColor: '#f0f0f0',
+    position: 'absolute', // Fix it to a specific position
+    bottom: 80, // Align to the bottom of the screen
+    left: 30,
+    right: 30,
+    height: 60, // Adjust height of the banner
     justifyContent: 'center',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingHorizontal: 10,
+    backgroundColor: 'white', // Optional: Set a background color
+    borderTopWidth: 1, // Add a border at the top to separate it visually
+    borderTopColor: '#ccc',
+    zIndex: 10, // Ensure it appears above other content
   },
   bannerImage: {
     height: '100%',

@@ -22,7 +22,7 @@ import {
 } from "firebase/database";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
-import Banner from "./Banner";
+
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
@@ -238,7 +238,6 @@ export default function Home() {
           contentContainerStyle={styles.listContainer}
         />
       )}
-       <Banner />
     </View>
   );
 }

@@ -13,6 +13,7 @@ import {
   Image,
   ActivityIndicator,
   Alert,
+  ScrollView
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ref, onValue, push, remove, update, set } from "firebase/database";
@@ -20,7 +21,9 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { CameraView } from "expo-camera";
 import * as FileSystem from "expo-file-system";
 import Toast from "react-native-toast-message";
-import Banner from "./Banner";
+
+
+
 
 export default function ChoreList({ database }) {
   const [chores, setChores] = useState([]);
@@ -194,7 +197,7 @@ export default function ChoreList({ database }) {
   }
 
   const algorithm = [
-    { id: '0', label: 'No' },
+    { id: '0', label: 'This is a one-time thing' },
     { id: '1', label: 'Always the same person' },
     { id: '2', label: 'Rotate between all members' },
     { id: '3', label: 'Always random selection' }
@@ -230,6 +233,7 @@ export default function ChoreList({ database }) {
       </CameraView>
     </SafeAreaView>
   ) : (
+    <ScrollView>
     <View style={styles.container}>
       <View style={styles.container}>
         <Text style={styles.heading}>New Chore</Text>
@@ -251,34 +255,44 @@ export default function ChoreList({ database }) {
         </TouchableOpacity>
 
         <Modal
-          transparent
-          visible={showDropdown}
-          animationType="slide"
-          onRequestClose={() => setShowDropdown(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.dropdownContainer}>
-              <Text style={styles.dropdownTitle}>Select a person</Text>
-              <FlatList
-                data={householdMembers}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.dropdownItem}
-                    onPress={() => {
-                      setAssignedPerson(item);
-                      setShowDropdown(false);
-                    }}
-                  >
-                    <Text style={styles.dropdownItemText}>
-                      {item.displayName}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          </View>
-        </Modal>
+  transparent
+  visible={showDropdown}
+  animationType="slide"
+  onRequestClose={() => setShowDropdown(false)}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.dropdownContainer}>
+      <Text style={styles.dropdownTitle}>Select a person</Text>
+      <FlatList
+        data={householdMembers}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={
+          <TouchableOpacity
+            style={styles.dropdownItem}
+            onPress={() => {
+              setAssignedPerson({ id: "freeForAll", displayName: "FreeforAll" });
+              setShowDropdown(false);
+            }}
+          >
+            <Text style={styles.dropdownItemText}>Free for All</Text>
+          </TouchableOpacity>
+        }
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.dropdownItem}
+            onPress={() => {
+              setAssignedPerson(item);
+              setShowDropdown(false);
+            }}
+          >
+            <Text style={styles.dropdownItemText}>{item.displayName}</Text>
+          </TouchableOpacity>
+        )}
+      />
+    </View>
+  </View>
+</Modal>
+
 
         <TouchableOpacity
           style={styles.dropdownButton}
@@ -410,8 +424,10 @@ export default function ChoreList({ database }) {
           />
         ) : null}
       </View>
-      <Banner />
+
+
     </View>
+    </ScrollView>
   );
 }
 
