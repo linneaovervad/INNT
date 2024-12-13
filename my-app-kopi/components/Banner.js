@@ -13,6 +13,7 @@ export default function Banner({ onPress }) {
 const styles = StyleSheet.create({
   bannerContainer: {
     height: 50,
+    width: '100%',
     backgroundColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',

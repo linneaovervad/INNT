@@ -28,7 +28,7 @@ export default function ChoreList({ database }) {
   const [assignedPerson, setAssignedPerson] = useState(null);
   const [householdMembers, setHouseholdMembers] = useState([]);
   const [deadline, setDeadline] = useState(new Date());
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
@@ -127,26 +127,26 @@ export default function ChoreList({ database }) {
       return;
     }
 
-    const choresRef = ref(database, 'chores');
+    const choresRef = ref(database, "chores");
     push(choresRef, {
       name: newChore,
       assignedTo: assignedPerson.id, // Sørg for at dette er brugerens UID
       deadline: deadline.toISOString(), // Gem hele ISO-strengen inkl. tid
       completed: false,
       picture: base64Image,
-      description
+      description,
     })
       .then(() => {
-        setNewChore('');
+        setNewChore("");
         setAssignedPerson(null);
         setDeadline(new Date());
-        setDescription('');
-        setCurrentImage('');
-        setBase64Image('');
+        setDescription("");
+        setCurrentImage("");
+        setBase64Image("");
         Toast.show({
-          type: 'success',
-          text1: 'Succes',
-          text2: 'Opgave tilføjet!',
+          type: "success",
+          text1: "Succes",
+          text2: "Opgave tilføjet!",
         });
       })
       .catch((error) => {
@@ -195,7 +195,7 @@ export default function ChoreList({ database }) {
     </SafeAreaView>
   ) : (
     <View style={styles.container}>
-      <Banner />
+    <View style={styles.container}>
       <Text style={styles.heading}>New Chore</Text>
       <TextInput
         placeholder="Add a new chore"
@@ -262,7 +262,7 @@ export default function ChoreList({ database }) {
         />
       )}
 
-      <TextInput 
+      <TextInput
         placeholder="Description"
         value={description}
         onChangeText={setDescription}
@@ -298,6 +298,8 @@ export default function ChoreList({ database }) {
           resizeMode="contain"
         />
       ) : null}
+    </View>
+    <Banner />
     </View>
   );
 }
