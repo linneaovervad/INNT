@@ -5,7 +5,7 @@ cd my-app-kopi
 npm install 
 
 *Opstart af app*
-npx expo start -c (eller "npx expo start --tunnel")
+npx expo start
 
 *Opstart af GenAI*
 Husk at indsæt egen API-key i Request.js
