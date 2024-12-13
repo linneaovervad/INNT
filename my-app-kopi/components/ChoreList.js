@@ -26,17 +26,21 @@ export default function ChoreList({ database }) {
   const [chores, setChores] = useState([]);
   const [newChore, setNewChore] = useState("");
   const [assignedPerson, setAssignedPerson] = useState(null);
+  const [repeatedChore, setRepeatedChore] = useState(null);
   const [householdMembers, setHouseholdMembers] = useState([]);
   const [deadline, setDeadline] = useState(new Date());
   const [description, setDescription] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showDropdownRepeat, setShowDropdownRepeat] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [type, setType] = useState("back");
   const [permission, setPermission] = useState(null);
   const [currentImage, setCurrentImage] = useState("");
   const [base64Image, setBase64Image] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedInterval, setSelectedInterval] = useState(null);
+
   const cameraRef = useRef();
 
   // Camera Permission
@@ -111,9 +115,9 @@ export default function ChoreList({ database }) {
         const data = snapshot.val();
         const membersList = data
           ? Object.keys(data).map((key) => ({
-              id: key,
-              displayName: data[key].displayName,
-            }))
+            id: key,
+            displayName: data[key].displayName,
+          }))
           : [];
         setHouseholdMembers(membersList);
       });
@@ -128,14 +132,18 @@ export default function ChoreList({ database }) {
     }
 
     const choresRef = ref(database, 'chores');
+    console.log(repeatedChore),
     push(choresRef, {
       name: newChore,
       assignedTo: assignedPerson.id, // Sørg for at dette er brugerens UID
       deadline: deadline.toISOString(), // Gem hele ISO-strengen inkl. tid
       completed: false,
       picture: base64Image,
-      description
+      description,
+      repeatedChore: selectedInterval ? selectedInterval.label : null,
+     
     })
+    
       .then(() => {
         setNewChore('');
         setAssignedPerson(null);
@@ -168,6 +176,21 @@ export default function ChoreList({ database }) {
       setShowDatePicker(false);
     }
   };
+
+  const intervals = [
+    { id: '0', label: 'No'},
+    { id: '1', label: 'Daily' },
+    { id: '2', label: 'Weekly' },
+    { id: '3', label: 'Monthly' },
+    { id: '4', label: '2 Months' },
+    { id: '5', label: '3 Months' },
+    { id: '6', label: '6 Months' },
+  ];
+  const handleSelect = (item) => {
+    setSelectedInterval(item);
+    setShowDropdownRepeat(false);
+  }
+
 
   return showCamera ? (
     <SafeAreaView style={styles.safeview}>
@@ -245,6 +268,51 @@ export default function ChoreList({ database }) {
       </Modal>
 
       <TouchableOpacity
+        style={styles.dropdownButton}
+        onPress={() => setShowDropdownRepeat(true)}
+      >
+        <Text style={styles.dropdownButtonText}>
+          {selectedInterval ? selectedInterval.label : "Repeat Chore?"}
+        </Text>
+        <Ionicons name="chevron-down-outline" size={20} color="#333" />
+      </TouchableOpacity>
+
+      <Modal
+        transparent
+        visible={showDropdownRepeat}
+        animationType="slide"
+        onRequestClose={() => setShowDropdownRepeat(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.dropdownContainer}>
+            <Text style={styles.dropdownTitle}>Select how often you want the task to repeat</Text>
+            <FlatList
+              data={intervals}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.dropdownItem}
+                  onPress={() => handleSelect(item)}
+                >
+                  <Text style={styles.dropdownItemText}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+
+          </View>
+
+        </View>
+
+      </Modal>
+
+
+
+
+
+
+      <TouchableOpacity
         onPress={() => setShowDatePicker(true)}
         style={styles.datePickerButton}
       >
@@ -262,7 +330,7 @@ export default function ChoreList({ database }) {
         />
       )}
 
-      <TextInput 
+      <TextInput
         placeholder="Description"
         value={description}
         onChangeText={setDescription}
@@ -301,6 +369,8 @@ export default function ChoreList({ database }) {
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   dropdownButton: {
@@ -404,14 +474,20 @@ const styles = StyleSheet.create({
     margin: 20,
   },
   flipButton: {
+    justifyContent: "center",
+    padding: 10,
     backgroundColor: "rgba(0,0,0,0.3)",
     padding: 10,
     borderRadius: 50,
+    height: 50
   },
   snapButton: {
+    paddingHorizontal: 20,
+    justifyContent: "center",
     backgroundColor: "rgba(0,0,0,0.3)",
     padding: 10,
     borderRadius: 50,
+    height: 50,
   },
   snapButtonText: {
     color: "#fff",
@@ -518,3 +594,4 @@ const styles = StyleSheet.create({
     height: 400,
   },
 });
+
