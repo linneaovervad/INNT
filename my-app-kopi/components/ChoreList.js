@@ -116,22 +116,21 @@ export default function ChoreList({ database }) {
   // Tilføj en ny opgave
   const addChore = () => {
     if (!newChore.trim() || !assignedPerson) {
-      Alert.alert("Fejl", "Udfyld alle felter før tilføjelse af en opgave.");
+      Alert.alert("Error", "Please create a name for the chore and assign it to a person");
       return;
     }
-
+  
     const choresRef = ref(database, 'chores');
     push(choresRef, {
       name: newChore,
       assignedTo: assignedPerson.id,
-      deadline: deadline.toISOString(),
-      completed: false,
-      picture: base64Image,
-      description,
+      // Valgfrie felter inkluderes kun hvis de er sat
+      deadline: deadline ? deadline.toISOString() : null,
+      completed: false, // Standardværdi
+      picture: base64Image || null,
+      description: description || null,
       repeatedChore: selectedInterval ? selectedInterval.label : null,
-
     })
-
       .then(() => {
         setNewChore("");
         setAssignedPerson(null);
@@ -139,21 +138,23 @@ export default function ChoreList({ database }) {
         setDescription("");
         setCurrentImage("");
         setBase64Image("");
+        setSelectedInterval(null);
         Toast.show({
           type: "success",
           text1: "Succes",
-          text2: "Opgave tilføjet!",
+          text2: "Chore added!",
         });
       })
       .catch((error) => {
         console.error("Error adding chore:", error);
         Toast.show({
           type: "error",
-          text1: "Fejl",
-          text2: "Der opstod en fejl ved tilføjelse af opgaven.",
+          text1: "Error",
+          text2: "An error occured when adding a chore.",
         });
       });
   };
+  
 
   // Håndter valg af dato i forhold til styresystem
   const onDateChange = (event, selectedDate) => {
