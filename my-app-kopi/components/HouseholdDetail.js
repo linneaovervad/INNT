@@ -1,4 +1,3 @@
-// components/HouseholdDetail.js
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -32,7 +31,8 @@ export default function HouseholdDetail({ route, navigation }) {
   const [searchEmail, setSearchEmail] = useState("");
   const [searchResult, setSearchResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(null); // Tilføj state for valgt farve
+  const [selectedColor, setSelectedColor] = useState(null); 
+
 
   useEffect(() => {
     navigation.setOptions({ title: householdName });
@@ -42,10 +42,10 @@ export default function HouseholdDetail({ route, navigation }) {
       setHousehold(data);
     });
 
-    return () => unsubscribe(); // Clean up listener on unmount
+    return () => unsubscribe();
   }, [householdId, householdName, navigation]);
 
-  // Funktion til at søge efter en bruger baseret på e-mail
+//Funktion til at søge efter bruger via email
   const searchUserByEmail = () => {
     if (!searchEmail.trim()) {
       Toast.show({

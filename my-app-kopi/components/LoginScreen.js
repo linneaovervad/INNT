@@ -1,4 +1,3 @@
-// components/LoginScreen.js
 import React, { useState } from "react";
 import {
   View,
@@ -10,18 +9,20 @@ import {
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
-import Toast from "react-native-toast-message"; // Importer Toast
+import Toast from "react-native-toast-message"; 
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // Funktion til at validere log ind
   const handleLogin = () => {
     if (!email || !password) {
       Alert.alert("Error", "Fill out all the fields.");
       return;
     }
 
+    // Log ind med e-mail og kodeord
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
@@ -30,7 +31,6 @@ export default function LoginScreen({ navigation }) {
           text1: "Success",
           text2: "Logged in.",
         });
-        // navigation.navigate('Main'); // Naviger til hovedskærmen
       })
       .catch((error) => {
         console.error("Error logging in:", error);
@@ -38,6 +38,7 @@ export default function LoginScreen({ navigation }) {
       });
   };
 
+  //Vis loginformular
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Log Ind</Text>
@@ -58,11 +59,11 @@ export default function LoginScreen({ navigation }) {
         style={styles.input}
         secureTextEntry
       />
-
+      {/* Log ind knap */}
       <TouchableOpacity onPress={handleLogin} style={styles.button}>
         <Text style={styles.buttonText}>Log Ind</Text>
       </TouchableOpacity>
-
+      {/* Naviger til SignUp-siden */}
       <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
         <Text style={styles.signupText}>Create a new account</Text>
       </TouchableOpacity>

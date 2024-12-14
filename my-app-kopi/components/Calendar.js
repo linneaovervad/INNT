@@ -1,4 +1,3 @@
-// components/CalendarScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -14,15 +13,16 @@ import { db } from "../firebase";
 import Toast from "react-native-toast-message";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
+
 export default function CalendarScreen({ route, navigation }) {
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDate, setSelectedDate] = useState("");
   const [chores, setChores] = useState([]);
   const [choresForSelectedDate, setChoresForSelectedDate] = useState([]);
-  const [enlargedImageId, setEnlargedImageId] = useState(null); // Track which image is enlarged
-  const [members, setMembers] = useState({}); // Mapping of userId to { color, displayName, email }
+  const [enlargedImageId, setEnlargedImageId] = useState(null); 
+  const [members, setMembers] = useState({}); 
 
-  // Hent alle husholdninger og deres medlemmer
+  // Hent medlemmer fra databasen og opdater state
   useEffect(() => {
     const householdsRef = ref(db, `households`);
     const unsubscribe = onValue(householdsRef, (snapshot) => {
@@ -42,7 +42,6 @@ export default function CalendarScreen({ route, navigation }) {
           }
         });
         setMembers(allMembers);
-        console.log("All Members:", allMembers); // Tilføjet log
       } else {
         setMembers({});
       }
@@ -51,7 +50,7 @@ export default function CalendarScreen({ route, navigation }) {
     return () => unsubscribe();
   }, []);
 
-  // Hent opgaver og opdater markedDates
+  // Hent opgaver fra databasen og opdater state
   useEffect(() => {
     const choresRef = ref(db, "chores");
     const unsubscribe = onValue(choresRef, (snapshot) => {
@@ -68,26 +67,25 @@ export default function CalendarScreen({ route, navigation }) {
     return () => unsubscribe();
   }, [members]);
 
-  // Funktion til at opdatere opgaver og markedDates
+  // Funktion til at opdatere opgaver fra databasen
   const updateChoresFromDatabase = (data) => {
     const newMarkedDates = {};
     const allChores = [];
     Object.keys(data).forEach((key) => {
       const chore = data[key];
-      // Kontroller, om chore er tildelt en bruger i nogen husholdning
+      // Tjek om opgaven er tildelt og om brugeren findes
       if (chore.assignedTo && members[chore.assignedTo]) {
         if (chore.deadline) {
-          const userId = chore.assignedTo; // Hent userId
-          const color = members[userId].color || "#FF5733"; // Default farve hvis ikke fundet
-          console.log(
-            `Chore ID: ${key}, Assigned To: ${userId}, Color: ${color}`
-          ); // Tilføjet log
-
-          // Format deadline til 'YYYY-MM-DD'
+          const userId = chore.assignedTo; 
+          const color = members[userId].color || "#FF5733";
+          // Formater deadline til 'YYYY-MM-DD'
           const deadlineDate = chore.deadline.split("T")[0];
 
-          // Tilføj dot til markedDates
+          // Tilføj farvet prik til dato
           if (newMarkedDates[deadlineDate]) {
+            if (!newMarkedDates[deadlineDate].dots) {
+              newMarkedDates[deadlineDate].dots = [];
+            }
             newMarkedDates[deadlineDate].dots.push({ color });
           } else {
             newMarkedDates[deadlineDate] = { dots: [{ color }] };
@@ -99,10 +97,10 @@ export default function CalendarScreen({ route, navigation }) {
     });
     setMarkedDates(newMarkedDates);
     setChores(allChores);
-    console.log("Marked Dates:", newMarkedDates); // Tilføjet log
+    console.log("Marked Dates:", newMarkedDates); 
   };
 
-  // Funktion til at håndtere klik på en dag
+  // Funktion til at håndtere valg af dato
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
     const filteredChores = chores.filter(
@@ -111,9 +109,9 @@ export default function CalendarScreen({ route, navigation }) {
     setChoresForSelectedDate(filteredChores);
   };
 
-  // Funktion til at toggler billedstørrelse
+  // Funktion til at vise billede i fuld størrelse
   const toggleImageSize = (id) => {
-    setEnlargedImageId(enlargedImageId === id ? null : id); // Toggle enlarged state
+    setEnlargedImageId(enlargedImageId === id ? null : id); // Toggle mellem stort og småt billede
   };
 
   return (
@@ -125,24 +123,23 @@ export default function CalendarScreen({ route, navigation }) {
           [selectedDate]: {
             ...(markedDates[selectedDate] || {}),
             selected: true,
-            selectedColor: "blue",
+            selectedColor: "blue", 
           },
         }}
-        markingType={"multi-dot"} // Tillad flere prikker per dag
+        markingType={"multi-dot"} // Flere prikker på samme dato
       />
-
       {selectedDate && (
-        <View style={styles.choresContainer}>
-          <Text style={styles.choresTitle}>Chores for {selectedDate}:</Text>
+        <View style={styles.choresContainer}> 
+          <Text style={styles.choresTitle}>Chores for {selectedDate}:</Text> 
 
-          {choresForSelectedDate.length > 0 ? (
+          {choresForSelectedDate.length > 0 ? ( 
             <FlatList
               data={choresForSelectedDate}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id} 
               renderItem={({ item }) => {
                 const userId = item.assignedTo;
                 const user = members[userId];
-                const userColor = user ? user.color : "#000"; // Default til sort
+                const userColor = user ? user.color : "#000"; 
 
                 return (
                   <View style={styles.choreItem}>
@@ -171,7 +168,7 @@ export default function CalendarScreen({ route, navigation }) {
                           }}
                           style={[
                             styles.choreImage,
-                            enlargedImageId === item.id && styles.enlargedImage, // Conditional styling
+                            enlargedImageId === item.id && styles.enlargedImage, 
                           ]}
                         />
                       </TouchableOpacity>

@@ -1,4 +1,3 @@
-// components/MemberItem.js
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -7,10 +6,9 @@ import { db } from "../firebase";
 
 export default function MemberItem({ userId, householdId, householdName, removeUser }) {
   const [user, setUser] = useState(null);
-  const [color, setColor] = useState("#000"); // Standardfarve
-
+  const [color, setColor] = useState("#000"); 
+ // Hent brugerens data
   useEffect(() => {
-    // Hent brugerens data
     const userRef = ref(db, `users/${userId}`);
     const unsubscribeUser = onValue(userRef, (snapshot) => {
       const data = snapshot.val();

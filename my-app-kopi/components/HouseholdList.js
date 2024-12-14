@@ -1,4 +1,3 @@
-// components/HouseholdList.js
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -101,7 +100,7 @@ export default function HouseholdList({ navigation }) {
     );
   };
 
-  // Render each household item
+  // Funktion til at vise en husholdning
   const renderHousehold = ({ item }) => (
     <TouchableOpacity
       style={styles.householdItem}

@@ -1,4 +1,3 @@
-// components/Home.js
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -32,13 +31,14 @@ export default function Home() {
 
   const userId = auth.currentUser ? auth.currentUser.uid : null;
   
+  //Funktion til at ændre billedets størrelse
   const toggleImageSize = (id) => {
-    setEnlargedImageId(enlargedImageId === id ? null : id); // Toggle enlarged state
+    setEnlargedImageId(enlargedImageId === id ? null : id); 
   };
 
+  // Hent opgaver fra databasen
   useEffect(() => {
     if (userId) {
-      // Hent opgaver tildelt til den aktuelle bruger
       const choresRef = ref(db, "chores");
       const userChoresQuery = query(
         choresRef,
@@ -69,7 +69,7 @@ export default function Home() {
         }
       );
 
-      // Hent alle brugere for at matche `assignedTo` UID med `displayName`
+      // Hent brugere fra databasen
       const usersRef = ref(db, "users");
       const unsubscribeUsers = onValue(
         usersRef,
@@ -93,7 +93,7 @@ export default function Home() {
         }
       );
 
-      // Ryd op ved unmount
+      // Clean up
       return () => {
         unsubscribeChores();
         unsubscribeUsers();
@@ -101,6 +101,7 @@ export default function Home() {
     }
   }, [userId]);
 
+  // Funktion til at slette en opgave
   const handleDelete = (taskId) => {
     Alert.alert(
       "Delete Chore",
@@ -134,6 +135,7 @@ export default function Home() {
     );
   };
 
+  // Funkiton til at ændre status på en opgave
   const toggleStatus = (taskId, currentStatus) => {
     const newStatus = !currentStatus; // Toggle mellem false og true
     const taskRef = ref(db, `chores/${taskId}`);
@@ -155,13 +157,15 @@ export default function Home() {
       });
   };
 
+  // Funktion til at finde brugerens Display navn ud fra ID
   const getUserName = (userId) => {
     const user = users.find((u) => u.id === userId);
     return user ? user.displayName : "Unassigned";
   };
 
+  // Funktion til at formatere deadline
   const renderItem = ({ item }) => {
-    // Konverter deadline til lokal dato og tid
+    //Formater deadline
     const deadlineDate = new Date(item.deadline);
     const formattedDeadline = deadlineDate.toLocaleString([], {
       year: 'numeric',
@@ -169,9 +173,9 @@ export default function Home() {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      // second: undefined // Sekunderne inkluderes ikke
     });
 
+    // Vis opgaver
     return (
       <View style={styles.taskItem}>
         <View style={styles.taskInfo}>

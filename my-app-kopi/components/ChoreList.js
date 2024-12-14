@@ -1,4 +1,3 @@
-// components/ChoreList.js
 import React, { useEffect, useState, useRef } from "react";
 import {
   StyleSheet,
@@ -21,9 +20,6 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { CameraView } from "expo-camera";
 import * as FileSystem from "expo-file-system";
 import Toast from "react-native-toast-message";
-
-
-
 
 export default function ChoreList({ database }) {
   const [chores, setChores] = useState([]);
@@ -48,7 +44,7 @@ export default function ChoreList({ database }) {
 
   const cameraRef = useRef();
 
-  // Camera Permission
+  // Tilladelse til kamera ved opstart
   useEffect(() => {
     const requestPermission = async () => {
       const { status } = await CameraView.requestCameraPermissionsAsync();
@@ -57,25 +53,13 @@ export default function ChoreList({ database }) {
     requestPermission();
   }, []);
 
-  // Convert Image to Base64
-  const convertImageToBase64 = async (fileUri) => {
-    try {
-      const base64Data = await FileSystem.readAsStringAsync(fileUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      return base64Data;
-    } catch (error) {
-      console.error("Error converting image to base64:", error);
-      return null;
-    }
-  };
-
-  // Toggle Camera Type
+  
+  // Skift mellem front- og bagkamera
   const toggleCameraType = () => {
-    setType((current) => (current === "back" ? "front" : "back"));
+    setType((type) => (type === "back" ? "front" : "back"));
   };
 
-  // Take Picture
+  // Tag Billede
   const snap = async () => {
     if (!cameraRef.current) {
       console.log("Camera reference is not available");
@@ -85,7 +69,7 @@ export default function ChoreList({ database }) {
     setLoading(true);
     try {
       const result = await cameraRef.current.takePictureAsync({
-        quality: 0.5, // Reducer kvalitet for mindre Base64-streng
+        quality: 1, // Højeste kvalitet
         base64: true, // Få Base64-streng direkte
       });
 
@@ -103,7 +87,7 @@ export default function ChoreList({ database }) {
     }
   };
 
-  // Fetch data from database
+  // Hent data fra database
   useEffect(() => {
     if (database) {
       const choresRef = ref(database, "chores");
@@ -129,7 +113,7 @@ export default function ChoreList({ database }) {
     }
   }, [database]);
 
-  // Add a new chore
+  // Tilføj en ny opgave
   const addChore = () => {
     if (!newChore.trim() || !assignedPerson) {
       Alert.alert("Fejl", "Udfyld alle felter før tilføjelse af en opgave.");
@@ -137,42 +121,41 @@ export default function ChoreList({ database }) {
     }
 
     const choresRef = ref(database, 'chores');
-    console.log(repeatedChore),
-      push(choresRef, {
-        name: newChore,
-        assignedTo: assignedPerson.id, // Sørg for at dette er brugerens UID
-        deadline: deadline.toISOString(), // Gem hele ISO-strengen inkl. tid
-        completed: false,
-        picture: base64Image,
-        description,
-        repeatedChore: selectedInterval ? selectedInterval.label : null,
+    push(choresRef, {
+      name: newChore,
+      assignedTo: assignedPerson.id,
+      deadline: deadline.toISOString(),
+      completed: false,
+      picture: base64Image,
+      description,
+      repeatedChore: selectedInterval ? selectedInterval.label : null,
 
-      })
+    })
 
-        .then(() => {
-          setNewChore("");
-          setAssignedPerson(null);
-          setDeadline(new Date());
-          setDescription("");
-          setCurrentImage("");
-          setBase64Image("");
-          Toast.show({
-            type: "success",
-            text1: "Succes",
-            text2: "Opgave tilføjet!",
-          });
-        })
-        .catch((error) => {
-          console.error("Error adding chore:", error);
-          Toast.show({
-            type: "error",
-            text1: "Fejl",
-            text2: "Der opstod en fejl ved tilføjelse af opgaven.",
-          });
+      .then(() => {
+        setNewChore("");
+        setAssignedPerson(null);
+        setDeadline(new Date());
+        setDescription("");
+        setCurrentImage("");
+        setBase64Image("");
+        Toast.show({
+          type: "success",
+          text1: "Succes",
+          text2: "Opgave tilføjet!",
         });
+      })
+      .catch((error) => {
+        console.error("Error adding chore:", error);
+        Toast.show({
+          type: "error",
+          text1: "Fejl",
+          text2: "Der opstod en fejl ved tilføjelse af opgaven.",
+        });
+      });
   };
 
-  // Handle date picker changes
+  // Håndter valg af dato i forhold til styresystem
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) {
       setDeadline(selectedDate);
@@ -208,16 +191,20 @@ export default function ChoreList({ database }) {
     setShowDropdownAlgorithm(false);
   }
 
+ // Returner visning
   return showCamera ? (
+    // Skærmen hvis Camera view == true (Viser kameraet)
     <SafeAreaView style={styles.safeview}>
-      <CameraView style={styles.camera} type={type} ref={cameraRef}>
+      <CameraView style={styles.camera} facing={type} ref={cameraRef}>
         <View style={styles.cameraButtonContainer}>
+          {/* {Knap til at skifte mellem front- og bagkamera } */}
           <TouchableOpacity
             style={styles.flipButton}
             onPress={toggleCameraType}
           >
             <Ionicons name="camera-reverse-outline" size={32} color="#fff" />
           </TouchableOpacity>
+          {/* Knap til at tage billede */}
           <TouchableOpacity
             style={styles.snapButton}
             onPress={snap}
@@ -233,200 +220,195 @@ export default function ChoreList({ database }) {
       </CameraView>
     </SafeAreaView>
   ) : (
+    // Skærmen hvis Camera view == false
     <ScrollView>
-    <View style={styles.container}>
       <View style={styles.container}>
-        <Text style={styles.heading}>New Chore</Text>
-        <TextInput
-          placeholder="Chore"
-          value={newChore}
-          onChangeText={setNewChore}
-          style={styles.inputField}
-        />
-
-        <TouchableOpacity
-          style={styles.dropdownButton}
-          onPress={() => setShowDropdown(true)}
-        >
-          <Text style={styles.dropdownButtonText}>
-            {assignedPerson?.displayName || "Select a person"}
-          </Text>
-          <Ionicons name="chevron-down-outline" size={20} color="#333" />
-        </TouchableOpacity>
-
-        <Modal
-  transparent
-  visible={showDropdown}
-  animationType="slide"
-  onRequestClose={() => setShowDropdown(false)}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.dropdownContainer}>
-      <Text style={styles.dropdownTitle}>Select a person</Text>
-      <FlatList
-        data={householdMembers}
-        keyExtractor={(item) => item.id}
-        ListHeaderComponent={
+        <View style={styles.container}>
+          <Text style={styles.heading}>New Chore</Text>
+          {/* Input felt til navnet på opgaven */}
+          <TextInput
+            placeholder="Chore"
+            value={newChore}
+            onChangeText={setNewChore}
+            style={styles.inputField}
+          />
+          {/* Dropdown til at vælge person */}
           <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setAssignedPerson({ id: "freeForAll", displayName: "FreeforAll" });
-              setShowDropdown(false);
-            }}
+            style={styles.dropdownButton}
+            onPress={() => setShowDropdown(true)}
           >
-            <Text style={styles.dropdownItemText}>Free for All</Text>
+            <Text style={styles.dropdownButtonText}>
+              {assignedPerson?.displayName || "Select a person"}
+            </Text>
+            <Ionicons name="chevron-down-outline" size={20} color="#333" />
           </TouchableOpacity>
-        }
-        renderItem={({ item }) => (
+          <Modal
+            transparent
+            visible={showDropdown}
+            animationType="slide"
+            onRequestClose={() => setShowDropdown(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.dropdownContainer}>
+                <Text style={styles.dropdownTitle}>Select a person</Text>
+                <FlatList
+                  data={householdMembers}
+                  keyExtractor={(item) => item.id}
+                  ListHeaderComponent={
+                    <TouchableOpacity
+                      style={styles.dropdownItem}
+                      onPress={() => {
+                        setAssignedPerson({ id: "freeForAll", displayName: "FreeforAll" });
+                        setShowDropdown(false);
+                      }}
+                    >
+                      <Text style={styles.dropdownItemText}>Free for All</Text>
+                    </TouchableOpacity>
+                  }
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.dropdownItem}
+                      onPress={() => {
+                        setAssignedPerson(item);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      <Text style={styles.dropdownItemText}>{item.displayName}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            </View>
+          </Modal>
+          {/* Dropdown til at vælge interval */}
           <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => {
-              setAssignedPerson(item);
-              setShowDropdown(false);
-            }}
+            style={styles.dropdownButton}
+            onPress={() => setShowDropdownRepeat(true)}
           >
-            <Text style={styles.dropdownItemText}>{item.displayName}</Text>
+            <Text style={styles.dropdownButtonText}>
+              {selectedInterval ? selectedInterval.label : "Repeat Chore?"}
+            </Text>
+            <Ionicons name="chevron-down-outline" size={20} color="#333" />
           </TouchableOpacity>
-        )}
-      />
-    </View>
-  </View>
-</Modal>
 
-
-        <TouchableOpacity
-          style={styles.dropdownButton}
-          onPress={() => setShowDropdownRepeat(true)}
-        >
-          <Text style={styles.dropdownButtonText}>
-            {selectedInterval ? selectedInterval.label : "Repeat Chore?"}
-          </Text>
-          <Ionicons name="chevron-down-outline" size={20} color="#333" />
-        </TouchableOpacity>
-
-        <Modal
-          transparent
-          visible={showDropdownRepeat}
-          animationType="slide"
-          onRequestClose={() => setShowDropdownRepeat(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.dropdownContainer}>
-              <Text style={styles.dropdownTitle}>Select how often you want the task to repeat</Text>
-              <FlatList
-                data={intervals}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.dropdownItem}
-                    onPress={() => handleSelectInterval(item)}
-                  >
-                    <Text style={styles.dropdownItemText}>
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              />
+          <Modal
+            transparent
+            visible={showDropdownRepeat}
+            animationType="slide"
+            onRequestClose={() => setShowDropdownRepeat(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.dropdownContainer}>
+                <Text style={styles.dropdownTitle}>Select how often you want the task to repeat</Text>
+                <FlatList
+                  data={intervals}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.dropdownItem}
+                      onPress={() => handleSelectInterval(item)}
+                    >
+                      <Text style={styles.dropdownItemText}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
             </View>
-          </View>
-        </Modal>
-
-
-        <TouchableOpacity
-          style={styles.dropdownButton}
-          onPress={() => setShowDropdownAlgorithm(true)}
-        >
-          <Text style={styles.dropdownButtonText}>
-            {selectedAlgorithm ? selectedAlgorithm.label : "How to assign the chore?"}
-          </Text>
-          <Ionicons name="chevron-down-outline" size={20} color="#333" />
-        </TouchableOpacity>
-
-        <Modal
-          transparent
-          visible={showDropdownAlgorithm}
-          animationType="slide"
-          onRequestClose={() => setShowDropdownAlgorithm(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.dropdownContainer}>
-              <Text style={styles.dropdownTitle}>Select how you want to assign the chore</Text>
-              <FlatList
-                data={algorithm}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.dropdownItem}
-                    onPress={() => handleSelectAlgorithm(item)}
-                  >
-                    <Text style={styles.dropdownItemText}>
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              />
+          </Modal>
+          {/* Dropdown til at vælge algoritme */}
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            onPress={() => setShowDropdownAlgorithm(true)}
+          >
+            <Text style={styles.dropdownButtonText}>
+              {selectedAlgorithm ? selectedAlgorithm.label : "How to assign the chore?"}
+            </Text>
+            <Ionicons name="chevron-down-outline" size={20} color="#333" />
+          </TouchableOpacity>
+          <Modal
+            transparent
+            visible={showDropdownAlgorithm}
+            animationType="slide"
+            onRequestClose={() => setShowDropdownAlgorithm(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.dropdownContainer}>
+                <Text style={styles.dropdownTitle}>Select how you want to assign the chore</Text>
+                <FlatList
+                  data={algorithm}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.dropdownItem}
+                      onPress={() => handleSelectAlgorithm(item)}
+                    >
+                      <Text style={styles.dropdownItemText}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
             </View>
-          </View>
-        </Modal>
+          </Modal>
+          {/* Dato og tidspunkt for deadline */}
+          <TouchableOpacity
+            onPress={() => setShowDatePicker(true)}
+            style={styles.datePickerButton}
+          >
+            <Text style={styles.dateText}>
+              Deadline: {deadline.toLocaleString()}
+            </Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={deadline}
+              mode="datetime"
+              display="default"
+              onChange={onDateChange}
+            />
+          )}
 
-        <TouchableOpacity
-          onPress={() => setShowDatePicker(true)}
-          style={styles.datePickerButton}
-        >
-          <Text style={styles.dateText}>
-            Deadline: {deadline.toLocaleString()}
-          </Text>
-        </TouchableOpacity>
-
-        {showDatePicker && (
-          <DateTimePicker
-            value={deadline}
-            mode="datetime"
-            display="default"
-            onChange={onDateChange}
+          <TextInput
+            placeholder="Description"
+            value={description}
+            onChangeText={setDescription}
+            style={styles.description}
           />
-        )}
-
-        <TextInput
-          placeholder="Description"
-          value={description}
-          onChangeText={setDescription}
-          style={styles.description}
-        />
-        <TouchableOpacity
-          onPress={() => setShowCamera(true)}
-          style={styles.actionButton}
-        >
-          <Ionicons
-            name="camera-outline"
-            size={20}
-            color="#fff"
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.actionButtonText}>Take a picture</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={addChore} style={styles.actionButton}>
-          <Ionicons
-            name="add-circle-outline"
-            size={20}
-            color="#fff"
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.actionButtonText}>Add Chore</Text>
-        </TouchableOpacity>
-
-        {currentImage ? (
-          <Image
-            source={{ uri: currentImage }}
-            style={styles.takenImage}
-            resizeMode="contain"
-          />
-        ) : null}
+          <TouchableOpacity
+            onPress={() => setShowCamera(true)}
+            style={styles.actionButton}
+          >
+            <Ionicons
+              name="camera-outline"
+              size={20}
+              color="#fff"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.actionButtonText}>Take a picture</Text>
+          </TouchableOpacity>
+          {/* Knap til at tilføje opgaven */}
+          <TouchableOpacity onPress={addChore} style={styles.actionButton}>
+            <Ionicons
+              name="add-circle-outline"
+              size={20}
+              color="#fff"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.actionButtonText}>Add Chore</Text>
+          </TouchableOpacity>
+          {/* Visning billede hvis brugeren har taget et*/}
+          {currentImage ? (
+            <Image
+              source={{ uri: currentImage }}
+              style={styles.takenImage}
+              resizeMode="contain"
+            />
+          ) : null}
+        </View>
       </View>
-
-
-    </View>
     </ScrollView>
   );
 }

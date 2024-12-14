@@ -1,8 +1,8 @@
-// components/Banner.js
+//Importerer 
 import React from 'react';
 import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-export default function Banner({ onPress }) {
+export default function Banner({ onPress }) { //Eksporterer banneret
   return (
     <TouchableOpacity onPress={onPress} style={styles.bannerContainer}>
       <Image 
@@ -16,21 +16,21 @@ export default function Banner({ onPress }) {
 
 const styles = StyleSheet.create({
   bannerContainer: {
-    position: 'absolute', // Fix it to a specific position
-    bottom: 80, // Align to the bottom of the screen
+    position: 'absolute', 
+    bottom: 80, 
     left: 30,
     right: 30,
-    height: 60, // Adjust height of the banner
+    height: 60, 
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white', // Optional: Set a background color
-    borderTopWidth: 1, // Add a border at the top to separate it visually
+    backgroundColor: 'white', 
+    borderTopWidth: 1, 
     borderTopColor: '#ccc',
-    zIndex: 10, // Ensure it appears above other content
+    zIndex: 10, 
   },
   bannerImage: {
     height: '100%',
-    width: '110%',
+    width: '100%',
     borderRadius: 5, 
   },
 });
