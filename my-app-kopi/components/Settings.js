@@ -153,7 +153,7 @@ export default function Settings() {
       </View>
 
       <View style={styles.settingItem}>
-        <Button title="Logout" onPress={handleLogout} />
+        <Button title="Log out" onPress={handleLogout} />
       </View>
 
       <View style={styles.settingItem}>
