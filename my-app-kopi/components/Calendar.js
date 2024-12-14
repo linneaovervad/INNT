@@ -1,3 +1,4 @@
+// components/CalendarScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -13,14 +14,13 @@ import { db } from "../firebase";
 import Toast from "react-native-toast-message";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-
 export default function CalendarScreen({ route, navigation }) {
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDate, setSelectedDate] = useState("");
   const [chores, setChores] = useState([]);
   const [choresForSelectedDate, setChoresForSelectedDate] = useState([]);
-  const [enlargedImageId, setEnlargedImageId] = useState(null); 
-  const [members, setMembers] = useState({}); 
+  const [enlargedImageId, setEnlargedImageId] = useState(null);
+  const [members, setMembers] = useState({});
 
   // Hent medlemmer fra databasen og opdater state
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function CalendarScreen({ route, navigation }) {
       // Tjek om opgaven er tildelt og om brugeren findes
       if (chore.assignedTo && members[chore.assignedTo]) {
         if (chore.deadline) {
-          const userId = chore.assignedTo; 
+          const userId = chore.assignedTo;
           const color = members[userId].color || "#FF5733";
           // Formater deadline til 'YYYY-MM-DD'
           const deadlineDate = chore.deadline.split("T")[0];
@@ -97,7 +97,7 @@ export default function CalendarScreen({ route, navigation }) {
     });
     setMarkedDates(newMarkedDates);
     setChores(allChores);
-    console.log("Marked Dates:", newMarkedDates); 
+    console.log("Marked Dates:", newMarkedDates);
   };
 
   // Funktion til at håndtere valg af dato
@@ -123,23 +123,23 @@ export default function CalendarScreen({ route, navigation }) {
           [selectedDate]: {
             ...(markedDates[selectedDate] || {}),
             selected: true,
-            selectedColor: "blue", 
+            selectedColor: "blue",
           },
         }}
         markingType={"multi-dot"} // Flere prikker på samme dato
       />
       {selectedDate && (
-        <View style={styles.choresContainer}> 
-          <Text style={styles.choresTitle}>Chores for {selectedDate}:</Text> 
+        <View style={styles.choresContainer}>
+          <Text style={styles.choresTitle}>Chores for {selectedDate}:</Text>
 
-          {choresForSelectedDate.length > 0 ? ( 
+          {choresForSelectedDate.length > 0 ? (
             <FlatList
               data={choresForSelectedDate}
-              keyExtractor={(item) => item.id} 
+              keyExtractor={(item) => item.id}
               renderItem={({ item }) => {
                 const userId = item.assignedTo;
                 const user = members[userId];
-                const userColor = user ? user.color : "#000"; 
+                const userColor = user ? user.color : "#000";
 
                 return (
                   <View style={styles.choreItem}>
@@ -168,7 +168,7 @@ export default function CalendarScreen({ route, navigation }) {
                           }}
                           style={[
                             styles.choreImage,
-                            enlargedImageId === item.id && styles.enlargedImage, 
+                            enlargedImageId === item.id && styles.enlargedImage,
                           ]}
                         />
                       </TouchableOpacity>
@@ -176,6 +176,7 @@ export default function CalendarScreen({ route, navigation }) {
                   </View>
                 );
               }}
+              style={styles.flatList} // Tilføj en stilklasse til FlatList
             />
           ) : (
             <Text style={styles.noChoresText}>No chores today</Text>
@@ -189,12 +190,13 @@ export default function CalendarScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1, // Sørg for, at containeren fylder hele skærmen
     padding: 10,
     backgroundColor: "#fff",
   },
   choresContainer: {
     marginTop: 20,
+    flex: 1, // Giver choresContainer fleksibilitet til at fylde tilgængeligt rum
   },
   choresTitle: {
     fontSize: 18,
@@ -222,8 +224,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   enlargedImage: {
-    width: 240, // 3 times larger
-    height: 240, // 3 times larger
+    width: 240, // 3 gange større
+    height: 240, // 3 gange større
   },
   noChoresText: {
     fontSize: 16,
@@ -234,5 +236,8 @@ const styles = StyleSheet.create({
     height: 15,
     borderRadius: 7.5,
     marginRight: 10,
+  },
+  flatList: {
+    flex: 1, // Sikrer, at FlatList fylder den tilgængelige plads og er scrollable
   },
 });
