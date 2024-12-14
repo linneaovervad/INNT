@@ -27,7 +27,7 @@ export default function Settings() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [password, setPassword] = useState("");
-  const navigation = useNavigation(); // Brug useNavigation hook
+  const navigation = useNavigation(); 
 
   // Funktion til at skifte status for notifikationer
   const toggleNotifications = () =>
@@ -59,15 +59,14 @@ export default function Settings() {
 
   // Funktion til at logge ud
   const handleLogout = () => {
-    Alert.alert("Logout", "Er du sikker på, at du vil logge ud?", [
+    Alert.alert("Logout", "Are you sure you want to log out?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Yes",
         onPress: async () => {
           try {
             await signOut(auth);
-            Alert.alert("Success", "Du er blevet logget ud.");
-            navigation.navigate("Login"); // Naviger til login-skærmen efter logout
+            Alert.alert("Success", "you have been logged out.");
           } catch (error) {
             Alert.alert("Error", error.message);
           }
