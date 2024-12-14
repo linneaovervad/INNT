@@ -149,7 +149,7 @@ export default function Settings() {
       </View>
 
       <View style={styles.settingItem}>
-        <Button title="Contact Support" onPress={handleContactSupport} />
+        <Button title="Contact support" onPress={handleContactSupport} />
       </View>
 
       <View style={styles.settingItem}>
@@ -157,7 +157,7 @@ export default function Settings() {
       </View>
 
       <View style={styles.settingItem}>
-        <Button title="Remove Ads" onPress={handleRemoveAds} />
+        <Button title="Remove ads" onPress={handleRemoveAds} />
       </View>
 
       <Modal
