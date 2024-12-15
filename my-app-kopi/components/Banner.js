@@ -1,7 +1,6 @@
 // Importerer nødvendige komponenter
 import React from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
-import styles from '../styles/BannerStyles';
+import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 // Funktionel komponent for banneret
 export default function Banner({ onPress }) {
@@ -17,3 +16,24 @@ export default function Banner({ onPress }) {
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  bannerContainer: {
+    position: 'absolute',
+    bottom: 80,
+    left: 30,
+    right: 30,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    zIndex: 10,
+  },
+  bannerImage: {
+    height: '100%',
+    width: '100%',
+    borderRadius: 5,
+  },
+});

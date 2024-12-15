@@ -92,11 +92,11 @@ function MainTabNavigator() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
           let iconName;
-          if (route.name === "Home") {
-            iconName = "home-outline";
+          if (route.name === "Chores") {
+            iconName = "checkbox-outline";
           } else if (route.name === "Calendar") {
             iconName = "calendar-outline";
-          } else if (route.name === "Chore List") {
+          } else if (route.name === "New Chore") {
             iconName = "list-outline";
           } else if (route.name === "Chat Bot") {
             iconName = "chatbubble-ellipses-outline";
@@ -105,7 +105,7 @@ function MainTabNavigator() {
           } else if (route.name === "Settings") {
             iconName = "settings-outline";
           } else if (route.name === "Households") {
-            iconName = "home-sharp";
+            iconName = "home-outline";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -116,11 +116,11 @@ function MainTabNavigator() {
           : "App",
       })}
     >
-      <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen name="Chores" component={Home} />
       <Tab.Screen name="Calendar">
         {(props) => <CalendarScreen {...props} database={db} />}
       </Tab.Screen>
-      <Tab.Screen name="Chore List">
+      <Tab.Screen name="New Chore">
         {(props) => <ChoreList {...props} database={db} />}
       </Tab.Screen>
       <Tab.Screen name="Chat Bot" component={ChatScreen} />
