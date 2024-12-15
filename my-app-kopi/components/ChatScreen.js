@@ -21,7 +21,7 @@ export default function ChatScreen() {
     {
       role: 'system',
       content:
-        'You are a helpful, friendly, and organized assistant focused on helping users with household chores and tasks...',
+        'You are a helpful, friendly, and organized assistant focused on helping users with household chores and tasks..',
     },
     { role: 'assistant', content: 'Hello, I am your assistant. How can I help you?' },
   ];
