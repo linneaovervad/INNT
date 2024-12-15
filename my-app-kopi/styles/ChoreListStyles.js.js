@@ -27,7 +27,7 @@ const ChoreListStyles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#FDEDEC",
+    backgroundColor: "#EBF5FB",
   },
   heading: {
     fontSize: 24,

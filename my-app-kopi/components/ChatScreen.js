@@ -15,6 +15,7 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState([]); // State til chatbeskeder
   const [loading, setLoading] = useState(false); // State til at vise "is typing"-indikator
   const [chatFaceColor, setChatFaceColor] = useState('#671ddf'); // Standard farve for chat-bobler
+  const [userMessageColor, setUserMessageColor] = useState('#1B4F72'); // Besked farve 
 
   //Chat historik for samtalen / prompt til AI chatbot
   const conversationHistory = [
@@ -118,6 +119,7 @@ export default function ChatScreen() {
         textStyle={{
           right: {
             padding: 2,
+            color: userMessageColor,
           },
         }}
       />
@@ -133,7 +135,9 @@ export default function ChatScreen() {
           padding: 3,
           backgroundColor: chatFaceColor, 
         }}
-        textInputStyle={{ color: '#fff' }}
+        textInputProps={{
+          placeholderTextColor: '#1B4F72', // Placeholder text color
+        }}
       />
     );
   };
@@ -143,7 +147,7 @@ export default function ChatScreen() {
     return (
       <Send {...props}>
         <View style={{ marginRight: 10, marginBottom: 5 }}>
-          <FontAwesome name="send" size={24} color="white" />
+          <FontAwesome name="send" size={24} color="#1B4F72" />
         </View>
       </Send>
     );
