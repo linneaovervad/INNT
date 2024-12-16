@@ -151,7 +151,7 @@ export default function ChatScreen() {
 
   // Vis chat skærmen
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: chatFaceColor }}> 
+    <SafeAreaView style={{ bottom: 80, flex: 1, backgroundColor: chatFaceColor }}> 
       <View style={{ flex: 1, backgroundColor: '#fff' }}>
         <GiftedChat
           messages={messages}

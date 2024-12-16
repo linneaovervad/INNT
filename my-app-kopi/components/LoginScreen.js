@@ -59,7 +59,7 @@ export default function LoginScreen({ navigation }) {
         style={styles.input}
         secureTextEntry
       />
-      {/* Log ind knap */}
+      {/* Log ind knap */}]
       <TouchableOpacity onPress={handleLogin} style={styles.button}>
         <Text style={styles.buttonText}>Log Ind</Text>
       </TouchableOpacity>

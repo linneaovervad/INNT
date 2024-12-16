@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback} from "react";
 import {
   StyleSheet,
   Text,
@@ -17,7 +17,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ref, onValue, push, remove, update, set } from "firebase/database";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { CameraView } from "expo-camera";
+import { CameraView, useCameraPermissions, Camera} from "expo-camera";
 import * as FileSystem from "expo-file-system";
 import Toast from "react-native-toast-message";
 
@@ -34,26 +34,37 @@ export default function ChoreList({ database }) {
   const [showDropdownRepeat, setShowDropdownRepeat] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [type, setType] = useState("back");
-  const [permission, setPermission] = useState(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [currentImage, setCurrentImage] = useState("");
   const [base64Image, setBase64Image] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedInterval, setSelectedInterval] = useState(null);
   const [showDropdownAlgorithm, setShowDropdownAlgorithm] = useState(false);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState(null);
-
   const cameraRef = useRef();
 
-  // Tilladelse til kamera ved opstart
   useEffect(() => {
-    const requestPermission = async () => {
-      const { status } = await CameraView.requestCameraPermissionsAsync();
-      setPermission(status === "granted");
-    };
-    requestPermission();
-  }, []);
+    (async () => {
+      // If permission is not determined, request it directly
+      console.log(permission?.status)
+      if (permission?.status === 'undetermined' || permission?.status ==="denied") {
+        const result = await requestPermission();
+        
+        if (result.granted) {
+          console.log("Camera permission granted");
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'Camera Access Denied',
+            text2: 'Please enable camera permissions in your device settings'
+          });
+        }
+      }
+    })();
+  }, [permission?.status, requestPermission]);
 
-  
+
+
   // Skift mellem front- og bagkamera
   const toggleCameraType = () => {
     setType((type) => (type === "back" ? "front" : "back"));
@@ -191,7 +202,7 @@ export default function ChoreList({ database }) {
     setShowDropdownAlgorithm(false);
   }
 
- // Returner visning
+  // Returner visning
   return showCamera ? (
     // Skærmen hvis Camera view == true (Viser kameraet)
     <SafeAreaView style={styles.safeview}>

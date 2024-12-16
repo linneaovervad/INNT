@@ -34,7 +34,7 @@ export default function MemberItem({ userId, householdId, householdName, removeU
   }, [userId, householdId]);
 
   if (!user) {
-    return null; // Eller en placeholder
+    return null; 
   }
 
   return (
