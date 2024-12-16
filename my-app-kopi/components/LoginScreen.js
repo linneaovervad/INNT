@@ -4,11 +4,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Alert,
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../firebase";
+import { auth, } from "../firebase";
 import Toast from "react-native-toast-message"; 
 import styles from "../styles/LoginScreenStyles";
 
@@ -60,7 +59,7 @@ export default function LoginScreen({ navigation }) {
         style={styles.input}
         secureTextEntry
       />
-      {/* Log ind knap */}]
+      {/* Log ind knap */}
       <TouchableOpacity onPress={handleLogin} style={styles.button}>
         <Text style={styles.buttonText}>Log Ind</Text>
       </TouchableOpacity>

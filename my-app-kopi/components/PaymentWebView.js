@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-export default function PaymentWebView({ route, navigation }) {
+export default function PaymentWebView({ route }) {
   const { url } = route.params;
 
   return (

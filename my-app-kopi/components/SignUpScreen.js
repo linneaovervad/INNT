@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Alert,
 } from "react-native";
 import {
@@ -115,7 +114,6 @@ export default function SignUpScreen({ navigation }) {
           Do you already have an account? Log in
         </Text>
       </TouchableOpacity>
-      {/* Fjern <Toast /> fra her */}
     </View>
   );
 }

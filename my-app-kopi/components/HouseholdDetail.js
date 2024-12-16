@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   FlatList,
@@ -282,7 +281,7 @@ export default function HouseholdDetail({ route, navigation }) {
         )}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
-            Ingen medlemmer i denne husholdning.
+            No members in this household.
           </Text>
         }
       />

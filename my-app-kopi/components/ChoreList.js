@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useRef, useCallback} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -15,10 +14,9 @@ import {
   ScrollView
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { ref, onValue, push, remove, update, set } from "firebase/database";
+import { ref, onValue, push } from "firebase/database";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { CameraView, useCameraPermissions, Camera} from "expo-camera";
-import * as FileSystem from "expo-file-system";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import Toast from "react-native-toast-message";
 import styles from "../styles/ChoreListStyles.js"; 
 
@@ -26,7 +24,6 @@ export default function ChoreList({ database }) {
   const [chores, setChores] = useState([]);
   const [newChore, setNewChore] = useState("");
   const [assignedPerson, setAssignedPerson] = useState(null);
-  const [repeatedChore, setRepeatedChore] = useState(null);
   const [householdMembers, setHouseholdMembers] = useState([]);
   const [deadline, setDeadline] = useState(new Date());
   const [description, setDescription] = useState("");

@@ -5,7 +5,6 @@ import { Calendar } from "react-native-calendars";
 import { ref, onValue } from "firebase/database";
 import { db } from "../firebase"; 
 import Toast from "react-native-toast-message"; 
-import Ionicons from "react-native-vector-icons/Ionicons"; 
 import styles from "../styles/CalendarStyles"; 
 
 // Hovedkomponent for CalendarScreen

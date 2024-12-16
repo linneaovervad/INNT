@@ -4,13 +4,11 @@ import {
   View,
   Text,
   Switch,
-  StyleSheet,
   Button,
   Alert,
   Modal,
   TextInput,
   TouchableOpacity,
-  Linking,
 } from "react-native";
 import {
   signOut,
@@ -120,7 +118,7 @@ export default function Settings() {
         {
           text: "Proceed",
           onPress: () => {
-            const paymentUrl = "https://www.example.com/remove-ads"; // Tredje parts betalingsgateway
+            const paymentUrl = "https://www.example.com/remove-ads"; // Tredje parts betaling
             navigation.navigate("PaymentWebView", { url: paymentUrl });
           },
         },

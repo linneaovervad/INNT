@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ref, onValue } from "firebase/database";
 import { db } from "../firebase";
 import styles from "../styles/MemberItemStyles";
 
-export default function MemberItem({ userId, householdId, householdName, removeUser }) {
+export default function MemberItem({ userId, householdId, removeUser }) {
   const [user, setUser] = useState(null);
   const [color, setColor] = useState("#000"); 
  // Hent brugerens data
