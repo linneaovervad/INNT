@@ -8,7 +8,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
 import Toast from "react-native-toast-message";
 
-// Importer komponenter
+// Importerer komponenter
 import Home from "./components/Home";
 import ChoreList from "./components/ChoreList";
 import Settings from "./components/Settings";
@@ -21,36 +21,34 @@ import SignUpScreen from "./components/SignUpScreen";
 import PaymentWebView from "./components/PaymentWebView";
 import Banner from "./components/Banner";
 
-const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator(); // Opretter en tab-navigator til bunden
+const Stack = createStackNavigator(); // Opretter en stack-navigator til navigation mellem skærme
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null); // Holder styr på den aktuelle bruger
+  const [loading, setLoading] = useState(true); // Viser en loading-tilstand mens appen loader
 
   useEffect(() => {
-    // Overvåg Auth state ændringer
+    // Overvåger ændringer i brugerens autentifikationstilstand
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
+      setUser(currentUser); // Opdaterer brugeren hvis der logges ind/ud
+      setLoading(false); // Stopper loading-tilstand når tilstanden er kendt
     });
-    return unsubscribe;
+    return unsubscribe; // Rydder op i listeneren når komponenten fjernes
   }, []);
 
-  if (loading) {
-    // Vis evt. en ActivityIndicator eller en loading screen
-    return null;
-  }
-
+  if (loading) return null; // Returnerer intet hvis appen stadig loader
+ 
   return (
     <NavigationContainer>
+       {/* Viser enten appens hovedindhold eller login-skærme afhængigt af brugerens tilstand */}
       {user ? <AppStackNavigator /> : <AuthStackNavigator />}
       <Toast />
     </NavigationContainer>
   );
 }
 
-// Auth Stack Navigator
+// Auth Stack Navigator håndterer login og registrering
 function AuthStackNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -60,20 +58,22 @@ function AuthStackNavigator() {
   );
 }
 
-// App Stack Navigator
+// Håndtering af hovedindholdet af appen
 function AppStackNavigator() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Go back"
+        name="Main"
         component={MainTabNavigator}
         options={{ headerShown: false }}
       />
+      {/* Navigerer til en specifik husholdningsdetaljeskærm */}
       <Stack.Screen
         name="HouseholdDetail"
         component={HouseholdDetail}
-        options={({ route }) => ({ title: route.params.householdName })}
+        options={({ route }) => ({ title: route.params.householdName })} // Dynamisk titel baseret på rute
       />
+      {/* Navigerer til betalingsskærmen */}
       <Stack.Screen
         name="PaymentWebView"
         component={PaymentWebView}
@@ -83,51 +83,62 @@ function AppStackNavigator() {
   );
 }
 
-// Definer MainTabNavigator
+// Håndterer bundnavigationen
 function MainTabNavigator() {
+  const [activeTab, setActiveTab] = useState(""); // Holder styr på den aktive fane
+
   return (
     <>
-      <Banner/>
+      {/* Viser banneret med dynamisk position afhængigt af den aktive fane */}
+      <Banner
+        style={
+          activeTab === "Chat Bot"
+            ? { top: 50, bottom: undefined } // Move banner to the top
+            : { bottom: 80 } // Default position at the bottom
+        }
+      />
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size }) => {
             let iconName;
-            if (route.name === "Home") {
-              iconName = "home-outline";
+            if (route.name === "Chores") {
+              iconName = "checkbox-outline";
             } else if (route.name === "Calendar") {
               iconName = "calendar-outline";
-            } else if (route.name === "Chore List") {
+            } else if (route.name === "New Chore") {
               iconName = "list-outline";
             } else if (route.name === "Chat Bot") {
               iconName = "chatbubble-ellipses-outline";
-            } else if (route.name === "Task List") {
-              iconName = "people-outline";
+            } else if (route.name === "Households") {
+              iconName = "home-outline";
             } else if (route.name === "Settings") {
               iconName = "settings-outline";
-            } else if (route.name === "Households") {
-              iconName = "home-sharp";
             }
             return <Ionicons name={iconName} size={size} color={color} />;
           },
           tabBarActiveTintColor: "lightblue",
           tabBarInactiveTintColor: "gray",
-          headerTitle: auth.currentUser.displayName
-            ? auth.currentUser.displayName
-            : "App",
+          headerTitle: auth.currentUser.displayName || "App",
         })}
+        screenListeners={{
+          state: (e) => {
+            const route = e.data.state.routes[e.data.state.index];
+            setActiveTab(route.name); // Opdaterer den aktive fane
+          },
+        }}
       >
-        <Tab.Screen name="Home" component={Home} />
+        {/* Tabs til hver skærm i appen */}
+        <Tab.Screen name="Chores" component={Home} />
         <Tab.Screen name="Calendar">
           {(props) => <CalendarScreen {...props} database={db} />}
         </Tab.Screen>
-        <Tab.Screen name="Chore List">
+        <Tab.Screen name="New Chore">
           {(props) => <ChoreList {...props} database={db} />}
         </Tab.Screen>
         <Tab.Screen name="Chat Bot" component={ChatScreen} />
         <Tab.Screen name="Households" component={HouseholdList} />
         <Tab.Screen name="Settings" component={Settings} />
-      </Tab.Navigator></>
+      </Tab.Navigator>
+    </>
   );
 }
-
-

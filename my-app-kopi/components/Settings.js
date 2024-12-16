@@ -22,12 +22,13 @@ import { ref, remove } from "firebase/database"; // Importér remove fra firebas
 import { auth, db } from "../firebase"; // Importér auth og db fra firebase.js
 import Toast from "react-native-toast-message"; // Importér Toast, hvis du bruger det
 import { useNavigation } from "@react-navigation/native"; // Importer useNavigation
+import styles from "../styles/SettingStyles";
 
 export default function Settings() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [password, setPassword] = useState("");
-  const navigation = useNavigation(); // Brug useNavigation hook
+  const navigation = useNavigation(); 
 
   // Funktion til at skifte status for notifikationer
   const toggleNotifications = () =>
@@ -59,15 +60,14 @@ export default function Settings() {
 
   // Funktion til at logge ud
   const handleLogout = () => {
-    Alert.alert("Logout", "Er du sikker på, at du vil logge ud?", [
+    Alert.alert("Logout", "Are you sure you want to log out?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Yes",
         onPress: async () => {
           try {
             await signOut(auth);
-            Alert.alert("Success", "Du er blevet logget ud.");
-            navigation.navigate("Login"); // Naviger til login-skærmen efter logout
+            Alert.alert("Success", "you have been logged out.");
           } catch (error) {
             Alert.alert("Error", error.message);
           }
@@ -150,15 +150,15 @@ export default function Settings() {
       </View>
 
       <View style={styles.settingItem}>
-        <Button title="Contact Support" onPress={handleContactSupport} />
+        <Button title="Contact support" onPress={handleContactSupport} />
       </View>
 
       <View style={styles.settingItem}>
-        <Button title="Logout" onPress={handleLogout} />
+        <Button title="Log out" onPress={handleLogout} />
       </View>
 
       <View style={styles.settingItem}>
-        <Button title="Remove Ads" onPress={handleRemoveAds} />
+        <Button title="Remove ads" onPress={handleRemoveAds} />
       </View>
 
       <Modal
@@ -207,83 +207,3 @@ export default function Settings() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  settingItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 18,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: "80%",
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
-    fontSize: 16,
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    borderRadius: 5,
-    width: "100%",
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  button: {
-    borderRadius: 5,
-    padding: 10,
-    elevation: 2,
-    width: "45%",
-    alignItems: "center",
-  },
-  buttonClose: {
-    backgroundColor: "#bbb",
-  },
-  buttonDelete: {
-    backgroundColor: "#FF6347",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-  },
-});
