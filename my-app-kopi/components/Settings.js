@@ -1,28 +1,13 @@
-// components/Settings.js
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Switch,
-  Button,
-  Alert,
-  Modal,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
-import {
-  signOut,
-  deleteUser,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-} from "firebase/auth";
+import { View, Text, Switch, Button, Alert, Modal, TextInput, TouchableOpacity,} from "react-native"; // Importér de nødvendige komponenter fra react-native
+import { signOut, deleteUser, EmailAuthProvider, reauthenticateWithCredential, } from "firebase/auth"; // Importér de nødvendige funktioner fra firebase/auth
 import { ref, remove } from "firebase/database"; // Importér remove fra firebase/database
 import { auth, db } from "../firebase"; // Importér auth og db fra firebase.js
-import Toast from "react-native-toast-message"; // Importér Toast, hvis du bruger det
+import Toast from "react-native-toast-message"; // Importér Toast
 import { useNavigation } from "@react-navigation/native"; // Importer useNavigation
-import styles from "../styles/SettingStyles";
+import styles from "../styles/SettingStyles"; // Importér styles fra SettingStyles.js
 
-export default function Settings() {
+export default function Settings() { // Eksportér funktionen Settings
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [password, setPassword] = useState("");
@@ -35,7 +20,7 @@ export default function Settings() {
   // Funktion til at håndtere skift af kodeord
   const handleChangePassword = () => {
     Alert.alert("Change Password", "Navigate to change password screen.");
-    // Her kan du navigere til en skærm for at ændre kodeord, f.eks. navigation.navigate('ChangePassword');
+    // Her kunne man navigere til en skærm for at ændre kodeord, f.eks. navigation.navigate('ChangePassword');
   };
 
   // Funktion til at håndtere sletning af konto

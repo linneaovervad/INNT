@@ -2,7 +2,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Sørg for at have installeret dette
+import AsyncStorage from "@react-native-async-storage/async-storage"; 
 
 const firebaseConfig = {
   apiKey: "AIzaSyCueWm2L7Ri18xA9zM5bHn-9TaTNsF8Xxc",

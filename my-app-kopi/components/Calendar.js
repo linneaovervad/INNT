@@ -20,15 +20,15 @@ export default function CalendarScreen({ route, navigation }) {
   // Hent medlemmer fra databasen og opdater state
   useEffect(() => {
     const householdsRef = ref(db, `households`); // Reference til "households" i databasen
-    const unsubscribe = onValue(householdsRef, (snapshot) => {
-      const data = snapshot.val();
+    const unsubscribe = onValue(householdsRef, (snapshot) => { // Lytter efter ændringer i databasen
+      const data = snapshot.val(); // Data fra databasen
       if (data) {
         const allMembers = {};
-        Object.keys(data).forEach((householdKey) => {
+        Object.keys(data).forEach((householdKey) => { // Gennemgår alle husstande
           const household = data[householdKey];
           if (household.members) {
             // Henter og gemmer medlemmer med deres oplysninger
-            Object.keys(household.members).forEach((userId) => {
+            Object.keys(household.members).forEach((userId) => { // Gennemgår alle medlemmer
               allMembers[userId] = {
                 color: household.members[userId].color || "#FF5733",
                 displayName: household.members[userId].displayName || "Unknown",
@@ -37,7 +37,7 @@ export default function CalendarScreen({ route, navigation }) {
             });
           }
         });
-        setMembers(allMembers);
+        setMembers(allMembers); // Opdaterer medlemmer
       } else {
         setMembers({});
       }
@@ -64,12 +64,12 @@ export default function CalendarScreen({ route, navigation }) {
   }, [members]);
 
   // Funktion til at opdatere opgaver fra databasen
-  const updateChoresFromDatabase = (data) => {
+  const updateChoresFromDatabase = (data) => { // Data fra databasen
     const newMarkedDates = {};
     const allChores = [];
     Object.keys(data).forEach((key) => {
       const chore = data[key];
-      if (chore.assignedTo && members[chore.assignedTo]) {
+      if (chore.assignedTo && members[chore.assignedTo]) { // Hvis opgaven er tildelt et medlem
         if (chore.deadline) {
           const userId = chore.assignedTo;
           const color = members[userId].color || "#FF5733"; // Brugerens farve
@@ -82,7 +82,7 @@ export default function CalendarScreen({ route, navigation }) {
             newMarkedDates[deadlineDate] = { dots: [{ color }] };
           }
 
-          allChores.push({ ...chore, id: key, deadlineDate });
+          allChores.push({ ...chore, id: key, deadlineDate }); // Tilføjer opgave
         }
       }
     });
@@ -149,7 +149,7 @@ export default function CalendarScreen({ route, navigation }) {
                       Assigned to: {user ? user.displayName : "Unknown"}
                     </Text>
                     <Text style={styles.choreText}>
-                      Status: {item.completed ? "Done" : "Not done"}
+                      Status: {item.completed ? "Done" : "Not done"} 
                     </Text>
                     {item.picture ? (
                       <TouchableOpacity

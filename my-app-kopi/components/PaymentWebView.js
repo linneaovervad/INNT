@@ -3,12 +3,12 @@ import React from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-export default function PaymentWebView({ route }) {
-  const { url } = route.params;
+export default function PaymentWebView({ route }) { // Modtager route som prop
+  const { url } = route.params; // Henter url fra route
 
   return (
     <View style={styles.container}>
-      <WebView
+      <WebView // Viser en WebView med url fra route
         source={{ uri: url }}
         startInLoadingState={true}
         renderLoading={() => (
