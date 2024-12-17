@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, } from "../firebase";
 import Toast from "react-native-toast-message"; 

@@ -1,18 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  Text,
-  TouchableOpacity,
-  View,
-  TextInput,
-  FlatList,
-  Modal,
-  Platform,
-  SafeAreaView,
-  Image,
-  ActivityIndicator,
-  Alert,
-  ScrollView
-} from "react-native";
+import { Text, TouchableOpacity, View, TextInput, FlatList, Modal, Platform, SafeAreaView, Image, ActivityIndicator, Alert, ScrollView } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ref, onValue, push } from "firebase/database";
 import DateTimePicker from "@react-native-community/datetimepicker";

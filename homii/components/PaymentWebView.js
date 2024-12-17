@@ -1,4 +1,3 @@
-// components/PaymentWebView.js
 import React from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';

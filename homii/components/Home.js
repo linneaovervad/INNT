@@ -1,23 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-  Image,
-} from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator, Image, } from "react-native";
 import { auth, db } from "../firebase";
-import {
-  ref,
-  onValue,
-  remove,
-  update,
-  query,
-  orderByChild,
-  equalTo,
-} from "firebase/database";
+import { ref, onValue, remove, update, query,orderByChild, equalTo, } from "firebase/database";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
 import styles from "../styles/HomeStyles"; 

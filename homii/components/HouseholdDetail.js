@@ -1,24 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, ActivityIndicator, } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {
-  ref,
-  onValue,
-  set,
-  remove,
-  get,
-  query,
-  orderByChild,
-  equalTo,
-} from "firebase/database";
+import { ref, onValue, set, remove, get, query, orderByChild, equalTo, } from "firebase/database";
 import { db } from "../firebase";
 import MemberItem from "./MemberItem";
 import Toast from "react-native-toast-message";

@@ -151,6 +151,9 @@ export default function CalendarScreen({ route, navigation }) {
                     <Text style={styles.choreText}>
                       Status: {item.completed ? "Done" : "Not done"} 
                     </Text>
+                    <Text style={styles.choreText}>
+                      Description: {item.description}
+                    </Text>
                     {item.picture ? (
                       <TouchableOpacity
                         onPress={() => toggleImageSize(item.id)} // Forstør billede

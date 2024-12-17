@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-  Alert,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ref, onValue, push, remove } from "firebase/database";
 import { db, auth } from "../firebase";
