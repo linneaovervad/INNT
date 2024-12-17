@@ -1,5 +1,5 @@
 *Naviger ind i appen*
-cd my-app-kopi
+cd homii
 
 *Start*
 npm install 
