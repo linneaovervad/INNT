@@ -3,14 +3,16 @@ import { View, Text, TextInput, TouchableOpacity, Alert, } from "react-native";
 import { createUserWithEmailAndPassword, updateProfile, signOut, } from "firebase/auth";
 import { ref, set } from "firebase/database";
 import { auth, db } from "../firebase";
-import Toast from "react-native-toast-message"; // Importer Toast
+import Toast from "react-native-toast-message";
 import styles from "../styles/SignUpScreenStyles";
 
+// Funktionel komponent for SignUpScreen
 export default function SignUpScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
 
+  // Funktion til at oprette en bruger
   const handleSignUp = () => {
     if (!email || !password || !displayName) {
       Alert.alert("Error", "Fill out all the fields.");
@@ -81,7 +83,7 @@ export default function SignUpScreen({ navigation }) {
       <TextInput
         placeholder="E-mail"
         value={email}
-        onChangeText={(text) => setEmail(text.toLowerCase())} // Konverter input til lowercase
+        onChangeText={(text) => setEmail(text.toLowerCase())}
         style={styles.input}
         keyboardType="email-address"
         autoCapitalize="none"

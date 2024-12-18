@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, Switch, Button, Alert, Modal, TextInput, TouchableOpacity,} from "react-native"; // Importér de nødvendige komponenter fra react-native
-import { signOut, deleteUser, EmailAuthProvider, reauthenticateWithCredential, } from "firebase/auth"; // Importér de nødvendige funktioner fra firebase/auth
-import { ref, remove } from "firebase/database"; // Importér remove fra firebase/database
-import { auth, db } from "../firebase"; // Importér auth og db fra firebase.js
-import Toast from "react-native-toast-message"; // Importér Toast
-import { useNavigation } from "@react-navigation/native"; // Importer useNavigation
-import styles from "../styles/SettingStyles"; // Importér styles fra SettingStyles.js
+import { View, Text, Switch, Button, Alert, Modal, TextInput, TouchableOpacity,} from "react-native"; 
+import { signOut, deleteUser, EmailAuthProvider, reauthenticateWithCredential, } from "firebase/auth"; 
+import { auth, db } from "../firebase"; 
+import Toast from "react-native-toast-message"; 
+import { useNavigation } from "@react-navigation/native"; 
+import styles from "../styles/SettingStyles";
 
-export default function Settings() { // Eksportér funktionen Settings
+// Indstillinger komponent
+export default function Settings() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [password, setPassword] = useState("");
@@ -143,7 +143,7 @@ export default function Settings() { // Eksportér funktionen Settings
       <View style={styles.settingItem}>
         <Button title="Remove ads" onPress={handleRemoveAds} />
       </View>
-
+      {/* Modal til at bekræfte sletning af konto */}
       <Modal
         animationType="slide"
         transparent={true}

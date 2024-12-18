@@ -29,9 +29,9 @@ export default function NewChore({ database }) {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState(null);
   const cameraRef = useRef();
 
+  // Tjekker om brugeren har givet tilladelse til kameraet
   useEffect(() => {
     (async () => {
-      // If permission is not determined, request it directly
       console.log(permission?.status)
       if (permission?.status === 'undetermined' || permission?.status ==="denied") {
         const result = await requestPermission();
@@ -155,8 +155,7 @@ export default function NewChore({ database }) {
       });
   };
   
-
-  // Håndter valg af dato i forhold til styresystem
+  // Håndterer ændringer i datoen
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) {
       setDeadline(selectedDate); // Opdater deadline
@@ -166,6 +165,7 @@ export default function NewChore({ database }) {
     }
   };
 
+  // Interval for opgaver
   const intervals = [
     { id: '0', label: 'No' },
     { id: '1', label: 'Daily' },
@@ -179,7 +179,7 @@ export default function NewChore({ database }) {
     setSelectedInterval(item);
     setShowDropdownRepeat(false);
   }
-
+// Algoritme for opgaver
   const algorithm = [
     { id: '0', label: 'This is a one-time thing' },
     { id: '1', label: 'Always the same person' },
@@ -248,7 +248,7 @@ export default function NewChore({ database }) {
             visible={showDropdown}
             animationType="slide"
             onRequestClose={() => setShowDropdown(false)}
-          >
+          > 
             <View style={styles.modalContainer}>
               <View style={styles.dropdownContainer}>
                 <Text style={styles.dropdownTitle}>Select a person</Text>
@@ -291,7 +291,7 @@ export default function NewChore({ database }) {
             </Text>
             <Ionicons name="chevron-down-outline" size={20} color="#333" />
           </TouchableOpacity>
-
+          
           <Modal
             transparent
             visible={showDropdownRepeat}
@@ -333,7 +333,7 @@ export default function NewChore({ database }) {
             visible={showDropdownAlgorithm}
             animationType="slide"
             onRequestClose={() => setShowDropdownAlgorithm(false)}
-          >
+          > 
             <View style={styles.modalContainer}>
               <View style={styles.dropdownContainer}>
                 <Text style={styles.dropdownTitle}>Select how you want to assign the chore</Text>
