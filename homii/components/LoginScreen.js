@@ -5,21 +5,23 @@ import { auth, } from "../firebase";
 import Toast from "react-native-toast-message"; 
 import styles from "../styles/LoginScreenStyles";
 
+// LoginScreen-komponenten
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(""); // State til at gemme e-mail
+  const [password, setPassword] = useState(""); // State til at gemme adgangskode
 
   // Funktion til at validere log ind
   const handleLogin = () => {
+    // Tjekker om alle felter er udfyldt
     if (!email || !password) {
-      Alert.alert("Error", "Fill out all the fields.");
+      Alert.alert("Error", "Fill out all the fields."); // Viser en advarsel hvis felter mangler
       return;
     }
 
     // Log ind med e-mail og kodeord
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        const user = userCredential.user;
+        const user = userCredential.user; // Henter den autentificerede bruger
         Toast.show({
           type: "success",
           text1: "Success",
@@ -27,16 +29,17 @@ export default function LoginScreen({ navigation }) {
         });
       })
       .catch((error) => {
-        console.error("Error logging in:", error);
-        Alert.alert("Error", error.message);
+        console.error("Error logging in:", error); // Logger fejl til konsollen
+        Alert.alert("Error", error.message); // Viser fejlmeddelelsen
       });
   };
 
-  //Vis loginformular
+  // Returnerer loginformularen
   return (
     <View style={styles.container}>
+      {/* Overskrift for login-skærmen */}
       <Text style={styles.heading}>Log Ind</Text>
-
+      {/* Inputfelt til e-mail */}
       <TextInput
         placeholder="E-mail"
         value={email}
@@ -45,7 +48,7 @@ export default function LoginScreen({ navigation }) {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-
+      {/* Inputfelt til adgangskode */}
       <TextInput
         placeholder="Password"
         value={password}

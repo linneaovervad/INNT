@@ -31,39 +31,44 @@ export default function NewChore({ database }) {
 
   // Tjekker om brugeren har givet tilladelse til kameraet
   useEffect(() => {
-    (async () => {
-      console.log(permission?.status)
+     // Asynkron funktion til at håndtere tilladelseskontrol
+    (async () => { 
+      console.log(permission?.status) // Logger den aktuelle status for kamera-tilladelsen
+
+       // Hvis tilladelsen er 'udefineret' eller 'afvist'
       if (permission?.status === 'undetermined' || permission?.status ==="denied") {
-        const result = await requestPermission();
-        
+        const result = await requestPermission(); // Anmoder om kamera-tilladelse
+
         if (result.granted) {
-          console.log("Camera permission granted");
+          // Hvis brugeren giver tilladelse
+          console.log("Camera permission granted"); 
         } else {
+          // Hvis brugeren afviser tilladelse
           Toast.show({
             type: 'error',
             text1: 'Camera Access Denied',
-            text2: 'Please enable camera permissions in your device settings'
+            text2: 'Please enable camera permissions in your device settings'  
           });
         }
       }
     })();
-  }, [permission?.status, requestPermission]);
+  }, [permission?.status, requestPermission]); // Funktion afhænger af ændringer i permission-status eller requestPermission-funktion
 
 
 
   // Skift mellem front- og bagkamera
   const toggleCameraType = () => {
-    setType((type) => (type === "back" ? "front" : "back"));
+    setType((type) => (type === "back" ? "front" : "back")); // Skifter kameraets retning
   };
 
   // Tag Billede
   const snap = async () => {
     if (!cameraRef.current) {
-      console.log("Camera reference is not available");
+      console.log("Camera reference is not available"); // Logger fejl hvis kameraet ikke er tilgængeligt
       return;
     }
 
-    setLoading(true);
+    setLoading(true); // Sætter loading til true mens billedet tages
     try {
       const result = await cameraRef.current.takePictureAsync({
         quality: 1, // Højeste kvalitet
@@ -74,12 +79,12 @@ export default function NewChore({ database }) {
         setCurrentImage(result.uri); // Gemmer billedets URI
         setBase64Image(result.base64); // Gemmer billedet som base64-streng
       } else {
-        console.error("No base64 data returned from camera");
+        console.error("No base64 data returned from camera"); // Logger fejl hvis Base64 mangler
       }
     } catch (error) {
-      console.error("Error taking picture:", error);
+      console.error("Error taking picture:", error); // Logger fejl under billedtagning
     } finally {
-      setLoading(false);
+      setLoading(false); // Stopper loading
       setShowCamera(false); // Lukker kameraet
     }
   };
@@ -87,18 +92,18 @@ export default function NewChore({ database }) {
  // Henter opgaver og husstandsmedlemmer fra databasen
   useEffect(() => {
     if (database) {
-      const choresRef = ref(database, "chores");
-      // Henter opgaver
+      const choresRef = ref(database, "chores"); // Reference til opgaver i databasen
+      // Læs opgaver fra databasen
       onValue(choresRef, (snapshot) => {
         const data = snapshot.val();
         const taskList = data
           ? Object.keys(data).map((key) => ({ id: key, ...data[key] }))
           : [];
-        setChores(taskList);
+        setChores(taskList); // Sætter listen af opgaver
       });
 
-      const membersRef = ref(database, "users");
-      // Henter medlemmer
+      const membersRef = ref(database, "users"); // Reference til husstandsmedlemmer
+      // Henter medlemmer fra databasen
       onValue(membersRef, (snapshot) => {
         const data = snapshot.val();
         const membersList = data
@@ -107,19 +112,19 @@ export default function NewChore({ database }) {
             displayName: data[key].displayName,
           }))
           : [];
-        setHouseholdMembers(membersList);
+        setHouseholdMembers(membersList); // Sætter listen af medlemmer
       });
     }
-  }, [database]);
+  }, [database]); // Kører når databasen ændrer sig
 
   // Tilføj en ny opgave
   const addChore = () => {
     if (!newChore.trim() || !assignedPerson) {
-      Alert.alert("Error", "Please create a name for the chore and assign it to a person");
+      Alert.alert("Error", "Please create a name for the chore and assign it to a person"); // Fejl hvis input mangler
       return;
     }
   
-    const choresRef = ref(database, 'chores');
+    const choresRef = ref(database, 'chores'); // Reference til opgaver i databasen
     push(choresRef, {
       name: newChore,
       assignedTo: assignedPerson.id,
@@ -128,7 +133,7 @@ export default function NewChore({ database }) {
       completed: false, // Standardværdi
       picture: base64Image || null,
       description: description || null,
-      repeatedChore: selectedInterval ? selectedInterval.label : null,
+      repeatedChore: selectedInterval ? selectedInterval.label : null, // Interval for gentagelse
     })
       .then(() => {
         // Nulstil felter efter opgaven er gemt
@@ -139,6 +144,7 @@ export default function NewChore({ database }) {
         setCurrentImage("");
         setBase64Image("");
         setSelectedInterval(null);
+        // Succesmeddelelser
         Toast.show({
           type: "success",
           text1: "Succes",
@@ -147,6 +153,7 @@ export default function NewChore({ database }) {
       })
       .catch((error) => {
         console.error("Error adding chore:", error);
+        // Fejlmeddelelser
         Toast.show({
           type: "error",
           text1: "Error",
@@ -161,7 +168,7 @@ export default function NewChore({ database }) {
       setDeadline(selectedDate); // Opdater deadline
     }
     if (Platform.OS === "android") {
-      setShowDatePicker(false); // Skjuler DatePicker
+      setShowDatePicker(false); // Skjuler DatePicker på Android
     }
   };
 
@@ -176,10 +183,10 @@ export default function NewChore({ database }) {
     { id: '6', label: '6 Months' },
   ];
   const handleSelectInterval = (item) => {
-    setSelectedInterval(item);
-    setShowDropdownRepeat(false);
+    setSelectedInterval(item); // Sætter valgt interval
+    setShowDropdownRepeat(false); // Lukker dropdown
   }
-// Algoritme for opgaver
+  // Algoritme for opgaver
   const algorithm = [
     { id: '0', label: 'This is a one-time thing' },
     { id: '1', label: 'Always the same person' },
@@ -188,11 +195,11 @@ export default function NewChore({ database }) {
   ]
 
   const handleSelectAlgorithm = (item) => {
-    setSelectedAlgorithm(item);
-    setShowDropdownAlgorithm(false);
+    setSelectedAlgorithm(item); // Sætter valgt algoritme
+    setShowDropdownAlgorithm(false); // Lukker dropdown
   }
 
-  // Returner visning
+  // Returnerer visning af kamera eller hovedskærm
   return showCamera ? (
     // Skærmen hvis Camera view == true (Viser kameraet)
     <SafeAreaView style={styles.safeview}>
@@ -201,17 +208,18 @@ export default function NewChore({ database }) {
           {/* {Knap til at skifte mellem front- og bagkamera } */}
           <TouchableOpacity
             style={styles.flipButton}
-            onPress={toggleCameraType}
+            onPress={toggleCameraType} // Funktion til at ændre kameraets retning
           >
             <Ionicons name="camera-reverse-outline" size={32} color="#fff" />
           </TouchableOpacity>
           {/* Knap til at tage billede */}
           <TouchableOpacity
             style={styles.snapButton}
-            onPress={snap}
-            disabled={loading}
+            onPress={snap} // Funktion til at tage billede
+            disabled={loading} // Deaktiveret mens kameraet er i gang
           >
             {loading ? (
+              // Viser en loader, hvis billedet tages
               <ActivityIndicator color="#fff" />
             ) : (
               <Text style={styles.snapButtonText}>Take picture</Text>
@@ -221,46 +229,48 @@ export default function NewChore({ database }) {
       </CameraView>
     </SafeAreaView>
   ) : (
-    // Skærmen hvis Camera view == false
+    // Skærmen hvis Camera view == false (hvis kameraet ikke er aktivt)
     <ScrollView>
       <View style={styles.container}>
         <View style={styles.container}>
           <Text style={styles.heading}>New Chore</Text>
-          {/* Input felt til navnet på opgaven */}
+          {/* Inputfelt til at skrive opgavens navn */}
           <TextInput
-            placeholder="Chore"
-            value={newChore}
-            onChangeText={setNewChore}
-            style={styles.inputField}
+            placeholder="Chore" // Pladsholdertekst
+            value={newChore} // Binder inputfelt til newChore state
+            onChangeText={setNewChore} // Opdaterer newChore state ved ændringer
+            style={styles.inputField} // Styling for inputfeltet
           />
           {/* Dropdown til at vælge person */}
           <TouchableOpacity
             style={styles.dropdownButton}
-            onPress={() => setShowDropdown(true)}
+            onPress={() => setShowDropdown(true)} // Åbner dropdown-menu
           >
             <Text style={styles.dropdownButtonText}>
-              {assignedPerson?.displayName || "Select a person"}
+              {assignedPerson?.displayName || "Select a person"} 
             </Text>
             <Ionicons name="chevron-down-outline" size={20} color="#333" />
           </TouchableOpacity>
+          {/* Modal til at vælge person fra en liste */}
           <Modal
             transparent
-            visible={showDropdown}
+            visible={showDropdown} // Modal vises hvis showDropdown er true
             animationType="slide"
-            onRequestClose={() => setShowDropdown(false)}
+            onRequestClose={() => setShowDropdown(false)} // Lukker modal, hvis brugeren trykker udenfor
           > 
             <View style={styles.modalContainer}>
               <View style={styles.dropdownContainer}>
                 <Text style={styles.dropdownTitle}>Select a person</Text>
+                {/* Liste over husstandsmedlemmer */}
                 <FlatList
                   data={householdMembers}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item) => item.id} // Unik nøgle for hvert medlem
                   ListHeaderComponent={
                     <TouchableOpacity
                       style={styles.dropdownItem}
                       onPress={() => {
                         setAssignedPerson({ id: "freeForAll", displayName: "FreeforAll" });
-                        setShowDropdown(false);
+                        setShowDropdown(false); // Lukker dropdown
                       }}
                     >
                       <Text style={styles.dropdownItemText}>Free for All</Text>
@@ -270,7 +280,7 @@ export default function NewChore({ database }) {
                     <TouchableOpacity
                       style={styles.dropdownItem}
                       onPress={() => {
-                        setAssignedPerson(item);
+                        setAssignedPerson(item); // Vælger et medlem
                         setShowDropdown(false);
                       }}
                     >
@@ -281,17 +291,17 @@ export default function NewChore({ database }) {
               </View>
             </View>
           </Modal>
-          {/* Dropdown til at vælge interval */}
+           {/* Dropdown for gentagelsesinterval */}
           <TouchableOpacity
             style={styles.dropdownButton}
-            onPress={() => setShowDropdownRepeat(true)}
+            onPress={() => setShowDropdownRepeat(true)} // Åbner gentagelsesinterval-menu
           >
             <Text style={styles.dropdownButtonText}>
               {selectedInterval ? selectedInterval.label : "Repeat Chore?"}
             </Text>
             <Ionicons name="chevron-down-outline" size={20} color="#333" />
           </TouchableOpacity>
-          
+          {/* Modal for gentagelsesinterval */}
           <Modal
             transparent
             visible={showDropdownRepeat}
@@ -302,12 +312,12 @@ export default function NewChore({ database }) {
               <View style={styles.dropdownContainer}>
                 <Text style={styles.dropdownTitle}>Select how often you want the task to repeat</Text>
                 <FlatList
-                  data={intervals}
-                  keyExtractor={(item) => item.id}
+                  data={intervals} // Data til gentagelsesinterval
+                  keyExtractor={(item) => item.id} // Unik nøgle for hvert interval
                   renderItem={({ item }) => (
                     <TouchableOpacity
                       style={styles.dropdownItem}
-                      onPress={() => handleSelectInterval(item)}
+                      onPress={() => handleSelectInterval(item)} // Vælger interval
                     >
                       <Text style={styles.dropdownItemText}>
                         {item.label}
@@ -318,16 +328,17 @@ export default function NewChore({ database }) {
               </View>
             </View>
           </Modal>
-          {/* Dropdown til at vælge algoritme */}
+          {/* Dropdown for opgavealgoritme */}
           <TouchableOpacity
             style={styles.dropdownButton}
-            onPress={() => setShowDropdownAlgorithm(true)}
+            onPress={() => setShowDropdownAlgorithm(true)} // Åbner algoritme-menu
           >
             <Text style={styles.dropdownButtonText}>
               {selectedAlgorithm ? selectedAlgorithm.label : "How to assign the chore?"}
             </Text>
             <Ionicons name="chevron-down-outline" size={20} color="#333" />
           </TouchableOpacity>
+          {/* Modal for algoritmevalg */}
           <Modal
             transparent
             visible={showDropdownAlgorithm}
@@ -371,13 +382,14 @@ export default function NewChore({ database }) {
               onChange={onDateChange}
             />
           )}
-
+          {/* Input til beskrivelse */}
           <TextInput
             placeholder="Description"
             value={description}
             onChangeText={setDescription}
             style={styles.description}
           />
+          {/* Knap til at åbne kamera */}
           <TouchableOpacity
             onPress={() => setShowCamera(true)}
             style={styles.actionButton}
