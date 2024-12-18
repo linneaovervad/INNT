@@ -1,5 +1,5 @@
 import OpenAI from "openai/index.mjs";
-const openaiKey = "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"//Indsæt din API-nøgle til OpenAI
+const openaiKey = ""//Indsæt din API-nøgle til OpenAI
 
 // Opretter en ny instans af OpenAI-klassen med API-nøglen
 const openai = new OpenAI({ apiKey: openaiKey });

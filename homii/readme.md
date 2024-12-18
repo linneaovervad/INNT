@@ -8,4 +8,4 @@ npm install
 npx expo start
 
 *Opstart af GenAI*
-Husk at indsæt egen API-key i Request.js på linje 2 
+Husk at indsæt egen API-key i services/Request.js på linje 2 
