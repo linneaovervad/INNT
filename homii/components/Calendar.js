@@ -1,4 +1,3 @@
-// Importerer nødvendige moduler og komponenter fra React, React Native og andre biblioteker
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
 import { Calendar } from "react-native-calendars"; 
@@ -48,8 +47,8 @@ export default function CalendarScreen({ route, navigation }) {
 
   // Hent opgaver fra databasen og opdater state
   useEffect(() => {
-    const choresRef = ref(db, "chores"); // Reference til "chores" i databasen
-    const unsubscribe = onValue(choresRef, (snapshot) => {
+    const choresRef = ref(db, "chores");
+    const unsubscribe = onValue(choresRef, (snapshot) => { // Lytter efter ændringer i databasen
       const data = snapshot.val();
       if (data) {
         updateChoresFromDatabase(data); // Opdater opgaver og markerede datoer
@@ -107,9 +106,9 @@ export default function CalendarScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       {/* Kalender med markerede datoer */}
-      <Calendar
-        onDayPress={handleDayPress} // Håndtering af dagvalg
-        markedDates={{
+      <Calendar 
+        onDayPress={handleDayPress} 
+        markedDates={{ // Markerer datoer med farvede prikker
           ...markedDates,
           [selectedDate]: {
             ...(markedDates[selectedDate] || {}),
@@ -128,7 +127,7 @@ export default function CalendarScreen({ route, navigation }) {
             <FlatList
               data={choresForSelectedDate} // Viser liste over opgaver
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => {
+              renderItem={({ item }) => { // Viser opgaveinformation
                 const userId = item.assignedTo;
                 const user = members[userId];
                 const userColor = user ? user.color : "#000";
@@ -159,8 +158,8 @@ export default function CalendarScreen({ route, navigation }) {
                         onPress={() => toggleImageSize(item.id)} // Forstør billede
                       >
                         <Image
-                          source={{
-                            uri: `data:image/jpeg;base64,${item.picture}`,
+                          source={{ // Viser billede
+                            uri: `data:image/jpeg;base64,${item.picture}`, 
                           }}
                           style={[
                             styles.choreImage,

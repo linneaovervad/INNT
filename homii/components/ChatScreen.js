@@ -87,7 +87,7 @@ export default function ChatScreen() {
           setMessages((previousMessages) => GiftedChat.append(previousMessages, chatAIResp));
         } else {
           setLoading(false);
-          const chatAIResp = {
+          const chatAIResp = { 
             _id: Math.random() * (9999999 - 1),
             text: 'Sorry, I cannot help with it',
             createdAt: new Date(),
@@ -97,6 +97,7 @@ export default function ChatScreen() {
               avatar: CHAT_BOT_FACE,
             },
           };
+          // Tilføj chatbot svar til historik
           setMessages((previousMessages) => GiftedChat.append(previousMessages, chatAIResp));
         }
       })
@@ -136,7 +137,7 @@ export default function ChatScreen() {
           backgroundColor: chatFaceColor, 
         }}
         textInputProps={{
-          placeholderTextColor: '#1B4F72', // Placeholder text color
+          placeholderTextColor: '#1B4F72',
         }}
       />
     );

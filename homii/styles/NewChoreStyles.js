@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-const ChoreListStyles = StyleSheet.create({
+const NewChoreStyles = StyleSheet.create({
   dropdownButton: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -224,5 +224,5 @@ const ChoreListStyles = StyleSheet.create({
   },
 });
 
-export default ChoreListStyles;
+export default NewChoreStyles;
 

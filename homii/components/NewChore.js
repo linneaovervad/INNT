@@ -5,9 +5,10 @@ import { ref, onValue, push } from "firebase/database";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import Toast from "react-native-toast-message";
-import styles from "../styles/ChoreListStyles.js"; 
+import styles from "../styles/NewChoreStyles.js"; 
 
-export default function ChoreList({ database }) {
+// Hovedkomponent for NewChore
+export default function NewChore({ database }) {
   const [chores, setChores] = useState([]);
   const [newChore, setNewChore] = useState("");
   const [assignedPerson, setAssignedPerson] = useState(null);

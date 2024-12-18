@@ -9,7 +9,7 @@ import Toast from "react-native-toast-message";
 
 // Importerer komponenter
 import Home from "./components/Home";
-import ChoreList from "./components/ChoreList";
+import NewChore from "./components/NewChore";
 import Settings from "./components/Settings";
 import CalendarScreen from "./components/Calendar";
 import ChatScreen from "./components/ChatScreen";
@@ -132,7 +132,7 @@ function MainTabNavigator() {
           {(props) => <CalendarScreen {...props} database={db} />}
         </Tab.Screen>
         <Tab.Screen name="New Chore">
-          {(props) => <ChoreList {...props} database={db} />}
+          {(props) => <NewChore {...props} database={db} />}
         </Tab.Screen>
         <Tab.Screen name="Chat Bot" component={ChatScreen} />
         <Tab.Screen name="Households" component={HouseholdList} />
