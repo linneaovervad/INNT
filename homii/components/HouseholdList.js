@@ -110,29 +110,28 @@ export default function HouseholdList({ navigation }) { // Funktion til at vise 
         style={styles.deleteButton} // Stil til slet knap
       >
         <Ionicons name="trash-outline" size={24} color="red" /> 
-      </TouchableOpacity> {/* Slet knap */}
+      </TouchableOpacity> 
     </TouchableOpacity> // Husholdningsliste
   );
 
   return (
-    <View style={styles.container}> {/* Container */}
-      <Text style={styles.heading}>Households</Text> {/* Overskrift */}
+    <View style={styles.container}> 
+      <Text style={styles.heading}>Households</Text> 
 
-      {/* Opret en ny husholdning */}
-      <View style={styles.createContainer}> {/* Container til oprettelse af ny husholdning */}
+  
+      <View style={styles.createContainer}>
         <TextInput // Inputfelt til husholdningsnavn 
           placeholder="New household name" // Placeholder tekst (indtast husholdningsnavn)
           value={newHousehold} // Værdi (ny husholdning)
           onChangeText={setNewHousehold} // Opdater værdi (ny husholdning)
           style={styles.inputField} // Stil til inputfelt 
         />
-        <TouchableOpacity onPress={createHousehold} style={styles.addButton}> {/* Opret knap */}
+        <TouchableOpacity onPress={createHousehold} style={styles.addButton}> 
           <Ionicons name="add-circle-outline" size={24} color="#fff" /> 
           <Text style={styles.addButtonText}>Create</Text> 
         </TouchableOpacity> 
       </View>
 
-      {/* Liste over husholdninger */}
       <FlatList
         data={households} // Husholdningsdata
         keyExtractor={(item) => item.id} // Unik nøgle til husholdning

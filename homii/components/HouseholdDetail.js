@@ -187,7 +187,6 @@ export default function HouseholdDetail({ route, navigation }) { // Funktion til
 
   return (
     <View style={styles.container}>  
-      {/* Søg efter og tilføj bruger */}
       <View style={styles.addUserContainer}> 
         <Text style={styles.sectionHeading}>Add user</Text> 
         <View style={styles.searchContainer}> 
@@ -214,7 +213,6 @@ export default function HouseholdDetail({ route, navigation }) { // Funktion til
           </TouchableOpacity>
         </View>
 
-        {/* Vis søgeresultater */}
         {searchResult && ( // Kontroller, om der er et søgeresultat at vise
           <View style={styles.searchResultContainer}> 
             <Text style={styles.resultText}>
@@ -224,7 +222,7 @@ export default function HouseholdDetail({ route, navigation }) { // Funktion til
                 : searchResult.email} 
             </Text>
             
-            {/* Farvevalg */}
+        
             <Text style={styles.colorLabel}>Select a color:</Text>
             <View style={styles.colorsContainer}> 
               {availableColors.map((color) => ( // Iterer gennem listen over tilgængelige farver
