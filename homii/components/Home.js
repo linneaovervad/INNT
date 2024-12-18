@@ -163,7 +163,7 @@ export default function Home() { // Funktion til at vise hjem skærmen
     return ( // Returnerer opgaver
       <View style={styles.taskItem}>  
         <View style={styles.taskInfo}>
-          <TouchableOpacity onPress={() => toggleStatus(item.id, item.completed)}> {/* Tryk på opgave for at ændre status */}
+          <TouchableOpacity onPress={() => toggleStatus(item.id, item.completed)}> 
             <Ionicons
               name={item.completed ? "checkmark-circle" : "ellipse-outline"} // Vis ikon afhængig af om opgaven er udført eller ej
               size={24}
@@ -172,18 +172,18 @@ export default function Home() { // Funktion til at vise hjem skærmen
             />
           </TouchableOpacity> 
           <View style={styles.taskDetails}>
-            <Text style={[styles.taskTitle, item.completed && styles.taskDone]}> {/* Vis opgavens titel */}
+            <Text style={[styles.taskTitle, item.completed && styles.taskDone]}> 
               {item.name}
             </Text>
-            <Text style={styles.taskDeadline}>Deadline: {formattedDeadline}</Text> {/* Vis deadline */}
+            <Text style={styles.taskDeadline}>Deadline: {formattedDeadline}</Text> 
             <Text style={styles.taskAssigned}>
-              Assigned to: {getUserName(item.assignedTo)} {/* Vis tildelt bruger */}
+              Assigned to: {getUserName(item.assignedTo)}
             </Text>
             {item.description ? (
               <Text style={styles.taskDescription}>{item.description}</Text> // Vis beskrivelse hvis der er en
             ) : null}
             {item.picture ? (
-              <TouchableOpacity onPress={() => toggleImageSize(item.id)}> {/* Tryk på billede for at forstørre */}
+              <TouchableOpacity onPress={() => toggleImageSize(item.id)}> 
                 <Image
                   source={{ uri: `data:image/jpeg;base64,${item.picture}` }} // Vis billede
                   style={[ 
