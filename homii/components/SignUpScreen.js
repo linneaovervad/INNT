@@ -14,14 +14,16 @@ export default function SignUpScreen({ navigation }) {
 
   // Funktion til at oprette en bruger
   const handleSignUp = () => {
+    // Tjekker om alle felter er udfyldt
     if (!email || !password || !displayName) {
-      Alert.alert("Error", "Fill out all the fields.");
+      Alert.alert("Error", "Fill out all the fields."); // Fejlmeddelelse 
       return;
     }
 
+    // Firebase funktion til at oprette bruger med e-mail og adgangskode
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        const user = userCredential.user;
+        const user = userCredential.user; // Henter brugerdata fra brugeroprettelsen
 
         // Opdater brugerens display navn
         updateProfile(user, {
@@ -36,6 +38,7 @@ export default function SignUpScreen({ navigation }) {
           })
             .then(() => {
               Toast.show({
+                // Viser en succesmeddelelse når brugeren er oprettet
                 type: "success",
                 text1: "Success",
                 text2: "User created. Log in with your details.",
@@ -43,9 +46,10 @@ export default function SignUpScreen({ navigation }) {
               // Log brugeren ud
               signOut(auth)
                 .then(() => {
-                  // Navigatoren skifter automatisk til AuthStack
+                  // Navigatoren skifter automatisk til AuthStack efter log ud
                 })
                 .catch((error) => {
+                  // Fejlhåndtering
                   console.error("Error signing out:", error);
                   Alert.alert(
                     "Error",
@@ -54,6 +58,7 @@ export default function SignUpScreen({ navigation }) {
                 });
             })
             .catch((error) => {
+              // Fejlhåndtering hvis det ikke lykkes at gemme brugerdata
               console.error("Error writing user data:", error);
               Toast.show({
                 type: "error",
@@ -64,11 +69,13 @@ export default function SignUpScreen({ navigation }) {
         });
       })
       .catch((error) => {
+        // Fejlhåndtering hvis brugeroprettelsen fejler
         console.error("Error signing up:", error);
         Alert.alert("Error", error.message);
       });
   };
 
+   // Returnerer UI for oprettelsesskærmen
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Create Account</Text>
@@ -85,22 +92,24 @@ export default function SignUpScreen({ navigation }) {
         value={email}
         onChangeText={(text) => setEmail(text.toLowerCase())}
         style={styles.input}
-        keyboardType="email-address"
-        autoCapitalize="none"
+        keyboardType="email-address" 
+        autoCapitalize="none" 
       />
 
       <TextInput
         placeholder="Password"
         value={password}
-        onChangeText={setPassword}
+        onChangeText={setPassword} // Opdaterer adgangskode når tekst ændres
         style={styles.input}
-        secureTextEntry
+        secureTextEntry // Skjuler adgangskode når der skrives
       />
 
+      {/* Knap til oprettelse af bruger */}
       <TouchableOpacity onPress={handleSignUp} style={styles.button}>
         <Text style={styles.buttonText}>Create</Text>
       </TouchableOpacity>
 
+      {/* Link til login-skærmen */}
       <TouchableOpacity onPress={() => navigation.navigate("Login")}>
         <Text style={styles.loginText}>
           Do you already have an account? Log in
