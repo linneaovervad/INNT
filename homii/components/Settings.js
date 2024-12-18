@@ -44,12 +44,12 @@ export default function Settings() {
   // Funktion til at logge ud
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to log out?", [
-      { text: "Cancel", style: "cancel" },
+      { text: "Cancel", style: "cancel" }, //Cancel-knap
       {
-        text: "Yes",
-        onPress: async () => {
+        text: "Yes", // Yes-knap
+        onPress: async () => { // Håndterer log ud, hvis brugeren vælger "Yes"
           try {
-            await signOut(auth);
+            await signOut(auth); // Firebase-funktion til at logge brugeren ud
             Alert.alert("Success", "you have been logged out.");
           } catch (error) {
             Alert.alert("Error", error.message);
@@ -95,16 +95,17 @@ export default function Settings() {
 
   // Funktion til at håndtere Remove Ads
   const handleRemoveAds = () => {
+    // Viser en dialogboks for at bekræfte om brugeren vil fjerne reklamer
     Alert.alert(
       "Remove Ads",
-      "Do you want to remove ads from the app",
+      "Do you want to remove ads from the app", //brugerbesked
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Proceed",
           onPress: () => {
             const paymentUrl = "https://www.example.com/remove-ads"; // Tredje parts betaling
-            navigation.navigate("PaymentWebView", { url: paymentUrl });
+            navigation.navigate("PaymentWebView", { url: paymentUrl }); // Naviger til en webvisning der håndterer betalingen
           },
         },
       ],
@@ -115,31 +116,36 @@ export default function Settings() {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Settings</Text>
-
+      {/* Indstilling for at slå notifikationer til eller fra */}
       <View style={styles.settingItem}>
-        <Text style={styles.label}>Turn on notifications</Text>
+        <Text style={styles.label}>Turn on notifications</Text> 
         <Switch
-          value={isNotificationsEnabled}
-          onValueChange={toggleNotifications}
+          value={isNotificationsEnabled} // Angiver om notifikationer er slået til
+          onValueChange={toggleNotifications} // Funktion til at ændre notifikationsstatus
         />
       </View>
 
+      {/* Knap til at ændre adgangskode */}
       <View style={styles.settingItem}>
         <Button title="Change password" onPress={handleChangePassword} />
       </View>
 
+      {/* Knap til at slette kontoen */}
       <View style={styles.settingItem}>
         <Button title="Delete account" onPress={handleDeleteAccount} />
       </View>
 
+      {/* Knap til at kontakte support */}
       <View style={styles.settingItem}>
         <Button title="Contact support" onPress={handleContactSupport} />
       </View>
 
+      {/* Knap til at logge ud */}
       <View style={styles.settingItem}>
         <Button title="Log out" onPress={handleLogout} />
       </View>
 
+      {/* Knap til at fjerne reklamer */}
       <View style={styles.settingItem}>
         <Button title="Remove ads" onPress={handleRemoveAds} />
       </View>
@@ -149,8 +155,8 @@ export default function Settings() {
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
-          setModalVisible(!modalVisible);
-          setPassword("");
+          setModalVisible(!modalVisible); // Lukker modal ved tryk på tilbageknap
+          setPassword(""); // Nulstiller adgangskodeinput
         }}
       >
         <View style={styles.modalContainer}>
@@ -158,6 +164,7 @@ export default function Settings() {
             <Text style={styles.modalText}>
               Input password to confirm deletion:
             </Text>
+            {/* Tekstinput til adgangskode */}
             <TextInput
               style={styles.input}
               placeholder="Password"
@@ -167,17 +174,18 @@ export default function Settings() {
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.button, styles.buttonClose]}
+                style={[styles.button, styles.buttonClose]} // Bruger tilpasset stil
                 onPress={() => {
                   setModalVisible(false);
-                  setPassword("");
+                  setPassword(""); // Nulstiller adgangskode
                 }}
               >
                 <Text style={styles.textStyle}>Cancel</Text>
               </TouchableOpacity>
+              {/* Knap til at bekræfte sletning */}
               <TouchableOpacity
-                style={[styles.button, styles.buttonDelete]}
-                onPress={confirmDeleteAccount}
+                style={[styles.button, styles.buttonDelete]} // Bruger tilpasset stil
+                onPress={confirmDeleteAccount} // Funktion til at bekræfte sletning
               >
                 <Text style={styles.textStyle}>Delete</Text>
               </TouchableOpacity>
@@ -185,6 +193,7 @@ export default function Settings() {
           </View>
         </View>
       </Modal>
+      {/* Toast notifikationer */}
       <Toast />
     </View>
   );
