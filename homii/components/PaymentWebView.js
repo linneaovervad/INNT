@@ -8,10 +8,12 @@ export default function PaymentWebView({ route }) { // Modtager route som prop
   return (
     <View style={styles.container}>
       <WebView // Viser en WebView med url fra route
-        source={{ uri: url }}
-        startInLoadingState={true}
+        source={{ uri: url }} // Indlæser URL i WebView
+        startInLoadingState={true} // Viser loading mens siden indlæses
         renderLoading={() => (
-          <ActivityIndicator
+          // Custom loader-komponent under indlæsning
+          <ActivityIndicator 
+          // Stil til loader
             color="#009b88"
             size="large"
             style={styles.loader}
