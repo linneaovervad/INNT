@@ -1,71 +1,71 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator, Image, } from "react-native";
-import { auth, db } from "../firebase";
-import { ref, onValue, remove, update, query,orderByChild, equalTo, } from "firebase/database";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import Toast from "react-native-toast-message";
-import styles from "../styles/HomeStyles"; 
+import React, { useEffect, useState } from "react"; // Importer React, useEffect og useState fra react
+import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator, Image, } from "react-native"; // Importer View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator og Image fra react-native
+import { auth, db } from "../firebase"; // Importer auth og db fra firebase
+import { ref, onValue, remove, update, query,orderByChild, equalTo, } from "firebase/database"; // Importer ref, onValue, remove, update, query, orderByChild, equalTo fra firebase/database
+import Ionicons from "react-native-vector-icons/Ionicons";  // Importer Ionicons fra react-native-vector-icons      
+import Toast from "react-native-toast-message"; // Importer Toast fra react-native-toast-message
+import styles from "../styles/HomeStyles";  // Importer styles fra HomeStyles
 
 
-export default function Home() {
-  const [tasks, setTasks] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [enlargedImageId, setEnlargedImageId] = useState(null); 
+export default function Home() { // Funktion til at vise hjem skærmen
+  const [tasks, setTasks] = useState([]); // State til opgaver
+  const [users, setUsers] = useState([]);  // State til brugere
+  const [loading, setLoading] = useState(true); // State til at vise indlæsningsikon
+  const [enlargedImageId, setEnlargedImageId] = useState(null); // State til at vise forstørret billede
 
-  const userId = auth.currentUser ? auth.currentUser.uid : null;
+  const userId = auth.currentUser ? auth.currentUser.uid : null; // Bruger ID
   
   //Funktion til at ændre billedets størrelse
-  const toggleImageSize = (id) => {
-    setEnlargedImageId(enlargedImageId === id ? null : id); 
+  const toggleImageSize = (id) => { // Funktion til at ændre billedets størrelse
+    setEnlargedImageId(enlargedImageId === id ? null : id); // Ændre billedets størrelse
   };
 
   // Hent opgaver fra databasen
-  useEffect(() => {
-    if (userId) {
-      const choresRef = ref(db, "chores");
-      const userChoresQuery = query(
-        choresRef,
-        orderByChild("assignedTo"),
-        equalTo(userId)
+  useEffect(() => { // Hent opgaver fra databasen
+    if (userId) { // Hvis bruger ID
+      const choresRef = ref(db, "chores"); // Reference til "chores" noden i databasen
+      const userChoresQuery = query( // Opretter en forespørgsel for at hente specifikke opgaver relateret til brugere
+        choresRef, // Opgaver reference 
+        orderByChild("assignedTo"), // Sorter efter tildelt til
+        equalTo(userId) // Lige med bruger ID
       );
-      const unsubscribeChores = onValue(
-        userChoresQuery,
-        (snapshot) => {
-          const data = snapshot.val();
-          const loadedTasks = data
-            ? Object.keys(data).map((key) => ({
-                id: key,
-                ...data[key],
+      const unsubscribeChores = onValue( /// Opsætter en realtime lytter på forespørgslen for brugeropgaver
+        userChoresQuery, // Forespørgsel for at hente brugerens opgaver fra databasen
+        (snapshot) => { // Callback, der køres ved ændringer i databasen
+          const data = snapshot.val();  // Henter alle data fra snapshot som et objekt
+          const loadedTasks = data  // Hvis der er data, behandles opgaverne 
+            ? Object.keys(data).map((key) => ({  // Mapper hver opgaves nøgle og tilhørende data til et objekt
+                id: key, // Tildeler opgavens ID (nøgle)
+                ...data[key], // Spreder de resterende datafelter til objektet
               }))
             : [];
-          setTasks(loadedTasks);
-          setLoading(false);
+          setTasks(loadedTasks); // Indlæste opgaver
+          setLoading(false); // Indlæsning
         },
-        (error) => {
-          console.error("Error fetching tasks:", error);
-          Toast.show({
-            type: "error",
-            text1: "Error",
-            text2: "Couldn't get chores.",
+        (error) => { // Hvis der er en fejl
+          console.error("Error fetching tasks:", error); // Konsol log fejl
+          Toast.show({ // Vis fejlmeddelelse
+            type: "error",  // Type fejl
+            text1: "Error", 
+            text2: "Couldn't get chores.",    
           });
-          setLoading(false);
+          setLoading(false); // Indlæsning
         }
       );
 
       // Hent brugere fra databasen
-      const usersRef = ref(db, "users");
-      const unsubscribeUsers = onValue(
-        usersRef,
-        (snapshot) => {
-          const data = snapshot.val();
-          const usersList = data
-            ? Object.keys(data).map((key) => ({
-                id: key,
-                displayName: data[key].displayName,
+      const usersRef = ref(db, "users"); // Brugere reference
+      const unsubscribeUsers = onValue( // Afbestil brugere
+        usersRef, // Brugere reference
+        (snapshot) => { // Snapshot
+          const data = snapshot.val(); //Henter alle data fra snapshot som et objekt 
+          const usersList = data // Brugere liste
+            ? Object.keys(data).map((key) => ({ // Hvis der er data, så map over data og returner nøgle og data
+                id: key, 
+                displayName: data[key].displayName, // Henter og tildeler brugerens navn fra dataobjektet
               }))
             : [];
-          setUsers(usersList);
+          setUsers(usersList); // Brugere liste
         },
         (error) => {
           console.error("Error fetching users:", error);
@@ -77,35 +77,35 @@ export default function Home() {
         }
       );
 
-      // Clean up
-      return () => {
-        unsubscribeChores();
-        unsubscribeUsers();
+      // Ryd op ved afmontering af komponenten eller ændring af userId
+      return () => { // Returnerer en funktion, der udføres ved oprydning
+        unsubscribeChores();  // Stopper den realtime lytter for brugerens opgaver
+        unsubscribeUsers();  // Stopper den realtime lytter for brugerliste
       };
     }
-  }, [userId]);
+  }, [userId]); // Afhængighed af userId
 
   // Funktion til at slette en opgave
-  const handleDelete = (taskId) => {
-    Alert.alert(
+  const handleDelete = (taskId) => { // Funktion til at slette en opgave 
+    Alert.alert( // Alert dialog
       "Delete Chore",
       "Are you sure you want to delete this chore?",
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Yes",
-          onPress: () => {
-            const taskRef = ref(db, `chores/${taskId}`);
-            remove(taskRef)
-              .then(() => {
+          onPress: () => { // Hvis brugeren trykker på "Yes" for at slette opgaven
+            const taskRef = ref(db, `chores/${taskId}`); // Reference til opgaven i databasen
+            remove(taskRef) // Fjern opgaven fra databasen 
+              .then(() => { // Hvis opgaven er slettet 
                 Toast.show({
                   type: "success",
                   text1: "Success",
                   text2: "Chore deleted.",
                 });
               })
-              .catch((error) => {
-                console.error("Error deleting task:", error);
+              .catch((error) => { // Hvis der er en fejl ved sletning
+                console.error("Error deleting task:", error); // Konsol log fejl 
                 Toast.show({
                   type: "error",
                   text1: "Error",
@@ -120,19 +120,19 @@ export default function Home() {
   };
 
   // Funkiton til at ændre status på en opgave
-  const toggleStatus = (taskId, currentStatus) => {
+  const toggleStatus = (taskId, currentStatus) => { 
     const newStatus = !currentStatus; // Toggle mellem false og true
-    const taskRef = ref(db, `chores/${taskId}`);
-    update(taskRef, { completed: newStatus })
+    const taskRef = ref(db, `chores/${taskId}`); // Reference til opgaven
+    update(taskRef, { completed: newStatus }) // Opdater opgaven med ny status
       .then(() => {
         Toast.show({
           type: "success",
           text1: "Success",
-          text2: `Chore marked as ${newStatus ? "Done" : "Not done"}.`,
+          text2: `Chore marked as ${newStatus ? "Done" : "Not done"}.`,   // Besked om at opgaven er markeret som udført eller ikke udført
         });
       })
-      .catch((error) => {
-        console.error("Error updating chore status:", error);
+      .catch((error) => { // Hvis der er en fejl
+        console.error("Error updating chore status:", error); // Konsol log fejl
         Toast.show({
           type: "error",
           text1: "Error",
@@ -142,16 +142,16 @@ export default function Home() {
   };
 
   // Funktion til at finde brugerens Display navn ud fra ID
-  const getUserName = (userId) => {
-    const user = users.find((u) => u.id === userId);
-    return user ? user.displayName : "Unassigned";
+  const getUserName = (userId) => { 
+    const user = users.find((u) => u.id === userId); // Find bruger ud fra ID
+    return user ? user.displayName : "Unassigned"; // Returner brugerens navn eller "Unassigned" hvis bruger ikke findes
   };
 
   // Funktion til at formatere deadline
-  const renderItem = ({ item }) => {
-    //Formater deadline
-    const deadlineDate = new Date(item.deadline);
-    const formattedDeadline = deadlineDate.toLocaleString([], {
+  const renderItem = ({ item }) => { // Funktion til at formatere opgaver
+    //Formater deadline 
+    const deadlineDate = new Date(item.deadline); // Deadline dato
+    const formattedDeadline = deadlineDate.toLocaleString([], {   // Formater deadline til dato og tid
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -160,70 +160,70 @@ export default function Home() {
     });
 
     // Vis opgaver
-    return (
-      <View style={styles.taskItem}>
+    return ( // Returnerer opgaver
+      <View style={styles.taskItem}>  
         <View style={styles.taskInfo}>
-          <TouchableOpacity onPress={() => toggleStatus(item.id, item.completed)}>
+          <TouchableOpacity onPress={() => toggleStatus(item.id, item.completed)}> {/* Tryk på opgave for at ændre status */}
             <Ionicons
-              name={item.completed ? "checkmark-circle" : "ellipse-outline"}
+              name={item.completed ? "checkmark-circle" : "ellipse-outline"} // Vis ikon afhængig af om opgaven er udført eller ej
               size={24}
               color={item.completed ? "green" : "gray"}
-              style={styles.icon}
+              style={styles.icon} 
             />
-          </TouchableOpacity>
+          </TouchableOpacity> 
           <View style={styles.taskDetails}>
-            <Text style={[styles.taskTitle, item.completed && styles.taskDone]}>
+            <Text style={[styles.taskTitle, item.completed && styles.taskDone]}> {/* Vis opgavens titel */}
               {item.name}
             </Text>
-            <Text style={styles.taskDeadline}>Deadline: {formattedDeadline}</Text>
+            <Text style={styles.taskDeadline}>Deadline: {formattedDeadline}</Text> {/* Vis deadline */}
             <Text style={styles.taskAssigned}>
-              Assigned to: {getUserName(item.assignedTo)}
+              Assigned to: {getUserName(item.assignedTo)} {/* Vis tildelt bruger */}
             </Text>
             {item.description ? (
-              <Text style={styles.taskDescription}>{item.description}</Text>
+              <Text style={styles.taskDescription}>{item.description}</Text> // Vis beskrivelse hvis der er en
             ) : null}
             {item.picture ? (
-              <TouchableOpacity onPress={() => toggleImageSize(item.id)}>
+              <TouchableOpacity onPress={() => toggleImageSize(item.id)}> {/* Tryk på billede for at forstørre */}
                 <Image
-                  source={{ uri: `data:image/jpeg;base64,${item.picture}` }}
-                  style={[
+                  source={{ uri: `data:image/jpeg;base64,${item.picture}` }} // Vis billede
+                  style={[ 
                     styles.choreImage,
-                    enlargedImageId === item.id && styles.enlargedImage]}
-                  resizeMode="cover"
+                    enlargedImageId === item.id && styles.enlargedImage]}   // Forstørre billede
+                  resizeMode="cover" // Dækker hele billede
                 />
               </TouchableOpacity>
-            ) : null}
+            ) : null} {/* Hvis der er et billede */}
           </View>
         </View>
-        <TouchableOpacity onPress={() => handleDelete(item.id)}>
-          <Ionicons name="trash-outline" size={24} color="red" />
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleDelete(item.id)}> {/* Tryk på ikon for at slette opgave */}
+          <Ionicons name="trash-outline" size={24} color="red" /> {/* Vis slet ikon */}
+        </TouchableOpacity> {/* Hvis der er et billede */}
       </View>
     );
   };
 
   if (loading) {
     return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#28B463" />
+      <View style={styles.loaderContainer}> {/* Vis indlæsningsikon */}
+        <ActivityIndicator size="large" color="#28B463" /> {/* Størrelse og farve på indlæsningsikon */}
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container}>  {/* Vis opgaver */}
       {tasks.length === 0 ? (
-        <View style={styles.noTasksContainer}>
-          <Text style={styles.noTasksText}>You have no chores.</Text>
+        <View style={styles.noTasksContainer}> {/* Hvis der ikke er nogen opgaver */}
+          <Text style={styles.noTasksText}>You have no chores.</Text> {/* Vis besked om ingen opgaver */}
         </View>
       ) : (
-        <FlatList
+        <FlatList // Liste over opgaver
           data={tasks.sort(
-            (a, b) => new Date(b.deadline) - new Date(a.deadline)
+            (a, b) => new Date(b.deadline) - new Date(a.deadline) // Sorter opgaver efter deadline
           )}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContainer}
+          keyExtractor={(item) => item.id} // Unik nøgle til hver opgave
+          renderItem={renderItem} // Funktion til at formatere opgaver
+          contentContainerStyle={styles.listContainer} // Stil til liste
         />
       )}
     </View>
