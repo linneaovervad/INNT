@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { ref, onValue } from "firebase/database";
-import { db } from "../firebase";
-import styles from "../styles/MemberItemStyles";
+import React, { useEffect, useState } from "react"; // Importer React, useEffect og useState fra react
+import { View, Text, TouchableOpacity } from "react-native"; // Importer View, Text og TouchableOpacity fra react-native
+import Ionicons from "react-native-vector-icons/Ionicons"; // Importer Ionicons fra react-native-vector-icons
+import { ref, onValue } from "firebase/database"; // Importer ref og onValue fra firebase/database
+import { db } from "../firebase"; // Importer db fra firebase
+import styles from "../styles/MemberItemStyles"; // Importer styles fra MemberItemStyles
 
 export default function MemberItem({ userId, householdId, removeUser }) {
   const [user, setUser] = useState(null);
@@ -11,7 +11,7 @@ export default function MemberItem({ userId, householdId, removeUser }) {
  // Hent brugerens data
   useEffect(() => {
     const userRef = ref(db, `users/${userId}`);
-    const unsubscribeUser = onValue(userRef, (snapshot) => {
+    const unsubscribeUser = onValue(userRef, (snapshot) => { // Lytter efter ændringer i brugerens data
       const data = snapshot.val();
       if (data) {
         setUser(data);

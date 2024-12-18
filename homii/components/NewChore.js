@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react"; // Importer React, useEffect, useState og useRef fra react
 import { Text, TouchableOpacity, View, TextInput, FlatList, Modal, Platform, SafeAreaView, Image, ActivityIndicator, Alert, ScrollView } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { ref, onValue, push } from "firebase/database";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import Ionicons from "react-native-vector-icons/Ionicons"; // Importer Ionicons fra react-native-vector-icons
+import { ref, onValue, push } from "firebase/database"; // Importer ref, onValue og push fra firebase/database
+import DateTimePicker from "@react-native-community/datetimepicker"; // Importer DateTimePicker fra @react-native-community/datetimepicker
+import { CameraView, useCameraPermissions } from "expo-camera"; // Importer CameraView og useCameraPermissions fra expo-camera
 import Toast from "react-native-toast-message";
 import styles from "../styles/NewChoreStyles.js"; 
 
@@ -33,13 +33,13 @@ export default function NewChore({ database }) {
   useEffect(() => {
     (async () => {
       console.log(permission?.status)
-      if (permission?.status === 'undetermined' || permission?.status ==="denied") {
+      if (permission?.status === 'undetermined' || permission?.status ==="denied") { // Hvis tilladelsen er undetermined eller denied
         const result = await requestPermission();
         
         if (result.granted) {
           console.log("Camera permission granted");
         } else {
-          Toast.show({
+          Toast.show({ // Vis en fejlmeddelelse
             type: 'error',
             text1: 'Camera Access Denied',
             text2: 'Please enable camera permissions in your device settings'
@@ -53,12 +53,12 @@ export default function NewChore({ database }) {
 
   // Skift mellem front- og bagkamera
   const toggleCameraType = () => {
-    setType((type) => (type === "back" ? "front" : "back"));
+    setType((type) => (type === "back" ? "front" : "back")); 
   };
 
   // Tag Billede
   const snap = async () => {
-    if (!cameraRef.current) {
+    if (!cameraRef.current) { // Hvis kameraet ikke er tilgængeligt
       console.log("Camera reference is not available");
       return;
     }
@@ -90,14 +90,14 @@ export default function NewChore({ database }) {
       const choresRef = ref(database, "chores");
       // Henter opgaver
       onValue(choresRef, (snapshot) => {
-        const data = snapshot.val();
+        const data = snapshot.val(); // Henter alle opgavedata fra snapshot som et objekt
         const taskList = data
-          ? Object.keys(data).map((key) => ({ id: key, ...data[key] }))
+          ? Object.keys(data).map((key) => ({ id: key, ...data[key] })) // Mapper hver nøgle til et objekt med id og opgavedata
           : [];
-        setChores(taskList);
+        setChores(taskList); // Opdaterer tilstanden med listen over opgaver
       });
 
-      const membersRef = ref(database, "users");
+      const membersRef = ref(database, "users");  // Opretter en reference til "users" noden i databasen
       // Henter medlemmer
       onValue(membersRef, (snapshot) => {
         const data = snapshot.val();
@@ -107,10 +107,10 @@ export default function NewChore({ database }) {
             displayName: data[key].displayName,
           }))
           : [];
-        setHouseholdMembers(membersList);
+        setHouseholdMembers(membersList); // Opdaterer tilstanden med listen over medlemmer
       });
     }
-  }, [database]);
+  }, [database]); // Kører effekten, når databasen ændres
 
   // Tilføj en ny opgave
   const addChore = () => {
@@ -187,8 +187,8 @@ export default function NewChore({ database }) {
     { id: '3', label: 'Always random selection' }
   ]
 
-  const handleSelectAlgorithm = (item) => {
-    setSelectedAlgorithm(item);
+  const handleSelectAlgorithm = (item) => { // Håndterer valg af algoritme
+    setSelectedAlgorithm(item); 
     setShowDropdownAlgorithm(false);
   }
 

@@ -22,7 +22,7 @@ export default function PaymentWebView({ route }) { // Modtager route som prop
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({ // Styles
   container: {
     flex: 1,
   },

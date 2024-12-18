@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import { View, Text, Switch, Button, Alert, Modal, TextInput, TouchableOpacity,} from "react-native"; 
-import { signOut, deleteUser, EmailAuthProvider, reauthenticateWithCredential, } from "firebase/auth"; 
-import { auth, db } from "../firebase"; 
+import React, { useState } from "react"; // Importer React og useState fra react
+import { View, Text, Switch, Button, Alert, Modal, TextInput, TouchableOpacity,} from "react-native"; // Importer View, Text, Switch, Button, Alert, Modal, TextInput og TouchableOpacity fra react-native
+import { signOut, deleteUser, EmailAuthProvider, reauthenticateWithCredential, } from "firebase/auth"; // Importer signOut, deleteUser, EmailAuthProvider og reauthenticateWithCredential fra firebase/auth
+import { auth, db } from "../firebase";  // Importer auth og db fra firebase
 import Toast from "react-native-toast-message"; 
 import { useNavigation } from "@react-navigation/native"; 
 import styles from "../styles/SettingStyles";
 
 // Indstillinger komponent
-export default function Settings() {
-  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [password, setPassword] = useState("");
+export default function Settings() { 
+  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false); // State til notifikationer
+  const [modalVisible, setModalVisible] = useState(false); // State til modal
+  const [password, setPassword] = useState(""); // State til adgangskode
   const navigation = useNavigation(); 
 
   // Funktion til at skifte status for notifikationer
@@ -103,7 +103,7 @@ export default function Settings() {
         { text: "Cancel", style: "cancel" },
         {
           text: "Proceed",
-          onPress: () => {
+          onPress: () => { 
             const paymentUrl = "https://www.example.com/remove-ads"; // Tredje parts betaling
             navigation.navigate("PaymentWebView", { url: paymentUrl }); // Naviger til en webvisning der håndterer betalingen
           },

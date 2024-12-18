@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, } from "react-native";
-import { createUserWithEmailAndPassword, updateProfile, signOut, } from "firebase/auth";
-import { ref, set } from "firebase/database";
-import { auth, db } from "../firebase";
-import Toast from "react-native-toast-message";
-import styles from "../styles/SignUpScreenStyles";
+import React, { useState } from "react"; // Importer React og useState fra react
+import { View, Text, TextInput, TouchableOpacity, Alert, } from "react-native"; // Importer View, Text, TextInput, TouchableOpacity og Alert fra react-native
+import { createUserWithEmailAndPassword, updateProfile, signOut, } from "firebase/auth"; // Importer createUserWithEmailAndPassword, updateProfile og signOut fra firebase/auth
+import { ref, set } from "firebase/database"; // Importer ref og set fra firebase/database
+import { auth, db } from "../firebase"; // Importer auth og db fra firebase
+import Toast from "react-native-toast-message";   // Importer Toast fra react-native-toast-message
+import styles from "../styles/SignUpScreenStyles"; // Importer styles fra SignUpScreenStyles
 
 // Funktionel komponent for SignUpScreen
-export default function SignUpScreen({ navigation }) {
+export default function SignUpScreen({ navigation }) { 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [password, setPassword] = useState(""); // State til adgangskode
+  const [displayName, setDisplayName] = useState(""); // State til brugernavn
 
   // Funktion til at oprette en bruger
   const handleSignUp = () => {

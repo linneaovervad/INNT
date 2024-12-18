@@ -88,7 +88,7 @@ export default function ChatScreen() { // Funktion til at vise chat skærmen
         } else {
           setLoading(false); // Skjul "is typing" bobler
           const chatAIResp = { 
-            _id: Math.random() * (9999999 - 1), // Tilføj chatbot svar til historik
+            _id: Math.random() * (9999999 - 1), // Tilføj chatbot svar til historik 
             text: 'Sorry, I cannot help with it', // Besked hvis chatbot ikke kan hjælpe
             createdAt: new Date(),
             user: {
@@ -144,7 +144,7 @@ export default function ChatScreen() { // Funktion til at vise chat skærmen
   };
 
   // Funktion til at lave send knappen
-  const renderSend = (props) => { 
+  const renderSend = (props) => { // Funktion til at lave send knappen
     return (
       <Send {...props}>
         <View style={{ marginRight: 10, marginBottom: 5 }}> 

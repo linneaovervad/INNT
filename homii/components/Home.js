@@ -13,7 +13,7 @@ export default function Home() { // Funktion til at vise hjem skærmen
   const [loading, setLoading] = useState(true); // State til at vise indlæsningsikon
   const [enlargedImageId, setEnlargedImageId] = useState(null); // State til at vise forstørret billede
 
-  const userId = auth.currentUser ? auth.currentUser.uid : null; // Bruger ID
+  const userId = auth.currentUser ? auth.currentUser.uid : null; // Bruger ID (hvis bruger er logget ind (UID))
   
   //Funktion til at ændre billedets størrelse
   const toggleImageSize = (id) => { // Funktion til at ændre billedets størrelse
@@ -64,7 +64,7 @@ export default function Home() { // Funktion til at vise hjem skærmen
                 id: key, 
                 displayName: data[key].displayName, // Henter og tildeler brugerens navn fra dataobjektet
               }))
-            : [];
+            : []; 
           setUsers(usersList); // Brugere liste
         },
         (error) => {
@@ -94,10 +94,10 @@ export default function Home() { // Funktion til at vise hjem skærmen
         { text: "Cancel", style: "cancel" },
         {
           text: "Yes",
-          onPress: () => { // Hvis brugeren trykker på "Yes" for at slette opgaven
-            const taskRef = ref(db, `chores/${taskId}`); // Reference til opgaven i databasen
-            remove(taskRef) // Fjern opgaven fra databasen 
-              .then(() => { // Hvis opgaven er slettet 
+          onPress: () => { // Hvis brugeren trykker på "Yes" for at slette opgaven, så slettes opgaven
+            const taskRef = ref(db, `chores/${taskId}`); // Reference til opgaven i databasen, som skal slettes
+            remove(taskRef) // Fjern opgaven fra databasen, hvis brugeren bekræfter
+              .then(() => { // Hvis opgaven er slettet, vis en succesmeddelelse
                 Toast.show({
                   type: "success",
                   text1: "Success",
@@ -192,29 +192,29 @@ export default function Home() { // Funktion til at vise hjem skærmen
                   resizeMode="cover" // Dækker hele billede
                 />
               </TouchableOpacity>
-            ) : null} {/* Hvis der er et billede */}
+            ) : null} 
           </View>
         </View>
-        <TouchableOpacity onPress={() => handleDelete(item.id)}> {/* Tryk på ikon for at slette opgave */}
-          <Ionicons name="trash-outline" size={24} color="red" /> {/* Vis slet ikon */}
-        </TouchableOpacity> {/* Hvis der er et billede */}
+        <TouchableOpacity onPress={() => handleDelete(item.id)}>
+          <Ionicons name="trash-outline" size={24} color="red" /> 
+        </TouchableOpacity> 
       </View>
     );
   };
 
   if (loading) {
     return (
-      <View style={styles.loaderContainer}> {/* Vis indlæsningsikon */}
-        <ActivityIndicator size="large" color="#28B463" /> {/* Størrelse og farve på indlæsningsikon */}
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#28B463" /> 
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>  {/* Vis opgaver */}
+    <View style={styles.container}>  
       {tasks.length === 0 ? (
-        <View style={styles.noTasksContainer}> {/* Hvis der ikke er nogen opgaver */}
-          <Text style={styles.noTasksText}>You have no chores.</Text> {/* Vis besked om ingen opgaver */}
+        <View style={styles.noTasksContainer}> 
+          <Text style={styles.noTasksText}>You have no chores.</Text> 
         </View>
       ) : (
         <FlatList // Liste over opgaver

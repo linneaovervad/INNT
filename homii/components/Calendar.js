@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
-import { Calendar } from "react-native-calendars"; 
-import { ref, onValue } from "firebase/database";
-import { db } from "../firebase"; 
-import Toast from "react-native-toast-message"; 
-import styles from "../styles/CalendarStyles"; 
+import React, { useState, useEffect } from "react"; // Importer React, useState og useEffect fra react
+import { View, Text, FlatList, Image, TouchableOpacity } from "react-native"; // Importer View, Text, FlatList, Image og TouchableOpacity fra react-native
+import { Calendar } from "react-native-calendars";  // Importer Calendar fra react-native-calendars
+import { ref, onValue } from "firebase/database"; // Importer ref og onValue fra firebase/database
+import { db } from "../firebase";  // Importer db fra firebase
+import Toast from "react-native-toast-message";   // Importer Toast fra react-native-toast-message
+import styles from "../styles/CalendarStyles";      
 
 // Hovedkomponent for CalendarScreen
 export default function CalendarScreen({ route, navigation }) {
@@ -53,9 +53,9 @@ export default function CalendarScreen({ route, navigation }) {
       if (data) {
         updateChoresFromDatabase(data); // Opdater opgaver og markerede datoer
       } else {
-        setMarkedDates({});
-        setChores([]);
-        setChoresForSelectedDate([]);
+        setMarkedDates({}); // Hvis der ikke er nogen opgaver, nulstil markerede datoer
+        setChores([]); // Hvis der ikke er nogen opgaver, nulstil lister
+        setChoresForSelectedDate([]); // Nulstil opgaver for valgt dato
       }
     });
 
